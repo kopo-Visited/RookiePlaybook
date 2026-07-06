@@ -1,0 +1,92 @@
+# ==========================================
+# 1. Logs & Diagnostics
+# ==========================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# 2. Environment Variables & Spring Boot Secrets (보안 필수!)
+# ==========================================
+# .env files
+.env
+.env.*
+!.env.example
+
+# SSH / SSL Keys & Certificates
+*.pem
+*.key
+
+# Spring Boot Application Configs (민감한 환경별 설정 제외)
+# 주의: 기본 application.yml은 공통 설정을 위해 git에 올리고, 
+# 민감한 정보가 든 로컬/dev/prod 및 secret 파일만 차단합니다.
+application-local.yml
+application-local.properties
+application-dev.yml
+application-dev.properties
+application-prod.yml
+application-prod.properties
+application-secret.yml
+application-secret.properties
+application-*.yml
+application-*.properties
+!application.yml
+!application.properties
+!application-example.yml
+
+# ==========================================
+# 3. Frontend (Vite / React / Node.js)
+# ==========================================
+node_modules
+dist
+dist-ssr
+*.local
+.npm
+.eslintcache
+
+# ==========================================
+# 4. Backend (Java / Spring Boot / Gradle / Maven)
+# ==========================================
+# Compiled class files
+*.class
+
+# Package Files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Build results & Caches
+build/
+target/
+out/
+bin/
+.gradle/
+
+# Keep wrapper files (프로젝트 팀원간 빌드 도구 버전 동기화용)
+!gradle/wrapper/gradle-wrapper.jar
+!gradle-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# ==========================================
+# 5. Editor & OS (IDE 및 운영체제 임시 파일)
+# ==========================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.iws
+*.iml
+*.ipr
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
