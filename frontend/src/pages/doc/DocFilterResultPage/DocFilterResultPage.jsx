@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './DocFilterResultPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
+import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { ALL_DOCS } from '../../../constants/docData';
@@ -58,6 +59,7 @@ function DocFilterResultPage() {
   const [contentTypeOpen, setContentTypeOpen] = useState(false);
   const [sortOpen, setSortOpen]               = useState(false);
   const [selectedDoc, setSelectedDoc]         = useState(null);
+  const [questionOpen, setQuestionOpen]       = useState(false);
 
   const filteredData = useMemo(() => {
     let list = ALL_DOCS.filter(d => d.dept === selectedDept);
@@ -303,7 +305,7 @@ function DocFilterResultPage() {
             </ul>
             <div className={styles.faqActions}>
               <button className={styles.btnPrimary}>AI에게 물어보기</button>
-              <button className={styles.btnOutline}>질문하기</button>
+              <button className={styles.btnOutline} onClick={() => setQuestionOpen(true)}>질문하기</button>
             </div>
           </section>
         </aside>
@@ -311,6 +313,9 @@ function DocFilterResultPage() {
 
       {selectedDoc && (
         <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
+      )}
+      {questionOpen && (
+        <QnaQuestionModal onClose={() => setQuestionOpen(false)} />
       )}
     </div>
   );
