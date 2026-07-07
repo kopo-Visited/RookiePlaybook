@@ -12,6 +12,18 @@ export const BADGE_SIZES = {
   MD: 'md',
 };
 
+export const BUTTON_VARIANTS = {
+  PRIMARY: 'primary',
+  SECONDARY: 'secondary',
+  DANGER: 'danger',
+};
+
+export const BUTTON_SIZES = {
+  SMALL: 'small',
+  MEDIUM: 'medium',
+  LARGE: 'large',
+};
+
 export const DOC_TYPES = {
   DOCU: 'DOCU',
   DOCX: 'DOCX',
