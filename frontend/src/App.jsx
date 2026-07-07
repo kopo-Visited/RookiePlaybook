@@ -3,12 +3,12 @@ import useAuthStore from './stores/authStore';
 import { ROUTES } from './constants/routes';
 
 function PrivateRoute() {
-  const token = useAuthStore((state) => state.token);
+  const token = useAuthStore(state => state.token);
   return token ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />;
 }
 
 function AdminRoute() {
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore(state => state.user);
   const isAdmin = user?.role === 'ROLE_ADMIN';
   return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
 }
