@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
+import chatbotImg from '../../assets/chatbot.png';
 
 function IconHome() {
   return (
@@ -118,6 +119,7 @@ function Layout() {
         </nav>
 
         <div className={styles.helpCard}>
+          <img src={chatbotImg} alt="AI 챗봇" className={styles.helpImg} />
           <p className={styles.helpTitle}>AI 챗봇이 도와드릴까요?</p>
           <p className={styles.helpDesc}>궁금한 내용을 바로 질문하고 정보를 빠르게 안내 받아 보세요.</p>
           <button className={styles.helpBtn}>

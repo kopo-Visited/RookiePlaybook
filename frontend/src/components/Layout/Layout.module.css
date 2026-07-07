@@ -75,6 +75,14 @@
   margin: 4px 0;
 }
 
+.helpImg {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 10px;
+}
+
 .helpCard {
   margin: auto 20px 24px;
   background: linear-gradient(180deg, #F7F9FE 0%, #EEF3FB 100%);
