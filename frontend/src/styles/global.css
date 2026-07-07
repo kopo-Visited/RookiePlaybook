@@ -12,6 +12,10 @@
   --color-primary-dark-bg: #E7F2FF;
 
   /* Semantic */
+  --color-red: #F03E5C;
+  --color-red-bg: #FFE5EA;
+  --color-amber: #F08C00;
+  --color-amber-bg: #FFF0DB;
   --color-green: #12B886;
   --color-green-bg: #E6F8F2;
   --color-pink: #FF4D94;
