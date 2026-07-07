@@ -283,6 +283,8 @@
   vertical-align: middle;
 }
 .table tbody tr:last-child td { border-bottom: none; }
+.tableRow { cursor: pointer; }
+.tableRow:hover td { background: #F7F9FC; }
 
 .titleCell {
   display: flex;
