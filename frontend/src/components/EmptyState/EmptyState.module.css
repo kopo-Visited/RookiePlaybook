@@ -1,0 +1,13 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 40px;
+  gap: 8px;
+}
+
+.message {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}

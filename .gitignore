@@ -16,6 +16,7 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+!.env.production
 
 # SSH / SSL Keys & Certificates
 *.pem
@@ -76,7 +77,12 @@ bin/
 !.mvn/wrapper/maven-wrapper.properties
 
 # ==========================================
-# 5. Editor & OS (IDE 및 운영체제 임시 파일)
+# 5. Documents (내부 문서 - git 제외)
+# ==========================================
+docs/*.pdf
+
+# ==========================================
+# 6. Editor & OS (IDE 및 운영체제 임시 파일)
 # ==========================================
 .vscode/*
 !.vscode/extensions.json

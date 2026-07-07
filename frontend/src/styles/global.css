@@ -1,0 +1,83 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Primary */
+  --color-primary: #2288FF;
+  --color-primary-bg: #EAF4FF;
+  --color-primary-dark: #1C7ED6;
+  --color-primary-dark-bg: #E7F2FF;
+
+  /* Semantic */
+  --color-green: #12B886;
+  --color-green-bg: #E6F8F2;
+  --color-pink: #FF4D94;
+  --color-pink-bg: #FFF0F6;
+  --color-orange: #FFAD33;
+  --color-orange-bg: #FFF5E6;
+  --color-purple: #8B6CFF;
+  --color-purple-bg: #F1EDFF;
+
+  /* Text */
+  --color-text-title: #172033;
+  --color-text-body: #253049;
+  --color-text-secondary: #6F7B91;
+  --color-text-label: #5E6B82;
+  --color-text-nav: #4A5568;
+
+  /* Background */
+  --color-bg-page: #F4F6F9;
+  --color-bg-white: #FFFFFF;
+
+  /* Border */
+  --color-border: #E8EDF5;
+  --color-border-input: #D9E1EB;
+
+  /* Shadow */
+  --shadow-card: 0px 10px 30px rgba(33, 45, 70, 0.05);
+
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-bg-page);
+  color: var(--color-text-body);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
