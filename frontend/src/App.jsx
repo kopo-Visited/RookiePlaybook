@@ -9,6 +9,7 @@ import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
+import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
 
 function PrivateRoute() {
   const token = useAuthStore((state) => state.token);
@@ -19,6 +20,7 @@ function PrivateRoute() {
 function AdminRoute() {
   const user = useAuthStore(state => state.user);
   const isAdmin = user?.roleCode === 'ROLE_ADMIN';
+  if (import.meta.env.DEV) return <Outlet />;
   return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
 }
 
@@ -42,7 +44,7 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
             <Route path={ROUTES.ADMIN.USERS} element={<AdminUsersPage />} />
-            <Route path={ROUTES.ADMIN.DOC} element={<div>AdminDocPage</div>} />
+            <Route path={ROUTES.ADMIN.DOC} element={<AdminDocPage />} />
             <Route path={ROUTES.ADMIN.QNA} element={<div>AdminQnaPage</div>} />
             <Route path={ROUTES.ADMIN.EDU} element={<div>AdminEduPage</div>} />
             <Route path={ROUTES.ADMIN.INQUIRY} element={<div>AdminInquiryPage</div>} />

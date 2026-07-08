@@ -1,0 +1,482 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+/* ── topbar ── */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pageTitle {
+  font-size: 24px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.6px;
+  line-height: 29px;
+}
+.pageSubtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6F7B91;
+  line-height: 16px;
+}
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 280px;
+  height: 44px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #E8EDF5;
+  box-shadow: 0px 4px 16px rgba(33, 45, 70, 0.04);
+  border-radius: 12px;
+}
+.searchIcon {
+  color: #A0AEC0;
+  display: flex;
+  align-items: center;
+}
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #172033;
+  background: transparent;
+}
+.searchInput::placeholder {
+  color: #A0AEC0;
+}
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: #172033;
+}
+.userText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.userName {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 17px;
+}
+.userRole {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6F7B91;
+  line-height: 14px;
+}
+
+/* ── stats ── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.statCard {
+  background: #FFFFFF;
+  border: 1px solid #E8EDF5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 148px;
+}
+.statBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statLabel {
+  font-size: 15px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 18px;
+}
+.statValue {
+  font-size: 32px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.8px;
+  line-height: 38px;
+  margin-top: 8px;
+}
+.statSub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14px;
+  margin-top: 4px;
+}
+.statIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+/* ── table card ── */
+.tableCard {
+  background: #FFFFFF;
+  border: 1px solid #E8EDF5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.4px;
+  line-height: 22px;
+}
+.sectionSubtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6F7B91;
+  line-height: 16px;
+  margin-top: 4px;
+}
+.headerBtns {
+  display: flex;
+  gap: 12px;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 18px;
+  background: #FFFFFF;
+  border: 1px solid #CFE4FF;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #2288FF;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 18px;
+  background: #2288FF;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── filters ── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.searchWrap {
+  flex: 1;
+  max-width: 300px;
+}
+.filterSearch {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  background: #FFFFFF;
+  border: 1px solid #D7E1EF;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.filterSearch::placeholder {
+  color: #637087;
+}
+.filterSelect {
+  height: 44px;
+  padding: 0 12px;
+  background: #FFFFFF;
+  border: 1px solid #D7E1EF;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #637087;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  min-width: 120px;
+}
+.resetBtn {
+  height: 40px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #E8EDF5;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #637087;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── table ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table thead tr {
+  background: #F6F8FB;
+}
+.table th {
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #8A96AA;
+  text-align: left;
+  white-space: nowrap;
+}
+.table td {
+  padding: 0;
+  border-bottom: 1px solid #E8EDF5;
+  height: 54px;
+  vertical-align: middle;
+}
+.table td > * {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.titleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+}
+.mustBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: #EAF4FF;
+  color: #2288FF;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.docTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.textCell {
+  font-size: 14px;
+  font-weight: 400;
+  color: #526078;
+}
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #FFFFFF;
+  border: 1px solid #D7E1EF;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #526078;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+/* ── bottom ── */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.bottomCard {
+  background: #FFFFFF;
+  border: 1px solid #E8EDF5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.totalBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #8A96AA;
+}
+.totalDot {
+  width: 8px;
+  height: 8px;
+  background: #2288FF;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* bar chart */
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.barLabel {
+  width: 72px;
+  font-size: 14px;
+  color: #526078;
+  flex-shrink: 0;
+}
+.barTrack {
+  flex: 1;
+  height: 14px;
+  background: #EEF3F9;
+  border-radius: 7px;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #78ABFF 0%, #2288FF 100%);
+  border-radius: 7px;
+}
+.barCount {
+  width: 36px;
+  font-size: 13px;
+  color: #8A96AA;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* stale docs */
+.staleList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.staleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FAFCFF;
+  border: 1px solid #E8EDF5;
+  border-radius: 14px;
+  padding: 17px;
+}
+.staleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.staleTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+}
+.staleMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6F7B91;
+}
+.staleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: #FFF5E6;
+  color: #F08C00;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
