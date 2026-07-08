@@ -121,8 +121,8 @@
   align-items: center;
   gap: 26px;
   min-width: 0;
-  padding: 0 24px;
-  height: 138px;
+  padding: 24px;
+  min-height: 138px;
 }
 
 .statInfo {
@@ -166,6 +166,7 @@
   font-size: 14.1px;
   font-weight: 900;
   color: #283146;
+  white-space: nowrap;
 }
 
 .statValue {
@@ -173,12 +174,14 @@
   font-weight: 900;
   letter-spacing: -0.5px;
   color: #172033;
+  white-space: nowrap;
 }
 
 .statFooter {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .statDelta {
@@ -740,6 +743,12 @@
   }
 
   .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .statGrid {
     grid-template-columns: 1fr;
   }
 }
