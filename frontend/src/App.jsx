@@ -4,6 +4,7 @@ import { ROUTES } from './constants/routes';
 import Layout from './components/Layout/Layout';
 import AdminLayout from './components/AdminLayout/AdminLayout';
 import LoginPage from './pages/auth/LoginPage/LoginPage';
+import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
 
@@ -27,6 +28,7 @@ function App() {
 
         <Route element={<PrivateRoute />}>
           <Route element={<Layout />}>
+            <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DOC.LIST} element={<DocListPage />} />
             <Route path={ROUTES.DOC.DEPT} element={<DocFilterResultPage />} />
             <Route path={ROUTES.QNA.LIST} element={<div>QnaListPage</div>} />
@@ -46,7 +48,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path="/" element={<Navigate to={ROUTES.DOC.LIST} replace />} />
+        <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
       </Routes>
     </BrowserRouter>
   );
