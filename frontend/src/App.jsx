@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import useAuthStore from './stores/authStore';
 import { ROUTES } from './constants/routes';
 import Layout from './components/Layout/Layout';
+import AdminLayout from './components/AdminLayout/AdminLayout';
+import LoginPage from './pages/auth/LoginPage/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
@@ -13,8 +15,8 @@ function PrivateRoute() {
 }
 
 function AdminRoute() {
-  const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.role === 'ROLE_ADMIN';
+  const user = useAuthStore(state => state.user);
+  const isAdmin = user?.roleCode === 'ROLE_ADMIN';
   return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
 }
 
@@ -22,7 +24,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path={ROUTES.LOGIN} element={<div>LoginPage (준비 중)</div>} />
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
         <Route element={<PrivateRoute />}>
           <Route element={<Layout />}>
@@ -35,7 +37,15 @@ function App() {
         </Route>
 
         <Route element={<AdminRoute />}>
-          <Route path={ROUTES.ADMIN.DOC} element={<div>AdminDocPage</div>} />
+          <Route element={<AdminLayout />}>
+            <Route path={ROUTES.ADMIN.DASHBOARD} element={<div>AdminDashboardPage</div>} />
+            <Route path={ROUTES.ADMIN.USERS} element={<div>AdminUsersPage</div>} />
+            <Route path={ROUTES.ADMIN.DOC} element={<div>AdminDocPage</div>} />
+            <Route path={ROUTES.ADMIN.QNA} element={<div>AdminQnaPage</div>} />
+            <Route path={ROUTES.ADMIN.EDU} element={<div>AdminEduPage</div>} />
+            <Route path={ROUTES.ADMIN.INQUIRY} element={<div>AdminInquiryPage</div>} />
+            <Route path={ROUTES.ADMIN.SETTINGS} element={<div>AdminSettingsPage</div>} />
+          </Route>
         </Route>
 
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
