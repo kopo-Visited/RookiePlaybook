@@ -2,23 +2,10 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './DocFilterResultPage.module.css';
 import Badge from '../../../components/Badge/Badge';
+import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
 import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
-
-const ALL_DOCS = [
-  { id: 1,  type: 'DOCU', required: true,  title: '개발 환경 세팅 가이드',               dept: '개발',    direction: '프로젝트 참여 전 환경 구성',   category: '문서',       date: '2026.07.06', views: 312 },
-  { id: 2,  type: 'DOCX', required: false, title: 'Git 브랜치 전략 및 PR 작성 규칙',       dept: '개발',    direction: '협업 규칙과 코드 관리',         category: '가이드',     date: '2026.07.02', views: 205 },
-  { id: 3,  type: 'DOCU', required: false, title: '프로젝트 실행 오류 해결 FAQ',            dept: '개발',    direction: '자주 나는 에러 Top 3',          category: 'FAQ',        date: '2026.06.30', views: 178 },
-  { id: 4,  type: 'DOCX', required: false, title: 'API 명세 확인 및 테스트 방법',           dept: '개발',    direction: 'Swagger/Postman 사용법',        category: '가이드',     date: '2026.06.25', views: 143 },
-  { id: 5,  type: 'PDF',  required: true,  title: '서버 접속 절차 및 Linux 기본 명령어',   dept: '인프라',  direction: '안전한 서버 접속',              category: '문서',       date: '2026.06.28', views: 289 },
-  { id: 6,  type: 'PPTX', required: false, title: '배포 전 체크리스트와 로그 확인 방법',   dept: '인프라',  direction: '배포와 장애 대응',              category: '체크리스트', date: '2026.06.24', views: 97  },
-  { id: 7,  type: 'DOCX', required: false, title: '쿠버네티스 기본 운영 가이드',            dept: '인프라',  direction: '컨테이너 오케스트레이션',       category: '가이드',     date: '2026.06.18', views: 134 },
-  { id: 8,  type: 'PDF',  required: true,  title: '계정 보안과 권한 신청 절차',            dept: '보안',    direction: '계정·권한·개인정보 보호',       category: '문서',       date: '2026.06.20', views: 261 },
-  { id: 9,  type: 'DOCU', required: false, title: 'ChatGPT / 생성형 AI 안전 사용 가이드', dept: '보안',    direction: '사내 정보 유출 예방',           category: 'FAQ',        date: '2026.06.16', views: 188 },
-  { id: 10, type: 'DOCX', required: true,  title: 'VPN 접속 방법 및 오류 해결 가이드',    dept: '네트워크', direction: '사내망·VPN 접속',             category: '가이드',     date: '2026.06.12', views: 320 },
-  { id: 11, type: 'XLSX', required: false, title: '방화벽 포트 오픈 요청 템플릿',          dept: '네트워크', direction: '요청 절차 표준화',            category: '템플릿',     date: '2026.06.08', views: 76  },
-  { id: 12, type: 'DOCU', required: false, title: '회사 소개와 협업툴 계정 설정',          dept: '공통',    direction: '입사 후 기본 적응',             category: '온보딩',     date: '2026.06.04', views: 155 },
-];
+import { ALL_DOCS } from '../../../constants/docData';
 
 const DEPT_OPTIONS         = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
 const CONTENT_TYPE_OPTIONS = ['전체', '문서', 'FAQ'];
@@ -70,6 +57,7 @@ function DocFilterResultPage() {
   const [deptOpen, setDeptOpen]               = useState(false);
   const [contentTypeOpen, setContentTypeOpen] = useState(false);
   const [sortOpen, setSortOpen]               = useState(false);
+  const [selectedDoc, setSelectedDoc]         = useState(null);
 
   const filteredData = useMemo(() => {
     let list = ALL_DOCS.filter(d => d.dept === selectedDept);
@@ -262,23 +250,23 @@ function DocFilterResultPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map(({ id, type, required, title, dept: rowDept, direction, category, date }) => (
-                <tr key={id}>
+              {filteredData.map(doc => (
+                <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
                   <td>
                     <div className={styles.titleCell}>
-                      <Badge colorKey={DOC_TYPE_COLOR[type]}>{type}</Badge>
-                      <span className={styles.titleText}>{title}</span>
-                      {required && (
+                      <Badge colorKey={DOC_TYPE_COLOR[doc.type]}>{doc.type}</Badge>
+                      <span className={styles.titleText}>{doc.title}</span>
+                      {doc.required && (
                         <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>필수</Badge>
                       )}
                     </div>
                   </td>
                   <td>
-                    <Badge colorKey={DEPT_COLOR[rowDept]} size={BADGE_SIZES.SM}>{rowDept}</Badge>
+                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>{doc.dept}</Badge>
                   </td>
-                  <td><span className={styles.secondary}>{direction}</span></td>
-                  <td><span className={styles.secondary}>{category}</span></td>
-                  <td><span className={styles.secondary}>{date}</span></td>
+                  <td><span className={styles.secondary}>{doc.direction}</span></td>
+                  <td><span className={styles.secondary}>{doc.category}</span></td>
+                  <td><span className={styles.secondary}>{doc.date}</span></td>
                 </tr>
               ))}
             </tbody>
@@ -320,6 +308,10 @@ function DocFilterResultPage() {
           </section>
         </aside>
       </div>
+
+      {selectedDoc && (
+        <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
+      )}
     </div>
   );
 }
