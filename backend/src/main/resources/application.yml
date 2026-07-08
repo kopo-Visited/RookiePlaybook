@@ -1,3 +1,25 @@
 spring:
   application:
-    name: backend
+    name: backendgit
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:rookie_playbook}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+
+server:
+  port: ${SERVER_PORT:8080}
