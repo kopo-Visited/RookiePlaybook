@@ -38,6 +38,11 @@ public class AdminUserService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse getMyInfo(Long userId) {
+        return UserResponse.from(getUserEntity(userId));
+    }
+
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");

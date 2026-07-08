@@ -78,7 +78,7 @@ function Layout() {
   const user = useAuthStore(state => state.user);
 
   const displayName = user?.name ?? '윤정연';
-  const displayDept = user ? `${user.dept} · ${user.role}` : '인사팀 · 사원';
+  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
 
   return (

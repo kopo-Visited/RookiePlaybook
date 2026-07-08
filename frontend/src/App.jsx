@@ -12,15 +12,13 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardP
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
 
 function PrivateRoute() {
-  const token = useAuthStore((state) => state.token);
-  if (import.meta.env.DEV) return <Outlet />;
+  const token = useAuthStore(state => state.token);
   return token ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />;
 }
 
 function AdminRoute() {
   const user = useAuthStore(state => state.user);
   const isAdmin = user?.roleCode === 'ROLE_ADMIN';
-  if (import.meta.env.DEV) return <Outlet />;
   return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
 }
 
