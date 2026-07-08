@@ -3,7 +3,7 @@ import styles from './LoginPage.module.css';
 import Button from '../../../components/Button/Button';
 import useLogin from '../../../hooks/auth/useLogin';
 import { BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
-import heroImg from '../../../assets/hero.png';
+import heroImg from '../../../assets/login_screen.png';
 
 const FEATURES = [
   {
@@ -23,6 +23,33 @@ const FEATURES = [
     title: '학습 현황 분석',
     desc: '학습 진행률과 참여도를 한눈에 확인',
     icon: <IconChart />,
+  },
+];
+
+const NOTICES = [
+  { id: 1, title: '5월 온보딩 교육 일정 안내', date: '2024.05.17' },
+  { id: 2, title: '정보보안 교육 이수 안내', date: '2024.05.10' },
+  { id: 3, title: '시스템 점검 안내 (5/26)', date: '2024.05.28' },
+];
+
+const QUICK_LINKS = [
+  {
+    key: 'guide',
+    title: '이용 가이드',
+    desc: '서비스 사용 방법 안내',
+    icon: <IconHelpCircle />,
+  },
+  {
+    key: 'faq',
+    title: '자주 묻는 질문',
+    desc: '자주 묻는 질문과 답변',
+    icon: <IconChat />,
+  },
+  {
+    key: 'contact',
+    title: '문의하기',
+    desc: '기타 문의 및 요청',
+    icon: <IconHeadset />,
   },
 ];
 
@@ -101,6 +128,55 @@ function IconAlertCircle() {
   );
 }
 
+function IconHelpCircle() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M9.5 9a2.5 2.5 0 114.2 1.8c-.6.6-1.7 1-1.7 2.2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="16.3" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
+function IconChat() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 12a8 8 0 1114.6 4.5L20 20l-4-1.1A8 8 0 014 12z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconHeadset() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 13v-1a8 8 0 0116 0v1"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <rect x="2.5" y="13" width="4" height="6" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="17.5" y="13" width="4" height="6" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M20 19a4 4 0 01-4 3h-1"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function IconEye({ hidden }) {
   if (hidden) {
     return (
@@ -143,24 +219,81 @@ function LoginPage() {
   return (
     <div className={styles.page}>
       <section className={styles.brandPanel}>
-        <div className={styles.brandHeader}>
-          <p className={styles.brandTagline}>사내 지식 공유 및 온보딩 교육 플랫폼</p>
-          <h1 className={styles.brandTitle}>신입의 정석</h1>
+        <div className={styles.heroRow}>
+          <div className={styles.brandHeader}>
+            <p className={styles.brandTagline}>사내 지식 공유 및 온보딩 교육 플랫폼</p>
+            <h1 className={styles.brandTitle}>신입의 정석</h1>
+            <p className={styles.brandDesc}>
+              회사 구성원의 지식과 경험을 연결하고, 체계적인 온보딩 교육으로 빠른 적응과 성장을
+              지원합니다.
+            </p>
+          </div>
+          <img src={heroImg} alt="" className={styles.heroImage} />
         </div>
 
-        <img src={heroImg} alt="" className={styles.brandImage} />
-
-        <div className={styles.featureSection}>
-          <h2 className={styles.featureSectionTitle}>주요 기능</h2>
+        <section className={styles.featureSection}>
+          <h2 className={styles.sectionTitle}>주요 기능</h2>
           <div className={styles.featureGrid}>
             {FEATURES.map(({ key, title, desc, icon }) => (
-              <div key={key} className={styles.featureCard}>
+              <div key={key} className={styles.featureItem}>
                 <div className={styles.featureIcon}>{icon}</div>
-                <span className={styles.featureCardTitle}>{title}</span>
-                <p className={styles.featureCardDesc}>{desc}</p>
+                <span className={styles.featureItemTitle}>{title}</span>
+                <p className={styles.featureItemDesc}>{desc}</p>
               </div>
             ))}
           </div>
+        </section>
+
+        <div className={styles.previewGrid}>
+          <section className={styles.previewCard}>
+            <div className={styles.previewCardHead}>
+              <span className={styles.previewCardTitle}>공지사항</span>
+              <span className={styles.moreLink}>더보기 ›</span>
+            </div>
+            <ul className={styles.noticeList}>
+              {NOTICES.map(({ id, title, date }) => (
+                <li key={id} className={styles.noticeItem}>
+                  <span className={styles.noticeDot} />
+                  <span className={styles.noticeTitle}>{title}</span>
+                  <span className={styles.noticeDate}>{date}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className={styles.previewCard}>
+            <div className={styles.previewCardHead}>
+              <span className={styles.previewCardTitle}>빠른 도움말</span>
+              <span className={styles.moreLink}>더보기 ›</span>
+            </div>
+            <ul className={styles.quickLinkList}>
+              {QUICK_LINKS.map(({ key, title, desc, icon }) => (
+                <li key={key} className={styles.quickLinkItem}>
+                  <span className={styles.quickLinkIcon}>{icon}</span>
+                  <span className={styles.quickLinkBody}>
+                    <span className={styles.quickLinkTitle}>{title}</span>
+                    <span className={styles.quickLinkDesc}>{desc}</span>
+                  </span>
+                  <span className={styles.quickLinkChevron}>›</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className={styles.previewCard}>
+            <div className={styles.previewCardHead}>
+              <span className={styles.previewCardTitle}>온보딩 미리보기</span>
+            </div>
+            <div className={styles.onboardingPreview}>
+              <span className={styles.onboardingPreviewTitle}>신입 입문 과정</span>
+              <p className={styles.onboardingPreviewDesc}>회사 및 조직, 주요 업무 프로세스 이해</p>
+              <div className={styles.progressTrack}>
+                <div className={styles.progressFill} />
+              </div>
+              <span className={styles.progressLabel}>이수율 24%</span>
+              <span className={styles.previewButton}>과정 자세히 보기</span>
+            </div>
+          </section>
         </div>
 
         <div className={styles.securityBanner}>
@@ -230,7 +363,6 @@ function LoginPage() {
                   checked={rememberMe}
                   onChange={e => setRememberMe(e.target.checked)}
                 />
-                <span className={styles.checkboxBox} />
                 로그인 상태 유지
               </label>
             </div>
