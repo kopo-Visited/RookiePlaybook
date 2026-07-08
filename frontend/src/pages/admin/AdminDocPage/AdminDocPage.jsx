@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDocPage.module.css';
 import useAuthStore from '../../../stores/authStore';
+import AdminDocModal from './AdminDocModal';
 
 const STAT_CARDS = [
   {
@@ -209,6 +210,7 @@ function AdminDocPage() {
   const [deptFilter, setDeptFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
 
   const filtered = DOC_ROWS.filter(row => {
     const matchSearch = !search || row.title.includes(search) || row.category.includes(search);
@@ -265,7 +267,7 @@ function AdminDocPage() {
           </div>
           <div className={styles.headerBtns}>
             <button className={styles.btnOutline}>+ FAQ 등록</button>
-            <button className={styles.btnPrimary}>+ 문서 등록</button>
+            <button className={styles.btnPrimary} onClick={() => setModalOpen(true)}>+ 문서 등록</button>
           </div>
         </div>
 
@@ -405,6 +407,7 @@ function AdminDocPage() {
           </div>
         </div>
       </div>
+      {modalOpen && <AdminDocModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 }
