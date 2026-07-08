@@ -247,54 +247,88 @@ function StatCard({ label, value, delta, deltaDirection, colorKey, icon, to, onN
   return (
     <button type="button" className={styles.statCard} onClick={() => onNavigate(to)}>
       <div className={`${styles.statIcon} ${styles[colorKey]}`}>{icon}</div>
-      <span className={styles.statLabel}>{label}</span>
-      <span className={styles.statValue}>{value}</span>
-      <div className={styles.statFooter}>
-        <span
-          className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
-        >
-          {delta}
-        </span>
-        <span className={styles.statDeltaCaption}>지난주 대비</span>
+      <div className={styles.statInfo}>
+        <span className={styles.statLabel}>{label}</span>
+        <span className={styles.statValue}>{value}</span>
+        <div className={styles.statFooter}>
+          <span
+            className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
+          >
+            {delta}
+          </span>
+          <span className={styles.statDeltaCaption}>지난주 대비</span>
+        </div>
       </div>
     </button>
   );
 }
 
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const angleRad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
+}
+
+function describeDonutSegment(cx, cy, outerR, innerR, startAngle, endAngle) {
+  const startOuter = polarToCartesian(cx, cy, outerR, endAngle);
+  const endOuter = polarToCartesian(cx, cy, outerR, startAngle);
+  const startInner = polarToCartesian(cx, cy, innerR, startAngle);
+  const endInner = polarToCartesian(cx, cy, innerR, endAngle);
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+  return [
+    'M',
+    startOuter.x,
+    startOuter.y,
+    'A',
+    outerR,
+    outerR,
+    0,
+    largeArc,
+    0,
+    endOuter.x,
+    endOuter.y,
+    'L',
+    startInner.x,
+    startInner.y,
+    'A',
+    innerR,
+    innerR,
+    0,
+    largeArc,
+    1,
+    endInner.x,
+    endInner.y,
+    'Z',
+  ].join(' ');
+}
+
 function DonutChart({ data, size = 200 }) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
-  const radius = size / 2 - 10;
-  const circumference = 2 * Math.PI * radius;
-  let offset = 0;
+  const center = size / 2;
+  const outerR = size / 2 - 6;
+  const innerR = outerR - size * 0.18;
+  const gapDeg = 2;
+  let angle = 0;
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
-      <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
-        {data.map(({ key, value, color, label }) => {
-          const ratio = value / total;
-          const segmentLength = ratio * circumference;
-          const dashArray = `${segmentLength} ${circumference - segmentLength}`;
-          const dashOffset = -offset;
-          offset += segmentLength;
-          return (
-            <circle
-              key={key}
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke={color}
-              strokeWidth={size * 0.18}
-              strokeDasharray={dashArray}
-              strokeDashoffset={dashOffset}
-            >
-              <title>
-                {label} {value.toLocaleString()}
-              </title>
-            </circle>
-          );
-        })}
-      </g>
+      {data.map(({ key, value, color, label }) => {
+        const sweep = (value / total) * 360;
+        const start = angle + gapDeg / 2;
+        const end = angle + sweep - gapDeg / 2;
+        angle += sweep;
+        return (
+          <path
+            key={key}
+            d={describeDonutSegment(center, center, outerR, innerR, start, end)}
+            fill={color}
+          >
+            <title>
+              {label} {value.toLocaleString()}
+            </title>
+          </path>
+        );
+      })}
     </svg>
   );
 }

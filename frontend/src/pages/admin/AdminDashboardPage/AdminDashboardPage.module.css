@@ -1,7 +1,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   min-width: 0;
 }
 
@@ -112,20 +112,20 @@
 .statGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 16px;
 }
 
 .statCard {
   composes: card from '../../../styles/common.module.css';
   position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 26px;
   width: 100%;
   min-width: 0;
   text-align: left;
-  padding: 24px;
-  min-height: 138px;
+  padding: 0 24px;
+  height: 138px;
   transition: box-shadow 0.15s;
 }
 
@@ -133,14 +133,21 @@
   box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.12);
 }
 
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
 .statIcon {
   width: 70px;
   height: 70px;
-  border-radius: 50px;
+  flex-shrink: 0;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
 }
 
 .statIcon.blue {
@@ -164,20 +171,16 @@
 }
 
 .statLabel {
-  display: block;
   font-size: 14.1px;
   font-weight: 900;
   color: #283146;
-  margin-bottom: 4px;
 }
 
 .statValue {
-  display: block;
   font-size: 29.1px;
   font-weight: 900;
   letter-spacing: -0.5px;
   color: #172033;
-  margin-bottom: 10px;
 }
 
 .statFooter {
@@ -200,11 +203,16 @@
   color: #8a94a6;
 }
 
-/* ── Mid grid: users table + 2 donuts ── */
+/* ── Mid grid: users table + 2 donuts ──
+   Shares the statGrid's 4-column track so the two rows line up. */
 .midGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.usersPanel {
+  grid-column: span 2;
 }
 
 .panel {
@@ -243,7 +251,7 @@
 
 .usersTable {
   width: 100%;
-  min-width: 620px;
+  min-width: 480px;
   border-collapse: collapse;
 }
 
@@ -319,7 +327,7 @@
 .bottomGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  gap: 16px;
 }
 
 .itemList {
