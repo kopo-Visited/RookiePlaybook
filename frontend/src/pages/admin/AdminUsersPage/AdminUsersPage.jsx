@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react';
 import styles from './AdminUsersPage.module.css';
 import Button from '../../../components/Button/Button';
+import Spinner from '../../../components/Spinner/Spinner';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import useAuthStore from '../../../stores/authStore';
+import useAdminUsers from '../../../hooks/admin/useAdminUsers';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
+import { ERROR_MESSAGES } from '../../../constants/message';
 
 const STAT_CARDS = [
   {
@@ -43,67 +47,29 @@ const STAT_CARDS = [
   },
 ];
 
-const DEPARTMENTS = ['개발팀', '인프라팀', '네트워크팀', '보안팀'];
-const ROLES = ['사용자', '관리자'];
-const STATUSES = ['활성', '비활성'];
-
-const INITIAL_USERS = [
-  {
-    id: 1,
-    name: '이00',
-    dept: '개발팀',
-    position: '대리',
-    email: 'user1@company.com',
-    role: '사용자',
-    status: '활성',
-    lastLoginAt: '2024.05.28 09:32',
-    joinedAt: '2024.05.28',
-  },
-  {
-    id: 2,
-    name: '손00',
-    dept: '보안팀',
-    position: '과장',
-    email: 'user2@company.com',
-    role: '관리자',
-    status: '활성',
-    lastLoginAt: '2024.05.27 08:15',
-    joinedAt: '2024.05.27',
-  },
-  {
-    id: 3,
-    name: '강00',
-    dept: '인프라팀',
-    position: '사원',
-    email: 'user3@company.com',
-    role: '사용자',
-    status: '활성',
-    lastLoginAt: '2024.05.26 17:41',
-    joinedAt: '2024.05.26',
-  },
-  {
-    id: 4,
-    name: '진00',
-    dept: '네트워크팀',
-    position: '차장',
-    email: 'user4@company.com',
-    role: '관리자',
-    status: '활성',
-    lastLoginAt: '2024.05.25 11:22',
-    joinedAt: '2024.05.25',
-  },
-  {
-    id: 5,
-    name: '김00',
-    dept: '개발팀',
-    position: '대리',
-    email: 'user5@company.com',
-    role: '관리자',
-    status: '활성',
-    lastLoginAt: '2024.05.24 10:48',
-    joinedAt: '2024.05.24',
-  },
+// 권한 목록 조회 API가 아직 없어 임시로 고정한 값 (roleId 1=일반 사용자, 2=관리자)
+const ROLE_OPTIONS = [
+  { roleId: 1, roleCode: 'ROLE_USER', roleName: '일반 사용자' },
+  { roleId: 2, roleCode: 'ROLE_ADMIN', roleName: '관리자' },
 ];
+
+const STATUS_LABELS = {
+  ACTIVE: '활성',
+  INACTIVE: '비활성',
+  DELETED: '삭제됨',
+};
+
+const STATUS_OPTIONS = [
+  { value: 'ACTIVE', label: '활성', desc: '계정을 활성화하여 즉시 로그인할 수 있습니다.' },
+  { value: 'INACTIVE', label: '비활성', desc: '계정을 비활성 상태로 생성합니다.' },
+];
+
+function formatDateTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 const DEPT_DISTRIBUTION = [
   { key: 'dev', label: '개발팀', value: 312 },
@@ -316,10 +282,12 @@ function StatCard({ label, value, delta, deltaDirection, colorKey, icon }) {
   );
 }
 
-function RoleBadge({ role }) {
+function RoleBadge({ roleName, roleCode }) {
   return (
-    <span className={`${styles.roleBadge} ${role === '관리자' ? styles.roleBadgeAdmin : ''}`}>
-      {role}
+    <span
+      className={`${styles.roleBadge} ${roleCode === 'ROLE_ADMIN' ? styles.roleBadgeAdmin : ''}`}
+    >
+      {roleName}
     </span>
   );
 }
@@ -327,14 +295,32 @@ function RoleBadge({ role }) {
 function StatusBadge({ status }) {
   return (
     <span
-      className={`${styles.statusBadge} ${status === '비활성' ? styles.statusBadgeInactive : ''}`}
+      className={`${styles.statusBadge} ${status !== 'ACTIVE' ? styles.statusBadgeInactive : ''}`}
     >
-      {status}
+      {STATUS_LABELS[status] ?? status}
     </span>
   );
 }
 
-function UserFormFields({ form, onChange, isEdit }) {
+function StatusCardSelector({ value, onChange }) {
+  return (
+    <div className={styles.statusCardRow}>
+      {STATUS_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          type="button"
+          className={`${styles.statusCard} ${value === opt.value ? styles.statusCardActive : ''}`}
+          onClick={() => onChange(opt.value)}
+        >
+          <span className={styles.statusCardTitle}>{opt.label}</span>
+          <span className={styles.statusCardDesc}>{opt.desc}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function UserFormFields({ form, onChange, departments, isEdit }) {
   return (
     <div className={styles.formGrid}>
       <div className={styles.field}>
@@ -362,15 +348,15 @@ function UserFormFields({ form, onChange, isEdit }) {
         <label className={styles.label}>부서 선택</label>
         <select
           className={styles.input}
-          value={form.dept}
-          onChange={e => onChange({ ...form, dept: e.target.value })}
+          value={form.departmentId}
+          onChange={e => onChange({ ...form, departmentId: Number(e.target.value) })}
         >
           <option value="" disabled>
             부서를 선택하세요
           </option>
-          {DEPARTMENTS.map(dept => (
-            <option key={dept} value={dept}>
-              {dept}
+          {departments.map(dept => (
+            <option key={dept.departmentId} value={dept.departmentId}>
+              {dept.name}
             </option>
           ))}
         </select>
@@ -380,18 +366,28 @@ function UserFormFields({ form, onChange, isEdit }) {
         <label className={styles.label}>권한 선택</label>
         <select
           className={styles.input}
-          value={form.role}
-          onChange={e => onChange({ ...form, role: e.target.value })}
+          value={form.roleId}
+          onChange={e => onChange({ ...form, roleId: Number(e.target.value) })}
         >
           <option value="" disabled>
             권한을 선택하세요
           </option>
-          {ROLES.map(role => (
-            <option key={role} value={role}>
-              {role}
+          {ROLE_OPTIONS.map(role => (
+            <option key={role.roleId} value={role.roleId}>
+              {role.roleName}
             </option>
           ))}
         </select>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>직급</label>
+        <input
+          className={styles.input}
+          value={form.position}
+          onChange={e => onChange({ ...form, position: e.target.value })}
+          placeholder="직급을 입력하세요"
+        />
       </div>
 
       {!isEdit && (
@@ -410,18 +406,28 @@ function UserFormFields({ form, onChange, isEdit }) {
   );
 }
 
-function RegisterUserModal({ onClose, onSave }) {
+function RegisterUserModal({ departments, onClose, onSave }) {
   const [form, setForm] = useState({
     name: '',
     email: '',
-    dept: '',
-    role: '',
+    departmentId: '',
+    roleId: '',
+    position: '',
     password: '',
-    status: '활성',
+    status: 'ACTIVE',
   });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-  function handleSave() {
-    onSave(form);
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      await onSave(form);
+    } catch (err) {
+      setError(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
+      setSaving(false);
+    }
   }
 
   return (
@@ -430,36 +436,30 @@ function RegisterUserModal({ onClose, onSave }) {
         <h2 className={styles.modalTitle}>사용자 등록</h2>
         <p className={styles.modalSubtitle}>새 사내 사용자 계정을 등록합니다.</p>
 
-        <UserFormFields form={form} onChange={setForm} isEdit={false} />
+        <UserFormFields form={form} onChange={setForm} departments={departments} isEdit={false} />
 
         <div className={styles.field}>
           <label className={styles.label}>계정 상태</label>
-          <div className={styles.statusCardRow}>
-            {STATUSES.map(status => (
-              <button
-                key={status}
-                type="button"
-                className={`${styles.statusCard} ${form.status === status ? styles.statusCardActive : ''}`}
-                onClick={() => setForm({ ...form, status })}
-              >
-                <span className={styles.statusCardTitle}>{status}</span>
-                <span className={styles.statusCardDesc}>
-                  {status === '활성'
-                    ? '계정을 활성화하여 즉시 로그인할 수 있습니다.'
-                    : '계정을 비활성 상태로 생성합니다.'}
-                </span>
-              </button>
-            ))}
-          </div>
+          <StatusCardSelector
+            value={form.status}
+            onChange={status => setForm({ ...form, status })}
+          />
           <p className={styles.helperText}>사용자는 로그인 시 초기 비밀번호를 변경해야 합니다.</p>
         </div>
+
+        {error && <p className={styles.formError}>{error}</p>}
 
         <div className={styles.modalActions}>
           <Button variant={BUTTON_VARIANTS.SECONDARY} size={BUTTON_SIZES.MEDIUM} onClick={onClose}>
             취소
           </Button>
-          <Button variant={BUTTON_VARIANTS.PRIMARY} size={BUTTON_SIZES.MEDIUM} onClick={handleSave}>
-            저장
+          <Button
+            variant={BUTTON_VARIANTS.PRIMARY}
+            size={BUTTON_SIZES.MEDIUM}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? '저장 중...' : '저장'}
           </Button>
         </div>
       </div>
@@ -467,11 +467,20 @@ function RegisterUserModal({ onClose, onSave }) {
   );
 }
 
-function EditUserModal({ user, onClose, onSave }) {
-  const [form, setForm] = useState({ ...user, memo: '' });
+function EditUserModal({ user, departments, onClose, onSave }) {
+  const [form, setForm] = useState({ ...user, position: user.position || '', memo: '' });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-  function handleSave() {
-    onSave(form);
+  async function handleSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      await onSave(form);
+    } catch (err) {
+      setError(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
+      setSaving(false);
+    }
   }
 
   return (
@@ -480,7 +489,15 @@ function EditUserModal({ user, onClose, onSave }) {
         <h2 className={styles.modalTitle}>사용자 정보 수정</h2>
         <p className={styles.modalSubtitle}>선택한 사용자 계정 정보와 권한을 변경합니다.</p>
 
-        <UserFormFields form={form} onChange={setForm} isEdit />
+        <UserFormFields form={form} onChange={setForm} departments={departments} isEdit />
+
+        <div className={styles.field}>
+          <label className={styles.label}>계정 상태</label>
+          <StatusCardSelector
+            value={form.status}
+            onChange={status => setForm({ ...form, status })}
+          />
+        </div>
 
         <div className={styles.field}>
           <label className={styles.label}>비밀번호 초기화</label>
@@ -506,12 +523,19 @@ function EditUserModal({ user, onClose, onSave }) {
           />
         </div>
 
+        {error && <p className={styles.formError}>{error}</p>}
+
         <div className={styles.modalActions}>
           <Button variant={BUTTON_VARIANTS.SECONDARY} size={BUTTON_SIZES.MEDIUM} onClick={onClose}>
             취소
           </Button>
-          <Button variant={BUTTON_VARIANTS.PRIMARY} size={BUTTON_SIZES.MEDIUM} onClick={handleSave}>
-            저장
+          <Button
+            variant={BUTTON_VARIANTS.PRIMARY}
+            size={BUTTON_SIZES.MEDIUM}
+            onClick={handleSave}
+            disabled={saving}
+          >
+            {saving ? '저장 중...' : '저장'}
           </Button>
         </div>
       </div>
@@ -525,11 +549,21 @@ function AdminUsersPage() {
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
 
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const {
+    users,
+    departments,
+    loading,
+    error,
+    registerUser,
+    editUser,
+    changeUserRole,
+    changeUserStatus,
+  } = useAdminUsers();
+
   const [keyword, setKeyword] = useState('');
-  const [deptFilter, setDeptFilter] = useState('전체');
-  const [roleFilter, setRoleFilter] = useState('전체');
-  const [statusFilter, setStatusFilter] = useState('전체');
+  const [deptFilter, setDeptFilter] = useState('ALL');
+  const [roleFilter, setRoleFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [editingUser, setEditingUser] = useState(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
@@ -537,40 +571,57 @@ function AdminUsersPage() {
     return users.filter(u => {
       const matchesKeyword =
         !keyword.trim() || u.name.includes(keyword.trim()) || u.email.includes(keyword.trim());
-      const matchesDept = deptFilter === '전체' || u.dept === deptFilter;
-      const matchesRole = roleFilter === '전체' || u.role === roleFilter;
-      const matchesStatus = statusFilter === '전체' || u.status === statusFilter;
+      const matchesDept = deptFilter === 'ALL' || u.departmentId === deptFilter;
+      const matchesRole = roleFilter === 'ALL' || u.roleId === roleFilter;
+      const matchesStatus = statusFilter === 'ALL' || u.status === statusFilter;
       return matchesKeyword && matchesDept && matchesRole && matchesStatus;
     });
   }, [users, keyword, deptFilter, roleFilter, statusFilter]);
 
   function handleResetFilters() {
     setKeyword('');
-    setDeptFilter('전체');
-    setRoleFilter('전체');
-    setStatusFilter('전체');
+    setDeptFilter('ALL');
+    setRoleFilter('ALL');
+    setStatusFilter('ALL');
   }
 
-  function handleRegisterSave(form) {
-    setUsers(prev => [
-      ...prev,
-      {
-        id: prev.length ? Math.max(...prev.map(u => u.id)) + 1 : 1,
-        name: form.name,
-        email: form.email,
-        dept: form.dept,
-        position: '-',
-        role: form.role || '사용자',
-        status: form.status,
-        lastLoginAt: '-',
-        joinedAt: '-',
-      },
-    ]);
+  async function handleRegisterSave(form) {
+    await registerUser({
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      departmentId: form.departmentId,
+      roleId: form.roleId,
+      position: form.position,
+      status: form.status,
+    });
     setIsRegisterOpen(false);
   }
 
-  function handleEditSave(form) {
-    setUsers(prev => prev.map(u => (u.id === form.id ? { ...u, ...form } : u)));
+  async function handleEditSave(form) {
+    const original = editingUser;
+    const basicInfoChanged =
+      form.name !== original.name ||
+      form.departmentId !== original.departmentId ||
+      form.position !== original.position;
+    const statusChanged = form.status !== original.status;
+    const roleChanged = form.roleId !== original.roleId;
+
+    if (basicInfoChanged) {
+      await editUser(form.userId, {
+        name: form.name,
+        departmentId: form.departmentId,
+        position: form.position,
+        status: form.status,
+      });
+    } else if (statusChanged) {
+      await changeUserStatus(form.userId, form.status);
+    }
+
+    if (roleChanged) {
+      await changeUserRole(form.userId, form.roleId);
+    }
+
     setEditingUser(null);
   }
 
@@ -620,12 +671,12 @@ function AdminUsersPage() {
           <select
             className={styles.filterSelect}
             value={deptFilter}
-            onChange={e => setDeptFilter(e.target.value)}
+            onChange={e => setDeptFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
           >
-            <option value="전체">부서 전체</option>
-            {DEPARTMENTS.map(dept => (
-              <option key={dept} value={dept}>
-                {dept}
+            <option value="ALL">부서 전체</option>
+            {departments.map(dept => (
+              <option key={dept.departmentId} value={dept.departmentId}>
+                {dept.name}
               </option>
             ))}
           </select>
@@ -633,12 +684,12 @@ function AdminUsersPage() {
           <select
             className={styles.filterSelect}
             value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
+            onChange={e => setRoleFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
           >
-            <option value="전체">권한 전체</option>
-            {ROLES.map(role => (
-              <option key={role} value={role}>
-                {role}
+            <option value="ALL">권한 전체</option>
+            {ROLE_OPTIONS.map(role => (
+              <option key={role.roleId} value={role.roleId}>
+                {role.roleName}
               </option>
             ))}
           </select>
@@ -648,10 +699,10 @@ function AdminUsersPage() {
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
           >
-            <option value="전체">상태 전체</option>
-            {STATUSES.map(status => (
-              <option key={status} value={status}>
-                {status}
+            <option value="ALL">상태 전체</option>
+            {STATUS_OPTIONS.map(status => (
+              <option key={status.value} value={status.value}>
+                {status.label}
               </option>
             ))}
           </select>
@@ -671,50 +722,58 @@ function AdminUsersPage() {
         </div>
 
         <div className={styles.tableWrap}>
-          <table className={styles.usersTable}>
-            <thead>
-              <tr>
-                <th>이름</th>
-                <th>부서</th>
-                <th>직급</th>
-                <th>이메일</th>
-                <th>권한</th>
-                <th>상태</th>
-                <th>최근 로그인</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map(u => (
-                <tr key={u.id}>
-                  <td>{u.name}</td>
-                  <td>{u.dept}</td>
-                  <td>{u.position}</td>
-                  <td>{u.email}</td>
-                  <td>
-                    <RoleBadge role={u.role} />
-                  </td>
-                  <td>
-                    <StatusBadge status={u.status} />
-                  </td>
-                  <td>{u.lastLoginAt}</td>
-                  <td>
-                    <div className={styles.rowActions}>
-                      <button
-                        type="button"
-                        className={styles.rowActionBtn}
-                        onClick={() => setEditingUser(u)}
-                      >
-                        수정
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredUsers.length === 0 && (
-            <p className={styles.emptyText}>조건에 맞는 사용자가 없습니다.</p>
+          {loading ? (
+            <Spinner />
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
+            <>
+              <table className={styles.usersTable}>
+                <thead>
+                  <tr>
+                    <th>이름</th>
+                    <th>부서</th>
+                    <th>직급</th>
+                    <th>이메일</th>
+                    <th>권한</th>
+                    <th>상태</th>
+                    <th>최근 로그인</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map(u => (
+                    <tr key={u.userId}>
+                      <td>{u.name}</td>
+                      <td>{u.departmentName}</td>
+                      <td>{u.position || '-'}</td>
+                      <td>{u.email}</td>
+                      <td>
+                        <RoleBadge roleName={u.roleName} roleCode={u.roleCode} />
+                      </td>
+                      <td>
+                        <StatusBadge status={u.status} />
+                      </td>
+                      <td>{formatDateTime(u.lastLoginAt)}</td>
+                      <td>
+                        <div className={styles.rowActions}>
+                          <button
+                            type="button"
+                            className={styles.rowActionBtn}
+                            onClick={() => setEditingUser(u)}
+                          >
+                            수정
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredUsers.length === 0 && (
+                <p className={styles.emptyText}>조건에 맞는 사용자가 없습니다.</p>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -798,11 +857,16 @@ function AdminUsersPage() {
       </div>
 
       {isRegisterOpen && (
-        <RegisterUserModal onClose={() => setIsRegisterOpen(false)} onSave={handleRegisterSave} />
+        <RegisterUserModal
+          departments={departments}
+          onClose={() => setIsRegisterOpen(false)}
+          onSave={handleRegisterSave}
+        />
       )}
       {editingUser && (
         <EditUserModal
           user={editingUser}
+          departments={departments}
           onClose={() => setEditingUser(null)}
           onSave={handleEditSave}
         />

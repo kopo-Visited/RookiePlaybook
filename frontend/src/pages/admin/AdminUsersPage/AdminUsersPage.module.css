@@ -711,6 +711,11 @@
   color: #8a99ad;
 }
 
+.formError {
+  font-size: 13px;
+  color: #ef4444;
+}
+
 .dangerButton {
   align-self: flex-start;
   height: 40px;
