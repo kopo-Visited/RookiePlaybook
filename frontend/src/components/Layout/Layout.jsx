@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
+import chatbotImg from '../../assets/chatbot.png';
 
 function IconHome() {
   return (
@@ -38,18 +39,11 @@ function IconGraduate() {
   );
 }
 
-function IconActivity() {
+function IconMail() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-function IconBookmark() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+      <path d="M2 7l10 7 10-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -76,8 +70,7 @@ const NAV_ITEMS = [
   { to: ROUTES.DOC.LIST, label: '지식문서', icon: <IconDoc /> },
   { to: ROUTES.QNA.LIST, label: '질문·답변', icon: <IconChat /> },
   { to: ROUTES.EDU.LIST, label: '온보딩 교육', icon: <IconGraduate /> },
-  { to: '/activity', label: '내 활동', icon: <IconActivity /> },
-  { to: '/bookmark', label: '북마크', icon: <IconBookmark /> },
+  { to: '/contact', label: '문의하기', icon: <IconMail /> },
 ];
 
 function Layout() {
@@ -126,11 +119,12 @@ function Layout() {
         </nav>
 
         <div className={styles.helpCard}>
-          <p className={styles.helpTitle}>도움이 필요하신가요?</p>
-          <p className={styles.helpDesc}>자주 묻는 질문을 확인하거나 문의하기를 이용해 주세요.</p>
+          <img src={chatbotImg} alt="AI 챗봇" className={styles.helpImg} />
+          <p className={styles.helpTitle}>AI 챗봇이 도와드릴까요?</p>
+          <p className={styles.helpDesc}>궁금한 내용을 바로 질문하고 정보를 빠르게 안내 받아 보세요.</p>
           <button className={styles.helpBtn}>
             <span>💬</span>
-            <span>문의하기</span>
+            <span>AI에게 물어보기</span>
           </button>
         </div>
       </aside>
