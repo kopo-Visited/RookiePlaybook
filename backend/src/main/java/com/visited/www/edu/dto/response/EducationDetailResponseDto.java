@@ -1,6 +1,7 @@
 package com.visited.www.edu.dto.response;
 
-// EducationDetailResponseDto.java
+import java.util.List;
+
 public record EducationDetailResponseDto(
         Long educationId,
         String title,

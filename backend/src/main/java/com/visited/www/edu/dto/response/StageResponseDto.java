@@ -1,6 +1,7 @@
 package com.visited.www.edu.dto.response;
 
-// StageResponseDto.java
+import com.visited.www.edu.MaterialResponseDto;
+
 public record StageResponseDto(
         Long stageId,
         String title,
