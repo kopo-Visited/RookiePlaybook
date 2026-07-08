@@ -3,9 +3,9 @@ spring:
     name: backendgit
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:rookie_playbook}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:postgresql://${DB_HOST:54.180.104.172}:${DB_PORT:5432}/${DB_NAME:rookie_playbook}
+    username: ${DB_USERNAME:rookie}
+    password: ${DB_PASSWORD:1234}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -21,6 +21,10 @@ spring:
     init:
       mode: always
       encoding: UTF-8
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:dummy}
 
 server:
   port: ${SERVER_PORT:8080}
