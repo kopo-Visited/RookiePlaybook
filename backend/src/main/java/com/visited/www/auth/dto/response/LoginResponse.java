@@ -6,6 +6,7 @@ public record LoginResponse(
         String name,
         String email,
         String departmentName,
-        String roleName
+        String roleName,
+        String roleCode
 ) {
 }
