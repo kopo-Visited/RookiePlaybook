@@ -20,4 +20,5 @@ public interface EducationMapper {
             @Param("educationId") Long educationId,
             @Param("userId") Long userId
     );
+
 }
