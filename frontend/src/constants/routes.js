@@ -13,6 +13,12 @@ export const ROUTES = {
     LIST: '/edu',
   },
   ADMIN: {
+    DASHBOARD: '/admin',
+    USERS: '/admin/users',
     DOC: '/admin/doc',
+    QNA: '/admin/qna',
+    EDU: '/admin/edu',
+    INQUIRY: '/admin/inquiry',
+    SETTINGS: '/admin/settings',
   },
 };
