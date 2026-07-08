@@ -24,6 +24,15 @@ public class ApiResponse<T> {
         return response;
     }
 
+    // API 명세서의 개별 성공 메시지 대응 (예: "질문이 등록되었습니다.")
+    public static <T> ApiResponse<T> success(T data, String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.success = true;
+        response.message = message;
+        response.data = data;
+        return response;
+    }
+
     public static <T> ApiResponse<T> success() {
         ApiResponse<T> response = new ApiResponse<>();
         response.success = true;
