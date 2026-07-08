@@ -24,7 +24,10 @@
   padding: 22px 26px 20px;
 }
 .logoIcon {
-  font-size: 20px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 .logoText {
   font-size: 17px;

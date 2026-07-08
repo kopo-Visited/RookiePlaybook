@@ -3,6 +3,7 @@ import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
 import chatbotImg from '../../assets/chatbot.png';
+import logoImg from '../../assets/logo.png';
 
 function IconHome() {
   return (
@@ -84,7 +85,7 @@ function Layout() {
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div className={styles.logo}>
-          <span className={styles.logoIcon}>📘</span>
+          <img src={logoImg} alt="신입의 정석" className={styles.logoIcon} />
           <span className={styles.logoText}>신입의 정석</span>
         </div>
 
