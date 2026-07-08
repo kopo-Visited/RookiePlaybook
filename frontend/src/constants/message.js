@@ -12,3 +12,9 @@ export const EMPTY_MESSAGES = {
   DOC_LIST: '등록된 문서가 없습니다.',
   FAQ_LIST: '등록된 FAQ가 없습니다.',
 };
+
+export const AUTH_MESSAGES = {
+  EMAIL_REQUIRED: '이메일을 입력해주세요.',
+  PASSWORD_REQUIRED: '비밀번호를 입력해주세요.',
+  LOGIN_FAILED: '이메일 또는 비밀번호가 일치하지 않습니다.',
+};
