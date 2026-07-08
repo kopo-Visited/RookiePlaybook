@@ -17,6 +17,10 @@ spring:
         format_sql: true
     show-sql: true
 
+  mybatis:
+    mapper-locations: classpath:/mapper/**/*.xml
+    type-aliases-package: com.visited.www
+
   sql:
     init:
       mode: always
