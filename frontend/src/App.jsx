@@ -7,6 +7,7 @@ import LoginPage from './pages/auth/LoginPage/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 
 function PrivateRoute() {
   const token = useAuthStore((state) => state.token);
@@ -38,7 +39,7 @@ function App() {
 
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path={ROUTES.ADMIN.DASHBOARD} element={<div>AdminDashboardPage</div>} />
+            <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
             <Route path={ROUTES.ADMIN.USERS} element={<div>AdminUsersPage</div>} />
             <Route path={ROUTES.ADMIN.DOC} element={<div>AdminDocPage</div>} />
             <Route path={ROUTES.ADMIN.QNA} element={<div>AdminQnaPage</div>} />
