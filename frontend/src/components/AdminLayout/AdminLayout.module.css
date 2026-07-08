@@ -1,0 +1,92 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-page);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--color-bg-white);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 26px 20px;
+}
+
+.logoIcon {
+  font-size: 20px;
+  color: #019ff8;
+}
+
+.logoText {
+  font-size: 17.8px;
+  font-weight: 700;
+  color: #2b2f3a;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 46.39px;
+  padding: 0 22px;
+  color: var(--color-text-nav);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.navItem:hover {
+  background: #f7f9fe;
+}
+
+.navItemActive {
+  background: #e2f3fc;
+  color: #0b71ff;
+  font-weight: 600;
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #8a94a6;
+}
+
+.navItemActive .navIcon {
+  color: #019ff8;
+}
+
+/* ── Main ── */
+.mainWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.main {
+  flex: 1;
+  padding: 24px 40px 48px;
+}
