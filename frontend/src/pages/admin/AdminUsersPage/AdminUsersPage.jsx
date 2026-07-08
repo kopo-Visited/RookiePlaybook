@@ -551,12 +551,6 @@ function AdminUsersPage() {
     setStatusFilter('전체');
   }
 
-  function handleToggleRole(id) {
-    setUsers(prev =>
-      prev.map(u => (u.id === id ? { ...u, role: u.role === '관리자' ? '사용자' : '관리자' } : u))
-    );
-  }
-
   function handleRegisterSave(form) {
     setUsers(prev => [
       ...prev,
@@ -706,13 +700,6 @@ function AdminUsersPage() {
                   <td>{u.lastLoginAt}</td>
                   <td>
                     <div className={styles.rowActions}>
-                      <button
-                        type="button"
-                        className={styles.rowActionBtn}
-                        onClick={() => handleToggleRole(u.id)}
-                      >
-                        권한변경
-                      </button>
                       <button
                         type="button"
                         className={styles.rowActionBtn}
