@@ -92,7 +92,7 @@ function QnaQuestionModal({ onClose }) {
             <label className={styles.fieldLabel}>질문 제목</label>
             <input
               className={styles.input}
-              placeholder="질문 제목을 입력하세요"
+              placeholder="VPN 연결은 되는데 사내 시스템이 열리지 않아요"
               value={title}
               onChange={e => setTitle(e.target.value)}
             />
@@ -130,7 +130,7 @@ function QnaQuestionModal({ onClose }) {
             <label className={styles.fieldLabel}>내용</label>
             <textarea
               className={styles.textarea}
-              placeholder="질문 내용을 입력하세요"
+              placeholder="재택근무 중 VPN 연결은 성공으로 보이는데 사내 시스템 접속이 실패합니다. 어떤 정보를 같이 전달하면 될까요?"
               value={content}
               onChange={e => setContent(e.target.value)}
             />

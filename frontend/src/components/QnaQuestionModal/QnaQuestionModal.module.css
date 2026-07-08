@@ -59,7 +59,7 @@
 .formGrid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 .field {
   display: flex;
@@ -166,10 +166,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 32px;
   border: 1px solid #D9E1EB;
   border-radius: 8px;
-  padding: 6px 12px;
+  padding: 4px 12px;
   background: #FFFFFF;
   box-sizing: border-box;
 }
@@ -214,11 +214,12 @@
 .modalActions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
 }
 .btnOutline {
   height: 44px;
-  padding: 0 20px;
+  padding: 0 12px;
+  min-width: 52px;
   background: #FFFFFF;
   border: 1px solid #D9E1EB;
   border-radius: 8px;
@@ -230,7 +231,8 @@
 }
 .btnPrimary {
   height: 44px;
-  padding: 0 20px;
+  padding: 0 16px;
+  min-width: 76px;
   background: var(--color-primary);
   border: none;
   border-radius: 8px;
