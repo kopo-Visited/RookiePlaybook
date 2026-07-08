@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
 import useAuthStore from '../../../stores/authStore';
 import { COLOR_KEYS } from '../../../constants/styles';
+import { ROUTES } from '../../../constants/routes';
 
 const STAT_CARDS = [
   {
@@ -11,6 +13,7 @@ const STAT_CARDS = [
     delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.BLUE,
     icon: <IconPerson />,
+    to: ROUTES.ADMIN.USERS,
   },
   {
     key: 'docs',
@@ -20,6 +23,7 @@ const STAT_CARDS = [
     delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.GREEN,
     icon: <IconDocText />,
+    to: ROUTES.ADMIN.DOC,
   },
   {
     key: 'unanswered',
@@ -29,6 +33,7 @@ const STAT_CARDS = [
     delta: '▼ 7.2%',
     colorKey: COLOR_KEYS.PINK,
     icon: <IconChatBubble />,
+    to: ROUTES.ADMIN.QNA,
   },
   {
     key: 'inProgress',
@@ -38,6 +43,7 @@ const STAT_CARDS = [
     delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.ORANGE,
     icon: <IconAcademicCap />,
+    to: ROUTES.ADMIN.EDU,
   },
 ];
 
@@ -237,9 +243,9 @@ function IconSearch() {
   );
 }
 
-function StatCard({ label, value, delta, deltaDirection, colorKey, icon }) {
+function StatCard({ label, value, delta, deltaDirection, colorKey, icon, to, onNavigate }) {
   return (
-    <article className={styles.statCard}>
+    <button type="button" className={styles.statCard} onClick={() => onNavigate(to)}>
       <div className={`${styles.statIcon} ${styles[colorKey]}`}>{icon}</div>
       <span className={styles.statLabel}>{label}</span>
       <span className={styles.statValue}>{value}</span>
@@ -251,7 +257,7 @@ function StatCard({ label, value, delta, deltaDirection, colorKey, icon }) {
         </span>
         <span className={styles.statDeltaCaption}>지난주 대비</span>
       </div>
-    </article>
+    </button>
   );
 }
 
@@ -262,7 +268,7 @@ function DonutChart({ data, size = 200 }) {
   let offset = 0;
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
       <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
         {data.map(({ key, value, color, label }) => {
           const ratio = value / total;
@@ -329,7 +335,12 @@ function TrendChart({ data, width = 330, height = 160 }) {
   const gridLines = [0, 0.25, 0.5, 0.75, 1];
 
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className={styles.trendSvg}
+    >
       {gridLines.map(ratio => {
         const y = padding.top + plotHeight * ratio;
         return (
@@ -370,12 +381,20 @@ function TrendChart({ data, width = 330, height = 160 }) {
   );
 }
 
-function ListPanel({ title, items, renderIcon }) {
+function MoreLinkButton({ onClick }) {
+  return (
+    <button type="button" className={styles.moreLink} onClick={onClick}>
+      전체 보기 ›
+    </button>
+  );
+}
+
+function ListPanel({ title, items, renderIcon, onMoreClick }) {
   return (
     <section className={styles.panel}>
       <div className={styles.panelHead}>
         <span className={styles.panelTitle}>{title}</span>
-        <span className={styles.moreLink}>전체 보기 ›</span>
+        <MoreLinkButton onClick={onMoreClick} />
       </div>
       <ul className={styles.itemList}>
         {items.map(item => (
@@ -393,6 +412,7 @@ function ListPanel({ title, items, renderIcon }) {
 }
 
 function AdminDashboardPage() {
+  const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
   const displayName = user?.name ?? '윤정연';
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
@@ -423,7 +443,7 @@ function AdminDashboardPage() {
 
       <div className={styles.statGrid}>
         {STAT_CARDS.map(({ key, ...card }) => (
-          <StatCard key={key} {...card} />
+          <StatCard key={key} {...card} onNavigate={navigate} />
         ))}
       </div>
 
@@ -431,40 +451,42 @@ function AdminDashboardPage() {
         <section className={`${styles.panel} ${styles.usersPanel}`}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>사용자 관리</span>
-            <span className={styles.moreLink}>전체 보기 ›</span>
+            <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.USERS)} />
           </div>
-          <table className={styles.usersTable}>
-            <thead>
-              <tr>
-                <th>이름</th>
-                <th>부서</th>
-                <th>직급</th>
-                <th>이메일</th>
-                <th>가입일</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RECENT_USERS.map(({ id, name, dept, position, email, joinedAt }) => (
-                <tr key={id}>
-                  <td>{name}</td>
-                  <td>{dept}</td>
-                  <td>{position}</td>
-                  <td>{email}</td>
-                  <td>{joinedAt}</td>
-                  <td>
-                    <span className={styles.statusBadge}>활성</span>
-                  </td>
+          <div className={styles.tableWrap}>
+            <table className={styles.usersTable}>
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>부서</th>
+                  <th>직급</th>
+                  <th>이메일</th>
+                  <th>가입일</th>
+                  <th>상태</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {RECENT_USERS.map(({ id, name, dept, position, email, joinedAt }) => (
+                  <tr key={id}>
+                    <td>{name}</td>
+                    <td>{dept}</td>
+                    <td>{position}</td>
+                    <td>{email}</td>
+                    <td>{joinedAt}</td>
+                    <td>
+                      <span className={styles.statusBadge}>활성</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>문서 카테고리 분포</span>
-            <span className={styles.moreLink}>전체 보기 ›</span>
+            <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.DOC)} />
           </div>
           <div className={styles.donutWrap}>
             <DonutChart data={DOC_CATEGORY_DATA} />
@@ -475,7 +497,7 @@ function AdminDashboardPage() {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>교육 완료 현황</span>
-            <span className={styles.moreLink}>전체 보기 ›</span>
+            <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.EDU)} />
           </div>
           <div className={styles.donutWrap}>
             <DonutChart data={EDU_COMPLETION_DATA} />
@@ -485,22 +507,29 @@ function AdminDashboardPage() {
       </div>
 
       <div className={styles.bottomGrid}>
-        <ListPanel title="최근 등록 문서" items={RECENT_DOCS} renderIcon={() => <IconDocBadge />} />
+        <ListPanel
+          title="최근 등록 문서"
+          items={RECENT_DOCS}
+          renderIcon={() => <IconDocBadge />}
+          onMoreClick={() => navigate(ROUTES.ADMIN.DOC)}
+        />
         <ListPanel
           title="최근 질문 현황"
           items={RECENT_QUESTIONS}
           renderIcon={() => <span className={styles.qMark}>Q</span>}
+          onMoreClick={() => navigate(ROUTES.ADMIN.QNA)}
         />
         <ListPanel
           title="운영 공지"
           items={NOTICES.map(n => ({ id: n.id, title: n.title, meta: n.date }))}
           renderIcon={() => <IconMegaphone />}
+          onMoreClick={() => navigate(ROUTES.ADMIN.SETTINGS)}
         />
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>접속 현황 (오늘)</span>
-            <span className={styles.moreLink}>전체 보기 ›</span>
+            <MoreLinkButton />
           </div>
           <div className={styles.trendHeader}>
             <span className={styles.trendValue}>542명</span>

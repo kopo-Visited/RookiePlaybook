@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0;
 }
 
 /* ── Topbar ── */
@@ -14,7 +15,8 @@
 
 .searchBox {
   position: relative;
-  width: 330px;
+  flex: 0 1 330px;
+  min-width: 160px;
   height: 46px;
 }
 
@@ -52,6 +54,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .avatar {
@@ -115,8 +118,19 @@
 .statCard {
   composes: card from '../../../styles/common.module.css';
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
   padding: 24px;
   min-height: 138px;
+  transition: box-shadow 0.15s;
+}
+
+.statCard:hover {
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.12);
 }
 
 .statIcon {
@@ -196,6 +210,7 @@
 .panel {
   composes: card from '../../../styles/common.module.css';
   padding: 24px;
+  min-width: 0;
 }
 
 .panelHead {
@@ -215,10 +230,20 @@
   font-size: 12px;
   color: #0b71ff;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.moreLink:hover {
+  text-decoration: underline;
+}
+
+.tableWrap {
+  overflow-x: auto;
 }
 
 .usersTable {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
 }
 
@@ -255,6 +280,13 @@
   display: flex;
   justify-content: center;
   margin-bottom: 16px;
+}
+
+.donutSvg {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
 }
 
 .legendList {
@@ -364,6 +396,13 @@
 .trendAxisLabel {
   font-size: 10px;
   fill: #697077;
+}
+
+.trendSvg {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  height: auto;
 }
 
 @media (max-width: 1400px) {

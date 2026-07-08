@@ -1,10 +1,21 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import AdminDashboardPage from '../../../pages/admin/AdminDashboardPage/AdminDashboardPage';
+import { ROUTES } from '../../../constants/routes';
+
+function renderAdminDashboardPage() {
+  render(
+    <MemoryRouter>
+      <AdminDashboardPage />
+    </MemoryRouter>
+  );
+}
 
 describe('AdminDashboardPage 렌더링', () => {
   it('페이지 제목과 부제목이 렌더링된다', () => {
     // given & when
-    render(<AdminDashboardPage />);
+    renderAdminDashboardPage();
 
     // then
     expect(screen.getByRole('heading', { name: '관리자 대시보드' })).toBeInTheDocument();
@@ -13,7 +24,7 @@ describe('AdminDashboardPage 렌더링', () => {
 
   it('4개의 통계 카드가 렌더링된다', () => {
     // given & when
-    render(<AdminDashboardPage />);
+    renderAdminDashboardPage();
 
     // then
     expect(screen.getByText('전체 사용자')).toBeInTheDocument();
@@ -25,7 +36,7 @@ describe('AdminDashboardPage 렌더링', () => {
 
   it('사용자 관리 테이블과 카테고리 분포 패널이 렌더링된다', () => {
     // given & when
-    render(<AdminDashboardPage />);
+    renderAdminDashboardPage();
 
     // then
     expect(screen.getByText('사용자 관리')).toBeInTheDocument();
@@ -36,7 +47,7 @@ describe('AdminDashboardPage 렌더링', () => {
 
   it('최근 등록 문서, 최근 질문, 운영 공지, 접속 현황 패널이 렌더링된다', () => {
     // given & when
-    render(<AdminDashboardPage />);
+    renderAdminDashboardPage();
 
     // then
     expect(screen.getByText('최근 등록 문서')).toBeInTheDocument();
@@ -44,5 +55,23 @@ describe('AdminDashboardPage 렌더링', () => {
     expect(screen.getByText('운영 공지')).toBeInTheDocument();
     expect(screen.getByText('접속 현황 (오늘)')).toBeInTheDocument();
     expect(screen.getByText('542명')).toBeInTheDocument();
+  });
+
+  it('전체 사용자 카드를 클릭하면 사용자 관리 화면으로 이동한다', async () => {
+    // given
+    render(
+      <MemoryRouter initialEntries={[ROUTES.ADMIN.DASHBOARD]}>
+        <Routes>
+          <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
+          <Route path={ROUTES.ADMIN.USERS} element={<div>사용자 관리 화면</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    // when
+    await userEvent.click(screen.getByRole('button', { name: /전체 사용자/ }));
+
+    // then
+    expect(screen.getByText('사용자 관리 화면')).toBeInTheDocument();
   });
 });
