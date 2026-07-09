@@ -61,6 +61,7 @@ const bookmarkItems = [
 ];
 
 const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
+const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net' };
 
 const onboardingCourses = [
   {
@@ -171,6 +172,11 @@ function DocListPage() {
     }));
   }, [docs]);
 
+  const categoryColorMap = useMemo(() =>
+    Object.fromEntries(summaryCards.map(c => [c.categoryName, c.colorKey])),
+    [summaryCards]
+  );
+
   function handleCategorySelect(option) {
     setCategory(option);
     categoryDD.setOpen(false);
@@ -269,10 +275,10 @@ function DocListPage() {
               className={`${styles.summaryCard} ${category === categoryName ? styles.summaryCardActive : ''}`}
               onClick={() => handleCategorySelect(category === categoryName ? '전체' : categoryName)}
             >
-              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{count}</div>
+              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{CATEGORY_ICON[categoryName] ?? categoryName}</div>
               <div className={styles.summaryText}>
-                <span className={styles.summaryCount}>{categoryName}</span>
-                <span className={styles.summaryLabel}>{count}개 문서</span>
+                <span className={styles.summaryCount}>{count}</span>
+                <span className={styles.summaryLabel}>{categoryName}</span>
               </div>
             </div>
           ))}
@@ -317,7 +323,7 @@ function DocListPage() {
                       </div>
                     </td>
                     <td>
-                      <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>
+                      <Badge colorKey={categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
                         {doc.categoryName}
                       </Badge>
                     </td>
