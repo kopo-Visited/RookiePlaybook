@@ -89,4 +89,6 @@
 .main {
   flex: 1;
   padding: 24px 40px 48px;
+  min-width: 1024px;
+  box-sizing: border-box;
 }
