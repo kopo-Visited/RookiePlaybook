@@ -27,8 +27,7 @@ const useLogin = () => {
       const response = await loginApi({ email, password });
       const { accessToken, ...user } = response.data;
       setAuth(user, accessToken);
-      const destination =
-        user.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DOC.LIST;
+      const destination = user.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DOC.LIST;
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);

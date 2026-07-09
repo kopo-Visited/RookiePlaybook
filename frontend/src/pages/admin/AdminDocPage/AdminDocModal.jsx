@@ -46,7 +46,9 @@ function AdminDocModal({ onClose }) {
             <h2 className={styles.modalTitle}>문서 등록</h2>
             <p className={styles.modalSubtitle}>신입사원이 참고할 지식 문서를 추가합니다.</p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>×</button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className={styles.formGrid}>
@@ -69,7 +71,11 @@ function AdminDocModal({ onClose }) {
               onChange={e => handleChange('dept', e.target.value)}
             >
               <option value="">부서 선택</option>
-              {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+              {DEPTS.map(d => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -81,7 +87,11 @@ function AdminDocModal({ onClose }) {
               onChange={e => handleChange('category', e.target.value)}
             >
               <option value="">카테고리 선택</option>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -93,7 +103,11 @@ function AdminDocModal({ onClose }) {
               onChange={e => handleChange('fileType', e.target.value)}
             >
               <option value="">유형 선택</option>
-              {FILE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              {FILE_TYPES.map(t => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -104,7 +118,11 @@ function AdminDocModal({ onClose }) {
               value={form.visibility}
               onChange={e => handleChange('visibility', e.target.value)}
             >
-              {VISIBILITIES.map(v => <option key={v} value={v}>{v}</option>)}
+              {VISIBILITIES.map(v => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -115,7 +133,11 @@ function AdminDocModal({ onClose }) {
               value={form.priority}
               onChange={e => handleChange('priority', e.target.value)}
             >
-              {PRIORITIES.map(p => <option key={p} value={p}>{p}</option>)}
+              {PRIORITIES.map(p => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -134,7 +156,10 @@ function AdminDocModal({ onClose }) {
             <div
               className={`${styles.dropZone} ${dragging ? styles.dragging : ''}`}
               onClick={() => fileInputRef.current?.click()}
-              onDragOver={e => { e.preventDefault(); setDragging(true); }}
+              onDragOver={e => {
+                e.preventDefault();
+                setDragging(true);
+              }}
               onDragLeave={() => setDragging(false)}
               onDrop={handleDrop}
             >
@@ -154,8 +179,12 @@ function AdminDocModal({ onClose }) {
         </div>
 
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>취소</button>
-          <button className={styles.submitBtn} onClick={handleSubmit}>등록하기</button>
+          <button className={styles.cancelBtn} onClick={onClose}>
+            취소
+          </button>
+          <button className={styles.submitBtn} onClick={handleSubmit}>
+            등록하기
+          </button>
         </div>
       </div>
     </div>

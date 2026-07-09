@@ -6,14 +6,21 @@ import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../const
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
 
 function DocDetailModal({ doc, onClose }) {
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') onClose(); }
+    function onKey(e) {
+      if (e.key === 'Escape') onClose();
+    }
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => {
@@ -27,7 +34,6 @@ function DocDetailModal({ doc, onClose }) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
-
         {/* 상단 타이틀 */}
         <div className={styles.modalTop}>
           <div className={styles.modalTitleWrap}>
@@ -48,7 +54,9 @@ function DocDetailModal({ doc, onClose }) {
             {doc.dept}
           </Badge>
           {doc.tags.map(tag => (
-            <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>{tag}</Badge>
+            <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+              {tag}
+            </Badge>
           ))}
         </div>
 
@@ -63,7 +71,9 @@ function DocDetailModal({ doc, onClose }) {
           <p className={styles.infoTitle}>핵심 체크리스트</p>
           <ul className={styles.checkList}>
             {doc.checklist.map((item, i) => (
-              <li key={i} className={styles.checkItem}>{item}</li>
+              <li key={i} className={styles.checkItem}>
+                {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -74,7 +84,6 @@ function DocDetailModal({ doc, onClose }) {
           <button className={styles.btnOutline}>AI에게 질문</button>
           <button className={styles.btnPrimary}>문서 열기</button>
         </div>
-
       </div>
     </div>
   );
