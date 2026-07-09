@@ -27,4 +27,19 @@ public class EducationMaterial {
 
     // 영상 전체 길이(초). 관리자 단계 등록 시 입력되며, 미입력 시 null
     private Integer totalDuration;
+
+    private EducationMaterial(EducationStage stage, String title, String videoUrl) {
+        this.stage = stage;
+        this.title = title;
+        this.videoUrl = videoUrl;
+    }
+
+    public static EducationMaterial create(EducationStage stage, String title, String videoUrl) {
+        return new EducationMaterial(stage, title, videoUrl);
+    }
+
+    public void update(String title, String videoUrl) {
+        this.title = title;
+        this.videoUrl = videoUrl;
+    }
 }
