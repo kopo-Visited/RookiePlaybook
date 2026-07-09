@@ -4,6 +4,7 @@ import { ROUTES } from './constants/routes';
 import Layout from './components/Layout/Layout';
 import AdminLayout from './components/AdminLayout/AdminLayout';
 import LoginPage from './pages/auth/LoginPage/LoginPage';
+import ChangePasswordPage from './pages/auth/ChangePasswordPage/ChangePasswordPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
@@ -33,6 +34,7 @@ function App() {
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
 
         <Route element={<PrivateRoute />}>
+          <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePasswordPage />} />
           <Route element={<Layout />}>
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DOC.LIST} element={<DocListPage />} />

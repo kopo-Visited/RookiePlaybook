@@ -17,4 +17,9 @@ export const AUTH_MESSAGES = {
   EMAIL_REQUIRED: '이메일을 입력해주세요.',
   PASSWORD_REQUIRED: '비밀번호를 입력해주세요.',
   LOGIN_FAILED: '이메일 또는 비밀번호가 일치하지 않습니다.',
+  CURRENT_PASSWORD_REQUIRED: '현재 비밀번호를 입력해주세요.',
+  NEW_PASSWORD_REQUIRED: '새 비밀번호를 입력해주세요.',
+  NEW_PASSWORD_CONFIRM_REQUIRED: '새 비밀번호 확인을 입력해주세요.',
+  NEW_PASSWORD_MISMATCH: '새 비밀번호가 일치하지 않습니다.',
+  NEW_PASSWORD_SAME_AS_CURRENT: '현재 비밀번호와 다른 비밀번호를 입력해주세요.',
 };
