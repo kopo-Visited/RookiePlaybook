@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
-import AiChatModal from '../../../components/AiChatModal/AiChatModal';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { getDocuments } from '../../../api/docApi';
@@ -138,7 +137,6 @@ function DocListPage() {
   const [category, setCategory] = useState('전체');
   const [sort, setSort] = useState('최신순');
   const [selectedDoc, setSelectedDoc] = useState(null);
-  const [aiOpen, setAiOpen] = useState(false);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = apiRes?.data ?? [];
@@ -362,7 +360,7 @@ function DocListPage() {
           <section className={styles.sideCard}>
             <div className={styles.sectionHead}>
               <span className={styles.sectionTitle}>최근 FAQ</span>
-              <button className={styles.linkBtn}>전체보기 ›</button>
+              <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.ALL)}>전체보기 ›</button>
             </div>
             <ul className={styles.faqList}>
               {faqItems.map(({ id, colorKey, question, tags }) => (
@@ -375,11 +373,6 @@ function DocListPage() {
                 </li>
               ))}
             </ul>
-            <div className={styles.faqActions} style={{ position: 'relative' }}>
-              {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
-              <button className={styles.btnPrimary} onClick={() => setAiOpen(o => !o)}>AI에게 물어보기</button>
-              <button className={styles.btnOutline}>질문하기</button>
-            </div>
           </section>
 
           <section className={styles.sideCard}>

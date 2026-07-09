@@ -4,6 +4,7 @@ import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
 import NotificationPanel from '../NotificationPanel/NotificationPanel';
+import AiChatModal from '../AiChatModal/AiChatModal';
 import { getNotifications, markNotificationRead, deleteAllNotifications } from '../../api/qnaApi';
 import { logout as logoutApi } from '../../api/authApi';
 import chatbotImg from '../../assets/chatbot.png';
@@ -197,6 +198,7 @@ function Layout() {
 
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const notifRef = useRef(null);
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -296,11 +298,12 @@ function Layout() {
           <p className={styles.helpDesc}>
             궁금한 내용을 바로 질문하고 정보를 빠르게 안내 받아 보세요.
           </p>
-          <button className={styles.helpBtn}>
+          <button className={styles.helpBtn} onClick={() => setAiOpen(true)}>
             <span>💬</span>
             <span>AI에게 물어보기</span>
           </button>
         </div>
+        {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
       </aside>
 
       <div className={styles.mainWrapper}>
