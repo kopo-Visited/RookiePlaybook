@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
+import AiChatModal from '../../../components/AiChatModal/AiChatModal';
 import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { ALL_DOCS } from '../../../constants/docData';
@@ -174,6 +175,7 @@ function DocListPage() {
   const [sort, setSort] = useState('최신순');
   const [requiredOnly, setRequiredOnly] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const deptDD = useDropdown();
   const contentTypeDD = useDropdown();
@@ -428,8 +430,9 @@ function DocListPage() {
                 </li>
               ))}
             </ul>
-            <div className={styles.faqActions}>
-              <button className={styles.btnPrimary}>AI에게 물어보기</button>
+            <div className={styles.faqActions} style={{ position: 'relative' }}>
+              {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
+              <button className={styles.btnPrimary} onClick={() => setAiOpen(o => !o)}>AI에게 물어보기</button>
               <button className={styles.btnOutline}>질문하기</button>
             </div>
           </section>
