@@ -289,7 +289,7 @@ function AdminDocPage() {
                     </div>
                   </td>
                   <td>
-                    <StatusBadge status={publicStatus} />
+                    <div><StatusBadge status={publicStatus} /></div>
                   </td>
                   <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
                   <td className={styles.textCell}>{row.viewCount}</td>
