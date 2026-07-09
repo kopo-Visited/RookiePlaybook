@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
+import Toast from '../../../components/Toast/Toast';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { getDocuments } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -18,51 +19,14 @@ function formatDate(dateStr) {
 }
 
 const faqItems = [
-  {
-    id: 1,
-    colorKey: COLOR_KEYS.BLUE,
-    question: 'Git 충돌이 나면 어떻게 하나요?',
-    tags: '개발 · Git · PR',
-  },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.GREEN,
-    question: '서버 접속 권한은 어디서 요청하나요?',
-    tags: '인프라 · 권한',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    question: '개인정보 파일은 어떻게 공유하나요?',
-    tags: '보안 · 개인정보',
-  },
-  {
-    id: 4,
-    colorKey: COLOR_KEYS.ORANGE,
-    question: 'VPN이 안 될 때 무엇을 확인하나요?',
-    tags: '네트워크 · VPN',
-  },
-];
-
-const bookmarkItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE, title: '개발 환경 세팅 가이드', meta: '개발 · 2026.07.06' },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.ORANGE,
-    title: 'VPN 접속 방법 및 오류 해결',
-    meta: '네트워크 · 2026.06.12',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    title: '계정 보안과 권한 신청 절차',
-    meta: '보안 · 2026.06.20',
-  },
+  { id: 1, colorKey: COLOR_KEYS.BLUE,   question: 'Git 충돌이 나면 어떻게 하나요?',      tags: '개발 · Git · PR' },
+  { id: 2, colorKey: COLOR_KEYS.GREEN,  question: '서버 접속 권한은 어디서 요청하나요?',  tags: '인프라 · 권한' },
+  { id: 3, colorKey: COLOR_KEYS.PINK,   question: '개인정보 파일은 어떻게 공유하나요?',   tags: '보안 · 개인정보' },
+  { id: 4, colorKey: COLOR_KEYS.ORANGE, question: 'VPN이 안 될 때 무엇을 확인하나요?',   tags: '네트워크 · VPN' },
 ];
 
 const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
 const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net' };
-
 
 function IconSearch() {
   return (
@@ -76,13 +40,7 @@ function IconSearch() {
 function IconChevronDown() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -92,10 +50,7 @@ function IconHeart() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
       <path
         d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
       />
     </svg>
   );
@@ -121,6 +76,9 @@ function DocListPage() {
   const [sort, setSort] = useState('최신순');
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [page, setPage] = useState(1);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [bookmarkView, setBookmarkView] = useState(false);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = apiRes?.data ?? [];
@@ -135,22 +93,24 @@ function DocListPage() {
 
   const displayedDocs = useMemo(() => {
     let list = docs;
-    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
-    if (category !== '전체') list = list.filter(d => d.categoryName === category);
+    if (bookmarkView) {
+      const ids = new Set(bookmarks.map(b => b.id));
+      list = list.filter(d => ids.has(d.id));
+    } else {
+      if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
+      if (category !== '전체') list = list.filter(d => d.categoryName === category);
+    }
     if (sort === '오래된순') list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     else if (sort === '조회순') list = [...list].sort((a, b) => b.viewCount - a.viewCount);
     else list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return list;
-  }, [docs, search, category, sort]);
+  }, [docs, search, category, sort, bookmarkView, bookmarks]);
 
   const summaryCards = useMemo(() => {
     const countMap = {};
     docs.forEach(d => { countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1; });
     return Object.entries(countMap).map(([name, count], i) => ({
-      id: name,
-      categoryName: name,
-      colorKey: CARD_COLORS[i % CARD_COLORS.length],
-      count,
+      id: name, categoryName: name, colorKey: CARD_COLORS[i % CARD_COLORS.length], count,
     }));
   }, [docs]);
 
@@ -165,6 +125,7 @@ function DocListPage() {
   function handleCategorySelect(option) {
     setCategory(option);
     setPage(1);
+    setBookmarkView(false);
     categoryDD.setOpen(false);
   }
 
@@ -179,6 +140,30 @@ function DocListPage() {
     setPage(1);
   }
 
+  function handleBookmarkViewToggle() {
+    setBookmarkView(v => !v);
+    setPage(1);
+  }
+
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+  }, []);
+
+  const handleBookmark = useCallback((doc) => {
+    const already = bookmarks.some(b => b.id === doc.id);
+    if (already) {
+      setBookmarks(prev => prev.filter(b => b.id !== doc.id));
+      showToast('북마크에서 제거되었습니다.');
+    } else {
+      const colorKey = categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE;
+      const date = doc.createdAt
+        ? new Date(doc.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '')
+        : '';
+      setBookmarks(prev => [{ id: doc.id, colorKey, title: doc.title, meta: `${doc.categoryName} · ${date}` }, ...prev]);
+      showToast('북마크에 저장되었습니다.');
+    }
+  }, [bookmarks, categoryColorMap, showToast]);
+
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
@@ -188,7 +173,6 @@ function DocListPage() {
         </p>
       </div>
 
-      {/* 필터 카드 */}
       <section className={styles.filterCard}>
         <div className={styles.filterRow}>
           <div className={`${styles.filterField} ${styles.filterFieldWide}`}>
@@ -200,13 +184,10 @@ function DocListPage() {
                 value={search}
                 onChange={e => handleSearch(e.target.value)}
               />
-              <span className={styles.inputIcon}>
-                <IconSearch />
-              </span>
+              <span className={styles.inputIcon}><IconSearch /></span>
             </div>
           </div>
 
-          {/* 카테고리 */}
           <div className={styles.filterField} ref={categoryDD.ref}>
             <label className={styles.filterLabel}>카테고리</label>
             <div
@@ -225,15 +206,12 @@ function DocListPage() {
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
                     onClick={() => handleCategorySelect(opt)}
-                  >
-                    {opt}
-                  </li>
+                  >{opt}</li>
                 ))}
               </ul>
             )}
           </div>
 
-          {/* 정렬 */}
           <div className={styles.filterField} ref={sortDD.ref}>
             <label className={styles.filterLabel}>정렬</label>
             <div
@@ -252,14 +230,11 @@ function DocListPage() {
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
                     onClick={() => handleSortSelect(opt)}
-                  >
-                    {opt}
-                  </li>
+                  >{opt}</li>
                 ))}
               </ul>
             )}
           </div>
-
         </div>
 
         <div className={styles.summaryRow}>
@@ -279,15 +254,18 @@ function DocListPage() {
         </div>
       </section>
 
-      {/* 콘텐츠 그리드 */}
       <div className={styles.contentGrid}>
         <section className={styles.docSection}>
           <div className={styles.sectionHead}>
             <div className={styles.sectionHeadLeft}>
-              <span className={styles.sectionTitle}>카테고리별 핵심 문서</span>
+              <span className={styles.sectionTitle}>
+                {bookmarkView ? '내 북마크' : '카테고리별 핵심 문서'}
+              </span>
               <Badge colorKey={COLOR_KEYS.BLUE}>총 {displayedDocs.length}건</Badge>
             </div>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            {bookmarkView && (
+              <button className={styles.linkBtn} onClick={handleBookmarkViewToggle}>← 전체 문서</button>
+            )}
           </div>
 
           {loading && <p className={styles.empty}>문서를 불러오는 중...</p>}
@@ -310,9 +288,7 @@ function DocListPage() {
                       <div className={styles.titleCell}>
                         <span className={styles.titleText}>{doc.title}</span>
                         {doc.tags?.map(tag => (
-                          <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
-                            {tag}
-                          </Badge>
+                          <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>{tag}</Badge>
                         ))}
                       </div>
                     </td>
@@ -326,12 +302,8 @@ function DocListPage() {
                         {doc.content?.slice(0, 40)}{doc.content?.length > 40 ? '...' : ''}
                       </span>
                     </td>
-                    <td>
-                      <span className={styles.secondary}>{doc.viewCount}</span>
-                    </td>
-                    <td>
-                      <span className={styles.secondary}>{formatDate(doc.createdAt)}</span>
-                    </td>
+                    <td><span className={styles.secondary}>{doc.viewCount}</span></td>
+                    <td><span className={styles.secondary}>{formatDate(doc.createdAt)}</span></td>
                   </tr>
                 ))}
               </tbody>
@@ -339,7 +311,9 @@ function DocListPage() {
           )}
 
           {!loading && !error && displayedDocs.length === 0 && (
-            <p className={styles.empty}>조건에 맞는 문서가 없습니다.</p>
+            <p className={styles.empty}>
+              {bookmarkView ? '저장된 북마크가 없습니다.' : '조건에 맞는 문서가 없습니다.'}
+            </p>
           )}
 
           {totalPages > 1 && (
@@ -387,10 +361,17 @@ function DocListPage() {
           <section className={styles.sideCard}>
             <div className={styles.sectionHead}>
               <span className={styles.sectionTitle}>내 북마크</span>
-              <button className={styles.linkBtn}>전체보기 ›</button>
+              {bookmarks.length > 0 && (
+                <button className={styles.linkBtn} onClick={handleBookmarkViewToggle}>
+                  {bookmarkView ? '← 전체' : '전체보기 ›'}
+                </button>
+              )}
             </div>
             <ul className={styles.bookmarkList}>
-              {bookmarkItems.map(({ id, colorKey, title, meta }) => (
+              {bookmarks.length === 0 && (
+                <li className={styles.bookmarkEmpty}>저장된 북마크가 없습니다.</li>
+              )}
+              {bookmarks.slice(0, 3).map(({ id, colorKey, title, meta }) => (
                 <li key={id} className={styles.bookmarkItem}>
                   <div className={`${styles.bookmarkIcon} ${styles[colorKey]}`}>
                     <IconHeart />
@@ -401,12 +382,25 @@ function DocListPage() {
                   </div>
                 </li>
               ))}
+              {bookmarks.length > 3 && (
+                <li className={styles.bookmarkMore} onClick={handleBookmarkViewToggle}>
+                  +{bookmarks.length - 3}개 더보기
+                </li>
+              )}
             </ul>
           </section>
         </aside>
       </div>
 
-      {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
+      {selectedDoc && (
+        <DocDetailModal
+          doc={selectedDoc}
+          onClose={() => setSelectedDoc(null)}
+          onBookmark={handleBookmark}
+          isBookmarked={bookmarks.some(b => b.id === selectedDoc.id)}
+        />
+      )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }

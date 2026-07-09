@@ -139,6 +139,12 @@
 .btnOutline:hover {
   background: var(--color-primary-bg);
 }
+.btnOutlineActive {
+  composes: btnOutline;
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
 .btnPrimary {
   height: 44px;
   padding: 0 20px;
