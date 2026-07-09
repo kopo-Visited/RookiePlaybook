@@ -62,24 +62,6 @@ const bookmarkItems = [
 const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
 const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net' };
 
-const onboardingCourses = [
-  {
-    id: 'dev',
-    team: '개발팀',
-    steps: [
-      { badge: 'D1', title: '환경 세팅', desc: 'Node, Java, Python 사내 표준 버전' },
-      { badge: 'W1', title: '첫 PR 날리기', desc: '브랜치 전략, 커밋, 코드 리뷰' },
-    ],
-  },
-  {
-    id: 'infra',
-    team: '인프라팀',
-    steps: [
-      { badge: 'D1', title: '서버 문 두드리기', desc: 'SSH 키 등록과 안전 접속' },
-      { badge: 'W1', title: '로그와 배포 확인', desc: '배포 체크리스트와 알림 해석' },
-    ],
-  },
-];
 
 function IconSearch() {
   return (
@@ -396,31 +378,6 @@ function DocListPage() {
           </section>
         </aside>
       </div>
-
-      <section className={styles.onboardingSection}>
-        <div className={styles.sectionHead}>
-          <span className={styles.sectionTitle}>부서별 온보딩 핵심 흐름</span>
-          <button className={styles.linkBtn}>교육 전체보기 ›</button>
-        </div>
-        <div className={styles.onboardingGrid}>
-          {onboardingCourses.map(({ id, team, steps }) => (
-            <div key={id} className={styles.onboardingCard}>
-              <span className={styles.onboardingTeam}>{team}</span>
-              <div className={styles.onboardingSteps}>
-                {steps.map(({ badge, title, desc }) => (
-                  <div key={badge} className={styles.onboardingStep}>
-                    <div className={`${styles.stepBadge} ${styles.blue}`}>{badge}</div>
-                    <div className={styles.stepBody}>
-                      <span className={styles.stepTitle}>{title}</span>
-                      <span className={styles.stepDesc}>{desc}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
     </div>
