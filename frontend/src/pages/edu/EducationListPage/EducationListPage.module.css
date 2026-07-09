@@ -40,6 +40,16 @@
   color: var(--color-text-title);
   letter-spacing: -0.2px;
 }
+.linkBtn {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
 
 /* ── Education List (DashboardPage "진행 중 교육" 패턴 재사용) ── */
 .eduList {
