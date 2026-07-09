@@ -1,6 +1,7 @@
 package com.visited.www.edu.controller;
 
 import com.visited.www.edu.dto.response.AdminProgressResponseDto;
+import com.visited.www.edu.dto.response.IncompleteResponseDto;
 import com.visited.www.edu.service.EducationService;
 import com.visited.www.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,25 @@ public class AdminProgressController {
     ) {
         Page<AdminProgressResponseDto> response =
                 educationService.getAdminProgress(departmentId, educationId, isCompleted, pageable);
+        return ApiResponse.success(response);
+    }
+
+    /**
+     * EDU-FR-010: 미완료자 조회 (과정 필터 + 페이징)
+     */
+    @Operation(summary = "미완료자 조회",
+            description = "특정 과정을 완료하지 않은 사용자를 페이징 조회한다")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한 없음")
+    })
+    @GetMapping("/incomplete")
+    public ApiResponse<Page<IncompleteResponseDto>> getIncompleteProgress(
+            @RequestParam(required = false) Long educationId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Page<IncompleteResponseDto> response =
+                educationService.getIncompleteProgress(educationId, pageable);
         return ApiResponse.success(response);
     }
 }
