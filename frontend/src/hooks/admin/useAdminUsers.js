@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   getAdminUsers,
   getDepartments,
+  getRoles,
   createAdminUser,
   updateAdminUser,
   updateAdminUserRole,
@@ -12,6 +13,7 @@ import { ERROR_MESSAGES } from '../../constants/message';
 const useAdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,6 +34,9 @@ const useAdminUsers = () => {
     fetchUsers();
     getDepartments()
       .then(setDepartments)
+      .catch(() => {});
+    getRoles()
+      .then(setRoles)
       .catch(() => {});
   }, [fetchUsers]);
 
@@ -58,6 +63,7 @@ const useAdminUsers = () => {
   return {
     users,
     departments,
+    roles,
     loading,
     error,
     registerUser,

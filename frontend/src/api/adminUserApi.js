@@ -19,6 +19,15 @@ export const getDepartments = async () => {
 };
 
 /**
+ * 권한 목록 조회
+ * GET /api/roles
+ */
+export const getRoles = async () => {
+  const response = await axiosInstance.get('/api/roles');
+  return response.data;
+};
+
+/**
  * 관리자 사용자 등록
  * POST /api/admin/users
  */
