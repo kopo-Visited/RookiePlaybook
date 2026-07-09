@@ -1,0 +1,126 @@
+/* ── Overlay / Modal (NoticeListModal 패턴 재사용) ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.28);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 480px;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 28px;
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  background: #eef3f9;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #637087;
+  flex-shrink: 0;
+}
+
+.body {
+  overflow-y: auto;
+}
+
+/* ── Progress List (EducationListPage 진도 표시 패턴 재사용) ── */
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.item {
+  padding: 16px 0;
+  border-bottom: 1px solid #eef1f6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item:first-child {
+  padding-top: 0;
+}
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.itemTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #172033;
+}
+.badge {
+  font-size: 10.3px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 16px;
+}
+.completedAt {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progressBar {
+  flex: 1;
+  height: 7px;
+  background: #e9edf4;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 99px;
+}
+.progressPct {
+  font-size: 12.9px;
+  color: #49566d;
+  min-width: 32px;
+  text-align: right;
+}
+
+@media (max-width: 680px) {
+  .modal {
+    width: calc(100vw - 32px);
+  }
+}

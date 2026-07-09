@@ -4,6 +4,7 @@ import styles from './EducationListPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import { getEducations } from '../../../api/eduApi';
 import { ROUTES } from '../../../constants/routes';
+import MyProgressModal from '../../../components/MyProgressModal/MyProgressModal';
 
 const PAGE_SIZE = 10;
 
@@ -22,6 +23,7 @@ function statusChip(edu) {
 function EducationListPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [progressOpen, setProgressOpen] = useState(false);
 
   const {
     data: apiRes,
@@ -45,6 +47,9 @@ function EducationListPage() {
       <section className={styles.listCard}>
         <div className={styles.sectionHead}>
           <span className={styles.sectionTitle}>교육 과정</span>
+          <button className={styles.linkBtn} onClick={() => setProgressOpen(true)}>
+            내 학습 현황 ›
+          </button>
         </div>
 
         {loading && <p className={styles.empty}>교육 과정을 불러오는 중...</p>}
@@ -130,6 +135,8 @@ function EducationListPage() {
           </div>
         )}
       </section>
+
+      {progressOpen && <MyProgressModal onClose={() => setProgressOpen(false)} />}
     </div>
   );
 }
