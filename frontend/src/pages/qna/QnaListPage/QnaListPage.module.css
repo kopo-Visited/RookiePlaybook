@@ -229,7 +229,7 @@
 /* ── Text ── */
 .titleText {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-text-body);
 }
 .secondary {

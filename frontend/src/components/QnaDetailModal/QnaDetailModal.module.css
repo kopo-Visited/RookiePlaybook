@@ -29,8 +29,8 @@
 }
 .title {
   margin: 0;
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--color-text-title);
 }
 .closeBtn {
@@ -71,14 +71,14 @@
 }
 .qTitle {
   margin: 0 0 12px;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--color-text-title);
   line-height: 1.4;
 }
 .qContent {
   margin: 0 0 10px;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--color-text-body);
   white-space: pre-wrap;
@@ -96,7 +96,7 @@
 .answerLabel {
   display: block;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-text-title);
   margin-bottom: 12px;
 }
@@ -107,7 +107,7 @@
 }
 .answerContent {
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--color-text-body);
   white-space: pre-wrap;
