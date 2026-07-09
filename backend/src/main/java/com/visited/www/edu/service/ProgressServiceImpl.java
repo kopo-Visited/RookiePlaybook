@@ -1,14 +1,19 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.entity.Education;
+import com.visited.www.edu.entity.EducationMaterial;
 import com.visited.www.edu.entity.EducationProgress;
 import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.StageCompletion;
+import com.visited.www.edu.entity.VideoProgress;
+import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
+import com.visited.www.edu.repository.VideoProgressRepository;
 import com.visited.www.entity.User;
 import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +29,8 @@ public class ProgressServiceImpl implements ProgressService {
     private final EducationStageRepository educationStageRepository;
     private final StageCompletionRepository stageCompletionRepository;
     private final EducationProgressRepository educationProgressRepository;
+    private final EducationMaterialRepository educationMaterialRepository;
+    private final VideoProgressRepository videoProgressRepository;
     private final UserRepository userRepository;
 
     // EDU-FR-004: 단계 완료 처리 (완료 기록 저장 → 진도율 재계산 → 과정 진도 갱신)
@@ -67,5 +74,26 @@ public class ProgressServiceImpl implements ProgressService {
                 progress.isCompleted(),
                 progress.getCompletedAt()
         );
+    }
+
+    // EDU-FR-003: 영상 시청 위치 저장 (있으면 갱신, 없으면 생성 - upsert)
+    @Override
+    @Transactional
+    public void saveVideoProgress(Long userId, Long materialId, Integer watchedPosition) {
+        EducationMaterial material = educationMaterialRepository.findById(materialId)
+                .orElseThrow(() -> {
+                    log.warn("존재하지 않는 자료 시청 위치 저장 시도. userId={}, materialId={}", userId, materialId);
+                    return new MaterialNotFoundException();
+                });
+
+        videoProgressRepository.findByUserIdAndMaterialId(userId, materialId)
+                .ifPresentOrElse(
+                        videoProgress -> videoProgress.updatePosition(watchedPosition),
+                        () -> videoProgressRepository.save(VideoProgress.create(
+                                userRepository.getReferenceById(userId), material, watchedPosition))
+                );
+
+        log.info("영상 시청 위치 저장. userId={}, materialId={}, position={}",
+                userId, materialId, watchedPosition);
     }
 }

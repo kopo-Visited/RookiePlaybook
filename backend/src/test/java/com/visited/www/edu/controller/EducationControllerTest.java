@@ -1,7 +1,9 @@
 package com.visited.www.edu.controller;
 
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.service.EducationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -107,6 +109,60 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.progressRate").value(40))
                 .andExpect(jsonPath("$.data.isCompleted").value(false))
+                .andDo(print());
+    }
+
+    // ==================== EDU-FR-003: 단계 자료 조회 ====================
+
+    @Test
+    @DisplayName("GET /api/stages/{stageId}/material - 단계 자료 조회 성공")
+    void getStageMaterial_success() throws Exception {
+        // given
+        Long userId = 1L;
+        Long stageId = 1L;
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        StageMaterialResponseDto mockMaterial = new StageMaterialResponseDto(
+                1L, "회사 소개 영상", "https://youtube.com/example", 120, 600
+        );
+
+        given(educationService.getStageMaterial(userId, stageId)).willReturn(mockMaterial);
+
+        // when & then
+        mockMvc.perform(get("/api/stages/{stageId}/material", stageId)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.materialId").value(1L))
+                .andExpect(jsonPath("$.data.lastWatchedPosition").value(120))
+                .andExpect(jsonPath("$.data.totalDuration").value(600))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("GET /api/stages/{stageId}/material - 존재하지 않는 자료면 404 반환")
+    void getStageMaterial_notFound() throws Exception {
+        // given
+        Long userId = 1L;
+        Long stageId = 999L;
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        given(educationService.getStageMaterial(userId, stageId))
+                .willThrow(new MaterialNotFoundException());
+
+        // when & then
+        mockMvc.perform(get("/api/stages/{stageId}/material", stageId)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
                 .andDo(print());
     }
 }

@@ -1,6 +1,7 @@
 package com.visited.www.edu.controller;
 
 import com.visited.www.edu.dto.request.StageCompleteRequestDto;
+import com.visited.www.edu.dto.request.VideoProgressRequestDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.service.ProgressService;
 import com.visited.www.global.response.ApiResponse;
@@ -33,5 +34,18 @@ public class ProgressController {
     ) {
         StageCompleteResponseDto response = progressService.completeStage(userId, request.getStageId());
         return ApiResponse.success(response, "단계가 완료되었습니다.");
+    }
+
+    /**
+     * EDU-FR-003: 영상 시청 위치 저장
+     */
+    @Operation(summary = "영상 시청 위치 저장", description = "영상 이어보기를 위해 시청 위치를 저장한다")
+    @PostMapping("/video")
+    public ApiResponse<Void> saveVideoProgress(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody VideoProgressRequestDto request
+    ) {
+        progressService.saveVideoProgress(userId, request.getMaterialId(), request.getWatchedPosition());
+        return ApiResponse.<Void>success(null, "영상 시청 위치가 저장되었습니다.");
     }
 }

@@ -1,15 +1,21 @@
 package com.visited.www.edu.service;
 
 import com.visited.www.edu.EducationNotFoundException;
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.MaterialResponseDto;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.dto.response.StageResponseDto;
 import com.visited.www.edu.entity.Education;
+import com.visited.www.edu.entity.EducationMaterial;
+import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.mapper.EducationMapper;
+import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationRepository;
+import com.visited.www.edu.repository.VideoProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +36,8 @@ public class EducationServiceImpl implements EducationService {
 
     private final EducationRepository educationRepository;
     private final EducationMapper educationMapper;
+    private final EducationMaterialRepository educationMaterialRepository;
+    private final VideoProgressRepository videoProgressRepository;
 
     // EDU-FR-001: 교육 과정 목록 조회
     @Override
@@ -115,6 +123,26 @@ public class EducationServiceImpl implements EducationService {
                 progressRate,
                 isCompleted,
                 stageDtos
+        );
+    }
+
+    // EDU-FR-003: 단계 자료 조회 (사용자의 이어보기 위치 포함)
+    @Override
+    public StageMaterialResponseDto getStageMaterial(Long userId, Long stageId) {
+        EducationMaterial material = educationMaterialRepository.findByStageId(stageId)
+                .orElseThrow(MaterialNotFoundException::new);
+
+        int lastWatchedPosition = videoProgressRepository
+                .findByUserIdAndMaterialId(userId, material.getId())
+                .map(VideoProgress::getWatchedPosition)
+                .orElse(0);
+
+        return new StageMaterialResponseDto(
+                material.getId(),
+                material.getTitle(),
+                material.getVideoUrl(),
+                lastWatchedPosition,
+                material.getTotalDuration()
         );
     }
 }
