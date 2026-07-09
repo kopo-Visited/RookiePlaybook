@@ -2,6 +2,7 @@ package com.visited.www.qna.repository;
 
 import com.visited.www.qna.entity.Question;
 import com.visited.www.qna.enums.QuestionStatus;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface QuestionRepository
     boolean existsByCategoryId(Long categoryId);
 
     long countByStatus(QuestionStatus status);
+
+    List<Question> findTop3ByOrderByCreatedAtDesc();
 }

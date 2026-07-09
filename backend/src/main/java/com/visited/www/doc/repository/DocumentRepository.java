@@ -22,6 +22,8 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     long countByCreatedAtBefore(LocalDateTime dateTime);
 
+    List<Document> findTop3ByOrderByCreatedAtDesc();
+
     @Query("SELECT new com.visited.www.statistics.dto.response.CategoryDistributionDto(c.categoryName, COUNT(d)) "
             + "FROM Document d JOIN d.category c "
             + "GROUP BY c.categoryName "

@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.lastLoginAt FROM User u WHERE u.lastLoginAt IS NOT NULL")
     List<LocalDateTime> findAllLastLoginTimestamps();
+
+    List<User> findTop5ByOrderByCreatedAtDesc();
 }

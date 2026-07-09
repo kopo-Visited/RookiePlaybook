@@ -10,6 +10,9 @@ public record DashboardStatsResponseDto(
         double documentGrowthRatePercent,
         long unansweredQuestions,
         List<CategoryDistributionDto> documentCategoryDistribution,
-        List<HourlyAccessDto> accessTrend
+        List<HourlyAccessDto> accessTrend,
+        List<RecentUserDto> recentUsers,
+        List<RecentDocumentDto> recentDocuments,
+        List<RecentQuestionDto> recentQuestions
 ) {
 }

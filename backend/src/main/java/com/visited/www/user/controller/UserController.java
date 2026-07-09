@@ -2,6 +2,7 @@ package com.visited.www.user.controller;
 
 import com.visited.www.global.response.ApiResponse;
 import com.visited.www.user.dto.response.DepartmentResponse;
+import com.visited.www.user.dto.response.RoleResponse;
 import com.visited.www.user.dto.response.UserResponse;
 import com.visited.www.user.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,12 @@ public class UserController {
     @GetMapping("/departments")
     public ApiResponse<List<DepartmentResponse>> getDepartments() {
         List<DepartmentResponse> response = adminUserService.getDepartments();
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/roles")
+    public ApiResponse<List<RoleResponse>> getRoles() {
+        List<RoleResponse> response = adminUserService.getRoles();
         return ApiResponse.success(response);
     }
 
