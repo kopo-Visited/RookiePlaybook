@@ -1,12 +1,13 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './VideoPlayerPage.module.css';
 import Button from '../../../components/Button/Button';
+import Toast from '../../../components/Toast/Toast';
 import { BUTTON_VARIANTS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import useFetch from '../../../hooks/useFetch';
 import useVideoProgress from '../../../hooks/edu/useVideoProgress';
-import { getMaterial, getEducationDetail } from '../../../api/eduApi';
+import { getMaterial, getEducationDetail, completeStage } from '../../../api/eduApi';
 
 function formatTime(sec) {
   if (!Number.isFinite(sec) || sec < 0) return '00:00';
@@ -91,6 +92,13 @@ function VideoPlayerPage() {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
+  const [justCompleted, setJustCompleted] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  // 단계 이동(stageId 변경) 시 완료 상태 초기화
+  useEffect(() => {
+    setJustCompleted(false);
+  }, [stageId]);
 
   const {
     data: matRes,
@@ -138,6 +146,18 @@ function VideoPlayerPage() {
     if (!wrap) return;
     if (document.fullscreenElement) document.exitFullscreen();
     else wrap.requestFullscreen?.();
+  }
+
+  const isCompleted = justCompleted || Boolean(stage?.isCompleted);
+
+  async function handleComplete() {
+    try {
+      await completeStage(stageId);
+      setJustCompleted(true);
+      setToast('단계를 완료했습니다.');
+    } catch {
+      setToast('완료 처리에 실패했습니다.');
+    }
   }
 
   return (
@@ -227,6 +247,13 @@ function VideoPlayerPage() {
           <div className={styles.actions}>
             <Button
               variant={BUTTON_VARIANTS.PRIMARY}
+              disabled={isCompleted}
+              onClick={handleComplete}
+            >
+              {isCompleted ? '완료됨' : '단계 완료'}
+            </Button>
+            <Button
+              variant={BUTTON_VARIANTS.PRIMARY}
               disabled={!prevStage}
               onClick={() => prevStage && navigate(ROUTES.EDU.VIDEO(id, prevStage.stageId))}
             >
@@ -245,6 +272,8 @@ function VideoPlayerPage() {
           </div>
         </div>
       )}
+
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }
