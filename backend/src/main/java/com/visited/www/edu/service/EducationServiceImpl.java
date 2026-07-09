@@ -117,6 +117,7 @@ public class EducationServiceImpl implements EducationService {
                     return new StageResponseDto(
                             stage.getStageId(),
                             stage.getTitle(),
+                            stage.getDescription(),
                             stage.getOrderNumber(),
                             stage.getIsCompleted(),
                             materialDto

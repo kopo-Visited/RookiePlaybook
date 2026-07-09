@@ -33,6 +33,7 @@
         SELECT
             es.id AS stageId,
             es.title AS title,
+            es.description AS description,
             es.order_number AS orderNumber,
             CASE WHEN sc.id IS NOT NULL THEN true ELSE false END AS isCompleted,
             em.id AS materialId,
