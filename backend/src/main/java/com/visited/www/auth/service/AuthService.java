@@ -48,7 +48,8 @@ public class AuthService {
                 user.getEmail(),
                 user.getDepartment().getName(),
                 user.getRole().getName(),
-                user.getRole().getCode()
+                user.getRole().getCode(),
+                user.isPasswordChangeRequired()
         );
     }
 

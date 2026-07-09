@@ -4,6 +4,9 @@ import com.visited.www.entity.Department;
 import com.visited.www.entity.Role;
 import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
+import com.visited.www.global.exception.BusinessException;
+import com.visited.www.global.exception.ErrorCode;
+import com.visited.www.user.dto.request.PasswordChangeRequest;
 import com.visited.www.user.dto.request.UserCreateRequest;
 import com.visited.www.user.dto.request.UserRoleUpdateRequest;
 import com.visited.www.user.dto.request.UserStatusUpdateRequest;
@@ -25,6 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class AdminUserService {
+
+    // 관리자가 등록하는 모든 신규 계정의 고정 초기 비밀번호. 최초 로그인 후 반드시 변경해야 한다.
+    private static final String INITIAL_PASSWORD = "0000";
 
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
@@ -58,7 +64,7 @@ public class AdminUserService {
         User user = User.builder()
                 .name(request.name())
                 .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
+                .password(passwordEncoder.encode(INITIAL_PASSWORD))
                 .department(department)
                 .role(role)
                 .position(request.position())
@@ -108,6 +114,16 @@ public class AdminUserService {
         );
 
         return UserResponse.from(user);
+    }
+
+    public void changePassword(Long userId, PasswordChangeRequest request) {
+        User user = getUserEntity(userId);
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        user.completePasswordChange(passwordEncoder.encode(request.newPassword()));
     }
 
     @Transactional(readOnly = true)
