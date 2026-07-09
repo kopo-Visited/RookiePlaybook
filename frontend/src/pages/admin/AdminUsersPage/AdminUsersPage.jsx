@@ -8,50 +8,70 @@ import useAdminUsers from '../../../hooks/admin/useAdminUsers';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
 
-const STAT_CARDS = [
-  {
-    key: 'total',
-    label: '전체 사용자',
-    value: '1,248명',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
-    colorKey: COLOR_KEYS.BLUE,
-    icon: <IconPerson />,
-  },
-  {
-    key: 'active',
-    label: '활성 사용자',
-    value: '126명',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
-    colorKey: COLOR_KEYS.GREEN,
-    icon: <IconDocText />,
-  },
-  {
-    key: 'admin',
-    label: '관리자 계정',
-    value: '128명',
-    deltaDirection: 'down',
-    delta: '▼ 7.2%',
-    colorKey: COLOR_KEYS.PINK,
-    icon: <IconChatBubble />,
-  },
-  {
-    key: 'inactive',
-    label: '비활성 계정',
-    value: '20명',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
-    colorKey: COLOR_KEYS.ORANGE,
-    icon: <IconAcademicCap />,
-  },
+const STAT_CARD_CONFIG = [
+  { key: 'total', label: '전체 사용자', colorKey: COLOR_KEYS.BLUE, icon: <IconPerson /> },
+  { key: 'active', label: '활성 사용자', colorKey: COLOR_KEYS.GREEN, icon: <IconDocText /> },
+  { key: 'admin', label: '관리자 계정', colorKey: COLOR_KEYS.PINK, icon: <IconChatBubble /> },
+  { key: 'inactive', label: '비활성 계정', colorKey: COLOR_KEYS.ORANGE, icon: <IconAcademicCap /> },
 ];
 
-// 권한 목록 조회 API가 아직 없어 임시로 고정한 값 (roleId 1=일반 사용자, 2=관리자)
-const ROLE_OPTIONS = [
-  { roleId: 1, roleCode: 'ROLE_USER', roleName: '일반 사용자' },
-  { roleId: 2, roleCode: 'ROLE_ADMIN', roleName: '관리자' },
-];
+function buildUserStatCardValues(users) {
+  const total = users.length;
+  const active = users.filter(u => u.status === 'ACTIVE').length;
+  const admin = users.filter(u => u.roleCode === 'ROLE_ADMIN').length;
+  const inactive = total - active;
+  return {
+    total: { value: `${total.toLocaleString()}명` },
+    active: { value: `${active.toLocaleString()}명` },
+    admin: { value: `${admin.toLocaleString()}명` },
+    inactive: { value: `${inactive.toLocaleString()}명` },
+  };
+}
+
+function buildDeptDistribution(users) {
+  const counts = new Map();
+  users.forEach(u => counts.set(u.departmentName, (counts.get(u.departmentName) ?? 0) + 1));
+  const max = Math.max(...counts.values(), 1);
+  return Array.from(counts.entries())
+    .map(([label, value]) => ({ key: label, label, value, percent: (value / max) * 100 }))
+    .sort((a, b) => b.value - a.value);
+}
+
+function countRecentRegistrations(users, days = 30) {
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return users.filter(u => u.createdAt && new Date(u.createdAt).getTime() >= cutoff).length;
+}
+
+function buildRoleBreakdown(users) {
+  const total = users.length || 1;
+  const groups = [
+    {
+      key: 'admin',
+      label: '관리자',
+      match: u => u.roleCode === 'ROLE_ADMIN' && u.status === 'ACTIVE',
+      color: '#4285F4',
+      donutColor: '#2288FF',
+    },
+    {
+      key: 'user',
+      label: '일반 사용자',
+      match: u => u.roleCode !== 'ROLE_ADMIN' && u.status === 'ACTIVE',
+      color: '#9CC2FF',
+      donutColor: '#60A5FA',
+    },
+    {
+      key: 'inactive',
+      label: '비활성',
+      match: u => u.status !== 'ACTIVE',
+      color: '#D7E7FF',
+      donutColor: '#BFDBFE',
+    },
+  ];
+  return groups.map(g => {
+    const value = users.filter(g.match).length;
+    return { ...g, value, percent: `${((value / total) * 100).toFixed(1)}%` };
+  });
+}
 
 const STATUS_LABELS = {
   ACTIVE: '활성',
@@ -70,32 +90,6 @@ function formatDateTime(iso) {
   const pad = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-const DEPT_DISTRIBUTION = [
-  { key: 'dev', label: '개발팀', value: 312 },
-  { key: 'infra', label: '인프라팀', value: 156 },
-  { key: 'network', label: '네트워크팀', value: 248 },
-  { key: 'security', label: '보안팀', value: 140 },
-  { key: 'etc', label: '기타', value: 292 },
-];
-
-const RECENT_ACTIVITY = [
-  { key: 'create', label: '신규 등록', count: 24, color: '#4285F4' },
-  { key: 'role', label: '권한 변경', count: 12, color: '#72B17A' },
-  { key: 'status', label: '상태 변경', count: 8, color: '#F1B54A' },
-];
-
-const ROLE_DISTRIBUTION = [
-  { key: 'user', label: '일반 사용자', value: 1100, percent: '88.1%', color: '#4285F4' },
-  { key: 'admin', label: '관리자', value: 128, percent: '10.3%', color: '#9CC2FF' },
-  { key: 'inactive', label: '비활성', value: 20, percent: '1.6%', color: '#D7E7FF' },
-];
-
-const ROLE_DONUT_DATA = [
-  { key: 'user', value: 1100, color: '#2288FF' },
-  { key: 'admin', value: 128, color: '#60A5FA' },
-  { key: 'inactive', value: 20, color: '#BFDBFE' },
-];
 
 const ROLE_DESCRIPTIONS = [
   {
@@ -269,14 +263,16 @@ function StatCard({ label, value, delta, deltaDirection, colorKey, icon }) {
       <div className={styles.statInfo}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
-        <div className={styles.statFooter}>
-          <span
-            className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
-          >
-            {delta}
-          </span>
-          <span className={styles.statDeltaCaption}>지난주 대비</span>
-        </div>
+        {delta && (
+          <div className={styles.statFooter}>
+            <span
+              className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
+            >
+              {delta}
+            </span>
+            <span className={styles.statDeltaCaption}>지난주 대비</span>
+          </div>
+        )}
       </div>
     </article>
   );
@@ -320,7 +316,7 @@ function StatusCardSelector({ value, onChange }) {
   );
 }
 
-function UserFormFields({ form, onChange, departments, isEdit }) {
+function UserFormFields({ form, onChange, departments, roles, isEdit }) {
   return (
     <div className={styles.formGrid}>
       <div className={styles.field}>
@@ -372,9 +368,9 @@ function UserFormFields({ form, onChange, departments, isEdit }) {
           <option value="" disabled>
             권한을 선택하세요
           </option>
-          {ROLE_OPTIONS.map(role => (
+          {roles.map(role => (
             <option key={role.roleId} value={role.roleId}>
-              {role.roleName}
+              {role.name}
             </option>
           ))}
         </select>
@@ -406,7 +402,7 @@ function UserFormFields({ form, onChange, departments, isEdit }) {
   );
 }
 
-function RegisterUserModal({ departments, onClose, onSave }) {
+function RegisterUserModal({ departments, roles, onClose, onSave }) {
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -436,7 +432,13 @@ function RegisterUserModal({ departments, onClose, onSave }) {
         <h2 className={styles.modalTitle}>사용자 등록</h2>
         <p className={styles.modalSubtitle}>새 사내 사용자 계정을 등록합니다.</p>
 
-        <UserFormFields form={form} onChange={setForm} departments={departments} isEdit={false} />
+        <UserFormFields
+          form={form}
+          onChange={setForm}
+          departments={departments}
+          roles={roles}
+          isEdit={false}
+        />
 
         <div className={styles.field}>
           <label className={styles.label}>계정 상태</label>
@@ -467,7 +469,7 @@ function RegisterUserModal({ departments, onClose, onSave }) {
   );
 }
 
-function EditUserModal({ user, departments, onClose, onSave }) {
+function EditUserModal({ user, departments, roles, onClose, onSave }) {
   const [form, setForm] = useState({ ...user, position: user.position || '', memo: '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -489,7 +491,13 @@ function EditUserModal({ user, departments, onClose, onSave }) {
         <h2 className={styles.modalTitle}>사용자 정보 수정</h2>
         <p className={styles.modalSubtitle}>선택한 사용자 계정 정보와 권한을 변경합니다.</p>
 
-        <UserFormFields form={form} onChange={setForm} departments={departments} isEdit />
+        <UserFormFields
+          form={form}
+          onChange={setForm}
+          departments={departments}
+          roles={roles}
+          isEdit
+        />
 
         <div className={styles.field}>
           <label className={styles.label}>계정 상태</label>
@@ -552,6 +560,7 @@ function AdminUsersPage() {
   const {
     users,
     departments,
+    roles,
     loading,
     error,
     registerUser,
@@ -566,6 +575,14 @@ function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [editingUser, setEditingUser] = useState(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const statCardValues = useMemo(() => buildUserStatCardValues(users), [users]);
+  const deptDistribution = useMemo(() => buildDeptDistribution(users), [users]);
+  const roleBreakdown = useMemo(() => buildRoleBreakdown(users), [users]);
+  const recentRegistrations = useMemo(() => countRecentRegistrations(users), [users]);
+  const activePercent = users.length
+    ? (users.filter(u => u.status === 'ACTIVE').length / users.length) * 100
+    : 0;
 
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
@@ -649,8 +666,8 @@ function AdminUsersPage() {
       </div>
 
       <div className={styles.statGrid}>
-        {STAT_CARDS.map(({ key, ...card }) => (
-          <StatCard key={key} {...card} />
+        {STAT_CARD_CONFIG.map(({ key, ...card }) => (
+          <StatCard key={key} {...card} {...(statCardValues[key] ?? { value: '0명' })} />
         ))}
       </div>
 
@@ -687,9 +704,9 @@ function AdminUsersPage() {
             onChange={e => setRoleFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
           >
             <option value="ALL">권한 전체</option>
-            {ROLE_OPTIONS.map(role => (
+            {roles.map(role => (
               <option key={role.roleId} value={role.roleId}>
-                {role.roleName}
+                {role.name}
               </option>
             ))}
           </select>
@@ -781,39 +798,45 @@ function AdminUsersPage() {
       <div className={styles.bottomGrid}>
         <section className={styles.panel}>
           <h2 className={styles.panelTitle}>부서별 사용자 현황</h2>
-          <span className={styles.panelCaption}>최근 30일 기준</span>
+          <span className={styles.panelCaption}>전체 사용자 기준</span>
 
-          <ul className={styles.barList}>
-            {DEPT_DISTRIBUTION.map(({ key, label, value }) => (
-              <li key={key} className={styles.barItem}>
-                <span className={styles.barLabel}>{label}</span>
-                <div className={styles.barTrack}>
-                  <div
-                    className={styles.barFillDynamic}
-                    style={{ '--bar-color': '#4285F4', '--bar-percent': `${(value / 312) * 100}%` }}
-                  />
-                </div>
-                <span className={styles.barValue}>{value}명</span>
-              </li>
-            ))}
-          </ul>
+          {deptDistribution.length > 0 ? (
+            <ul className={styles.barList}>
+              {deptDistribution.map(({ key, label, value, percent }) => (
+                <li key={key} className={styles.barItem}>
+                  <span className={styles.barLabel}>{label}</span>
+                  <div className={styles.barTrack}>
+                    <div
+                      className={styles.barFillDynamic}
+                      style={{ '--bar-color': '#4285F4', '--bar-percent': `${percent}%` }}
+                    />
+                  </div>
+                  <span className={styles.barValue}>{value}명</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className={styles.panelCaption}>표시할 사용자가 없습니다.</p>
+          )}
 
           <div className={styles.activityBox}>
             <span className={styles.activityTitle}>최근 관리 활동</span>
             <ul className={styles.activityList}>
-              {RECENT_ACTIVITY.map(({ key, label, count }) => (
-                <li key={key} className={styles.activityItem}>
-                  <span className={`${styles.activityDot} ${styles[`dot_${key}`]}`} />
-                  <span className={styles.activityLabel}>{label}</span>
-                  <span className={styles.activityCount}>{count}</span>
-                </li>
-              ))}
+              <li className={styles.activityItem}>
+                <span className={`${styles.activityDot} ${styles.dot_create}`} />
+                <span className={styles.activityLabel}>신규 등록 (최근 30일)</span>
+                <span className={styles.activityCount}>{recentRegistrations}</span>
+              </li>
             </ul>
           </div>
 
           <div className={styles.miniBarRow}>
-            <div className={`${styles.miniBar} ${styles.miniBarActive}`}>활성 98.4%</div>
-            <div className={`${styles.miniBar} ${styles.miniBarInactive}`}>비활성 1.6%</div>
+            <div className={`${styles.miniBar} ${styles.miniBarActive}`}>
+              활성 {activePercent.toFixed(1)}%
+            </div>
+            <div className={`${styles.miniBar} ${styles.miniBarInactive}`}>
+              비활성 {(100 - activePercent).toFixed(1)}%
+            </div>
           </div>
         </section>
 
@@ -821,7 +844,7 @@ function AdminUsersPage() {
           <h2 className={styles.panelTitle}>권한별 사용자 분포</h2>
 
           <ul className={styles.barList}>
-            {ROLE_DISTRIBUTION.map(({ key, label, value, percent, color }) => (
+            {roleBreakdown.map(({ key, label, value, percent, color }) => (
               <li key={key} className={styles.barItem}>
                 <span className={styles.barLabel}>{label}</span>
                 <div className={styles.barTrack}>
@@ -836,9 +859,15 @@ function AdminUsersPage() {
             ))}
           </ul>
 
-          <div className={styles.donutWrap}>
-            <DonutChart data={ROLE_DONUT_DATA} />
-          </div>
+          {users.length > 0 ? (
+            <div className={styles.donutWrap}>
+              <DonutChart
+                data={roleBreakdown.map(r => ({ key: r.key, value: r.value, color: r.donutColor }))}
+              />
+            </div>
+          ) : (
+            <p className={styles.panelCaption}>표시할 사용자가 없습니다.</p>
+          )}
 
           <ul className={styles.roleDescList}>
             {ROLE_DESCRIPTIONS.map(({ key, label, desc, color, bg }) => (
@@ -859,6 +888,7 @@ function AdminUsersPage() {
       {isRegisterOpen && (
         <RegisterUserModal
           departments={departments}
+          roles={roles}
           onClose={() => setIsRegisterOpen(false)}
           onSave={handleRegisterSave}
         />
@@ -867,6 +897,7 @@ function AdminUsersPage() {
         <EditUserModal
           user={editingUser}
           departments={departments}
+          roles={roles}
           onClose={() => setEditingUser(null)}
           onSave={handleEditSave}
         />

@@ -4,6 +4,20 @@ import useAuthStore from '../../../stores/authStore';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
+import { formatDate } from '../../../utils/formatDate';
+
+const USER_STATUS_LABELS = { ACTIVE: '활성', INACTIVE: '비활성', DELETED: '탈퇴' };
+
+function formatRelativeTime(isoString) {
+  if (!isoString) return '';
+  const diffMinutes = Math.floor((Date.now() - new Date(isoString).getTime()) / 60000);
+  if (diffMinutes < 1) return '방금 전';
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffHours < 48) return '어제';
+  return formatDate(isoString);
+}
 
 // 진행 중 교육은 Education 도메인이 아직 백엔드에 구현되지 않아 실 데이터를 낼 수 없다 (F-51 범위 제외).
 const STAT_CARD_CONFIG = [
@@ -82,66 +96,36 @@ function buildAccessTrendBuckets(hourlyAccessTrend) {
   });
 }
 
-const RECENT_USERS = [
-  {
-    id: 1,
-    name: '이00',
-    dept: '개발팀',
-    position: '대리',
-    email: 'user1@company.com',
-    joinedAt: '2024.05.28',
-  },
-  {
-    id: 2,
-    name: '손00',
-    dept: '보안팀',
-    position: '과장',
-    email: 'user2@company.com',
-    joinedAt: '2024.05.27',
-  },
-  {
-    id: 3,
-    name: '강00',
-    dept: '인프라팀',
-    position: '사원',
-    email: 'user3@company.com',
-    joinedAt: '2024.05.26',
-  },
-  {
-    id: 4,
-    name: '진00',
-    dept: '네트워크팀',
-    position: '차장',
-    email: 'user4@company.com',
-    joinedAt: '2024.05.25',
-  },
-  {
-    id: 5,
-    name: '김00',
-    dept: '개발팀',
-    position: '대리',
-    email: 'user5@company.com',
-    joinedAt: '2024.05.24',
-  },
-];
+function buildRecentUsersRows(recentUsers) {
+  if (!recentUsers) return [];
+  return recentUsers.map(u => ({
+    id: u.userId,
+    name: u.name,
+    dept: u.departmentName,
+    position: u.position,
+    email: u.email,
+    joinedAt: formatDate(u.createdAt),
+    statusLabel: USER_STATUS_LABELS[u.status] ?? u.status,
+  }));
+}
 
-const RECENT_DOCS = [
-  { id: 1, title: '2024년 하반기 인사제도 변경 안내', meta: '인사제도 ㅣ 2024.05.28' },
-  { id: 2, title: '재택근무 가이드라인', meta: '업무가이드 ㅣ 2024.05.27' },
-  { id: 3, title: '사내 IT 보안수칙 업데이트', meta: 'IT/시스템 ㅣ 2024.05.27' },
-];
+function buildRecentDocItems(recentDocuments) {
+  if (!recentDocuments) return [];
+  return recentDocuments.map(d => ({
+    id: d.id,
+    title: d.title,
+    meta: `${d.categoryName} ㅣ ${formatDate(d.createdAt)}`,
+  }));
+}
 
-const RECENT_QUESTIONS = [
-  { id: 1, title: '재택근무 신청은 어디서 하나요?', meta: '네트워크팀 ㅣ 10분 전' },
-  { id: 2, title: '교육 수료증은 어떻게 발급받나요?', meta: '인프라팀 ㅣ 2시간 전' },
-  { id: 3, title: '비밀번호 변경하고 싶어요.', meta: '개발팀 ㅣ 어제' },
-];
-
-const NOTICES = [
-  { id: 1, title: '[공지] 시스템 점검 안내 (5/30)', date: '2025.05.28' },
-  { id: 2, title: '[안내] 개인정보 처리방침 변경 안내', date: '2025.05.27' },
-  { id: 3, title: '[공지] 신규 교육 과정 업데이트 안내', date: '2025.05.20' },
-];
+function buildRecentQuestionItems(recentQuestions) {
+  if (!recentQuestions) return [];
+  return recentQuestions.map(q => ({
+    id: q.id,
+    title: q.title,
+    meta: `${q.departmentName ?? '부서 미상'} ㅣ ${formatRelativeTime(q.createdAt)}`,
+  }));
+}
 
 function IconPerson() {
   return (
@@ -220,25 +204,6 @@ function IconDocBadge() {
       />
       <path
         d="M14 2v5h5M8 12h8M8 16h5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconMegaphone() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M3 10v4a1 1 0 001 1h2l3.5 4.5a1 1 0 001.5-.8V5.3a1 1 0 00-1.5-.8L6 9H4a1 1 0 00-1 1z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.5 8.5a4 4 0 010 7M17 6a7.5 7.5 0 010 12"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
@@ -472,6 +437,9 @@ function AdminDashboardPage() {
   const categoryDonutData = buildCategoryDonutData(stats?.documentCategoryDistribution);
   const accessTrendData = buildAccessTrendBuckets(stats?.accessTrend);
   const recentLoginCount = stats?.accessTrend?.reduce((sum, h) => sum + h.count, 0) ?? 0;
+  const recentUsersRows = buildRecentUsersRows(stats?.recentUsers);
+  const recentDocItems = buildRecentDocItems(stats?.recentDocuments);
+  const recentQuestionItems = buildRecentQuestionItems(stats?.recentQuestions);
 
   return (
     <div className={styles.page}>
@@ -525,7 +493,7 @@ function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {RECENT_USERS.map(({ id, name, dept, position, email, joinedAt }) => (
+                {recentUsersRows.map(({ id, name, dept, position, email, joinedAt, statusLabel }) => (
                   <tr key={id}>
                     <td>{name}</td>
                     <td>{dept}</td>
@@ -533,7 +501,7 @@ function AdminDashboardPage() {
                     <td>{email}</td>
                     <td>{joinedAt}</td>
                     <td>
-                      <span className={styles.statusBadge}>활성</span>
+                      <span className={styles.statusBadge}>{statusLabel}</span>
                     </td>
                   </tr>
                 ))}
@@ -573,22 +541,22 @@ function AdminDashboardPage() {
       <div className={styles.bottomGrid}>
         <ListPanel
           title="최근 등록 문서"
-          items={RECENT_DOCS}
+          items={recentDocItems}
           renderIcon={() => <IconDocBadge />}
           onMoreClick={() => navigate(ROUTES.ADMIN.DOC)}
         />
         <ListPanel
           title="최근 질문 현황"
-          items={RECENT_QUESTIONS}
+          items={recentQuestionItems}
           renderIcon={() => <span className={styles.qMark}>Q</span>}
           onMoreClick={() => navigate(ROUTES.ADMIN.QNA)}
         />
-        <ListPanel
-          title="운영 공지"
-          items={NOTICES.map(n => ({ id: n.id, title: n.title, meta: n.date }))}
-          renderIcon={() => <IconMegaphone />}
-          onMoreClick={() => navigate(ROUTES.ADMIN.SETTINGS)}
-        />
+        <section className={styles.panel}>
+          <div className={styles.panelHead}>
+            <span className={styles.panelTitle}>운영 공지</span>
+          </div>
+          <p className={styles.statDeltaCaption}>공지사항 기능 연동 후 제공될 예정입니다.</p>
+        </section>
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
