@@ -157,7 +157,9 @@ function StatCard({ label, value, sub, subColor, iconBg, iconColor, iconText }) 
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
-        <span className={styles.statSub} style={{ color: subColor }}>{sub}</span>
+        <span className={styles.statSub} style={{ color: subColor }}>
+          {sub}
+        </span>
       </div>
       <div className={styles.statIcon} style={{ background: iconBg, color: iconColor }}>
         {iconText}
@@ -232,11 +234,15 @@ function AdminDocPage() {
       <header className={styles.topbar}>
         <div className={styles.titleBlock}>
           <h1 className={styles.pageTitle}>콘텐츠 관리</h1>
-          <p className={styles.pageSubtitle}>사내 지식문서와 FAQ를 등록하고 공개 상태를 관리하세요.</p>
+          <p className={styles.pageSubtitle}>
+            사내 지식문서와 FAQ를 등록하고 공개 상태를 관리하세요.
+          </p>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.searchBox}>
-            <span className={styles.searchIcon}><IconSearch /></span>
+            <span className={styles.searchIcon}>
+              <IconSearch />
+            </span>
             <input
               type="text"
               className={styles.searchInput}
@@ -267,7 +273,9 @@ function AdminDocPage() {
           </div>
           <div className={styles.headerBtns}>
             <button className={styles.btnOutline}>+ FAQ 등록</button>
-            <button className={styles.btnPrimary} onClick={() => setModalOpen(true)}>+ 문서 등록</button>
+            <button className={styles.btnPrimary} onClick={() => setModalOpen(true)}>
+              + 문서 등록
+            </button>
           </div>
         </div>
 
@@ -313,7 +321,9 @@ function AdminDocPage() {
             <option value="비공개">비공개</option>
             <option value="검토필요">검토필요</option>
           </select>
-          <button className={styles.resetBtn} onClick={handleReset}>초기화</button>
+          <button className={styles.resetBtn} onClick={handleReset}>
+            초기화
+          </button>
         </div>
 
         <table className={styles.table}>
@@ -350,10 +360,14 @@ function AdminDocPage() {
                   </td>
                   <td className={styles.textCell}>{row.dept}</td>
                   <td className={styles.textCell}>{row.category}</td>
-                  <td><StatusBadge status={row.status} /></td>
+                  <td>
+                    <StatusBadge status={row.status} />
+                  </td>
                   <td className={styles.textCell}>{row.reviewedAt}</td>
                   <td className={styles.textCell}>{row.author}</td>
-                  <td><ActionButtons status={row.status} /></td>
+                  <td>
+                    <ActionButtons status={row.status} />
+                  </td>
                 </tr>
               );
             })}
@@ -369,8 +383,7 @@ function AdminDocPage() {
               <p className={styles.sectionSubtitle}>공개 문서 기준</p>
             </div>
             <span className={styles.totalBadge}>
-              <span className={styles.totalDot} />
-              총 208건
+              <span className={styles.totalDot} />총 208건
             </span>
           </div>
           <div className={styles.barList}>
@@ -399,7 +412,9 @@ function AdminDocPage() {
               <div key={doc.id} className={styles.staleItem}>
                 <div className={styles.staleInfo}>
                   <span className={styles.staleTitle}>{doc.title}</span>
-                  <span className={styles.staleMeta}>{doc.dept} · 마지막 검토 {doc.daysAgo}일 전</span>
+                  <span className={styles.staleMeta}>
+                    {doc.dept} · 마지막 검토 {doc.daysAgo}일 전
+                  </span>
                 </div>
                 <span className={styles.staleBadge}>검토필요</span>
               </div>

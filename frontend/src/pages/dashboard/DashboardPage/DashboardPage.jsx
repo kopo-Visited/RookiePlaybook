@@ -3,104 +3,193 @@ import styles from './DashboardPage.module.css';
 /* ── 통계 카드 데이터 ── */
 const statCards = [
   {
-    bg: '#EAF4FF', iconColor: '#2288FF', icon: '📄',
-    label: '전체 문서', value: '1,248',
-    subIcon: '↑', subText: '12건 이번 주 업데이트', subColor: '#12B886',
+    bg: '#EAF4FF',
+    iconColor: '#2288FF',
+    icon: '📄',
+    label: '전체 문서',
+    value: '1,248',
+    subIcon: '↑',
+    subText: '12건 이번 주 업데이트',
+    subColor: '#12B886',
   },
   {
-    bg: '#E6F8F2', iconColor: '#12B886', icon: '📚',
-    label: '진행 중 교육', value: '3',
-    subIcon: '↑', subText: '1개 이번 주 시작', subColor: '#12B886',
+    bg: '#E6F8F2',
+    iconColor: '#12B886',
+    icon: '📚',
+    label: '진행 중 교육',
+    value: '3',
+    subIcon: '↑',
+    subText: '1개 이번 주 시작',
+    subColor: '#12B886',
   },
   {
-    bg: '#FFF0F6', iconColor: '#FF4D94', icon: '❓',
-    label: '미답변 질문', value: '2',
-    subIcon: null, subText: '내가 작성한 질문', subColor: '#6B7588',
+    bg: '#FFF0F6',
+    iconColor: '#FF4D94',
+    icon: '❓',
+    label: '미답변 질문',
+    value: '2',
+    subIcon: null,
+    subText: '내가 작성한 질문',
+    subColor: '#6B7588',
   },
   {
-    bg: '#FFF5E6', iconColor: '#FFAD33', icon: '⭐',
-    label: '북마크', value: '18',
-    subIcon: null, subText: '관심 문서 및 교육', subColor: '#6B7588',
+    bg: '#FFF5E6',
+    iconColor: '#FFAD33',
+    icon: '⭐',
+    label: '북마크',
+    value: '18',
+    subIcon: null,
+    subText: '관심 문서 및 교육',
+    subColor: '#6B7588',
   },
 ];
 
 /* ── 진행 중 교육 ── */
 const eduItems = [
   {
-    bg: '#EAF4FF', iconColor: '#2288FF', icon: '🏢',
-    title: '회사 소개', required: true,
-    pct: 75, chapter: '3/4', total: 4, dueDate: '2026.07.10',
+    bg: '#EAF4FF',
+    iconColor: '#2288FF',
+    icon: '🏢',
+    title: '회사 소개',
+    required: true,
+    pct: 75,
+    chapter: '3/4',
+    total: 4,
+    dueDate: '2026.07.10',
   },
   {
-    bg: '#FFF0F6', iconColor: '#FF4D94', icon: '🔒',
-    title: '정보보안 교육', required: true,
-    pct: 40, chapter: '2/5', total: 5, dueDate: '2026.07.12',
+    bg: '#FFF0F6',
+    iconColor: '#FF4D94',
+    icon: '🔒',
+    title: '정보보안 교육',
+    required: true,
+    pct: 40,
+    chapter: '2/5',
+    total: 5,
+    dueDate: '2026.07.12',
   },
   {
-    bg: '#FFF5E6', iconColor: '#FFAD33', icon: '🛠',
-    title: '업무 툴 사용법', required: false,
-    pct: 20, chapter: '1/5', total: 5, dueDate: '2026.07.17',
+    bg: '#FFF5E6',
+    iconColor: '#FFAD33',
+    icon: '🛠',
+    title: '업무 툴 사용법',
+    required: false,
+    pct: 20,
+    chapter: '1/5',
+    total: 5,
+    dueDate: '2026.07.17',
   },
 ];
 
 /* ── 최근 문서 ── */
 const TYPE_STYLE = {
   DOCU: { bg: '#EAF4FF', color: '#2288FF' },
-  PDF:  { bg: '#FFE5EA', color: '#F03E5C' },
+  PDF: { bg: '#FFE5EA', color: '#F03E5C' },
   XLSX: { bg: '#DCF7EB', color: '#10A36C' },
   PPTX: { bg: '#FFF0DB', color: '#F08C00' },
   DOCX: { bg: '#E7F2FF', color: '#1C7ED6' },
 };
 
 const recentDocs = [
-  { type: 'DOCU', title: '인사 제도 안내서 (2024년 개정)', category: '인사/제도', dept: '인사팀', date: '2026.07.06' },
-  { type: 'PDF',  title: '연차휴가 및 휴직 규정',          category: '인사/제도', dept: '인사팀', date: '2026.06.27' },
-  { type: 'XLSX', title: '2024년 복리후생 안내',           category: '복리후생',  dept: '총무팀', date: '2026.06.24' },
-  { type: 'PPTX', title: '신입사원 온보딩 가이드',          category: '온보딩',   dept: 'HRD팀', date: '2026.06.23' },
-  { type: 'DOCX', title: '사내 정보보안 가이드라인',         category: '정보보안', dept: '보안팀', date: '2026.06.03' },
+  {
+    type: 'DOCU',
+    title: '인사 제도 안내서 (2024년 개정)',
+    category: '인사/제도',
+    dept: '인사팀',
+    date: '2026.07.06',
+  },
+  {
+    type: 'PDF',
+    title: '연차휴가 및 휴직 규정',
+    category: '인사/제도',
+    dept: '인사팀',
+    date: '2026.06.27',
+  },
+  {
+    type: 'XLSX',
+    title: '2024년 복리후생 안내',
+    category: '복리후생',
+    dept: '총무팀',
+    date: '2026.06.24',
+  },
+  {
+    type: 'PPTX',
+    title: '신입사원 온보딩 가이드',
+    category: '온보딩',
+    dept: 'HRD팀',
+    date: '2026.06.23',
+  },
+  {
+    type: 'DOCX',
+    title: '사내 정보보안 가이드라인',
+    category: '정보보안',
+    dept: '보안팀',
+    date: '2026.06.03',
+  },
 ];
 
 /* ── 내 질문 현황 ── */
 const myQuestions = [
-  { bg: '#FFF0F6', title: '승진 기준이 어떻게 되나요?',       status: '답변 대기', category: '인사/제도', date: '2026.07.05', done: false },
-  { bg: '#FFF5E6', title: '재택근무 신청 절차가 궁금합니다.',  status: '답변 대기', category: '근무/복지', date: '2026.06.27', done: false },
-  { bg: '#E7F8F3', title: '연차 사용 시 주의사항이 있나요?',  status: '답변 완료', category: '인사/제도', date: '2026.06.24', done: true },
+  {
+    bg: '#FFF0F6',
+    title: '승진 기준이 어떻게 되나요?',
+    status: '답변 대기',
+    category: '인사/제도',
+    date: '2026.07.05',
+    done: false,
+  },
+  {
+    bg: '#FFF5E6',
+    title: '재택근무 신청 절차가 궁금합니다.',
+    status: '답변 대기',
+    category: '근무/복지',
+    date: '2026.06.27',
+    done: false,
+  },
+  {
+    bg: '#E7F8F3',
+    title: '연차 사용 시 주의사항이 있나요?',
+    status: '답변 완료',
+    category: '인사/제도',
+    date: '2026.06.24',
+    done: true,
+  },
 ];
 
 /* ── 공지사항 ── */
 const notices = [
   { title: '2026년 하계 휴가 일정 안내', date: '2026.07.06', isNew: true },
-  { title: '사내 시스템 점검 안내 (5/31)',     date: '2026.05.27', isNew: false },
-  { title: '정보보안 교육 이수 필수 안내',      date: '2026.05.24', isNew: false },
-  { title: '복지포인트 사용처 확대 안내',       date: '2026.05.22', isNew: false },
-  { title: '사내 설문조사 참여 요청',           date: '2026.05.20', isNew: false },
+  { title: '사내 시스템 점검 안내 (5/31)', date: '2026.05.27', isNew: false },
+  { title: '정보보안 교육 이수 필수 안내', date: '2026.05.24', isNew: false },
+  { title: '복지포인트 사용처 확대 안내', date: '2026.05.22', isNew: false },
+  { title: '사내 설문조사 참여 요청', date: '2026.05.20', isNew: false },
 ];
 
 /* ── 추천 문서 ── */
 const recommendedDocs = [
-  { type: 'PDF',  title: '입사자 체크리스트',     views: '1.2K', bookmarks: 24 },
-  { type: 'DOCX', title: '근태관리 FAQ',          views: '856',  bookmarks: 18 },
-  { type: 'PPTX', title: '커뮤니케이션 가이드',    views: '642',  bookmarks: 15 },
-  { type: 'PDF',  title: '회계 처리 프로세스',     views: '532',  bookmarks: 12 },
-  { type: 'XLSX', title: '비용 정산 양식 모음',    views: '421',  bookmarks: 9  },
+  { type: 'PDF', title: '입사자 체크리스트', views: '1.2K', bookmarks: 24 },
+  { type: 'DOCX', title: '근태관리 FAQ', views: '856', bookmarks: 18 },
+  { type: 'PPTX', title: '커뮤니케이션 가이드', views: '642', bookmarks: 15 },
+  { type: 'PDF', title: '회계 처리 프로세스', views: '532', bookmarks: 12 },
+  { type: 'XLSX', title: '비용 정산 양식 모음', views: '421', bookmarks: 9 },
 ];
 
 /* ── 오늘의 일정 ── */
 const schedules = [
-  { time: '09:00', title: '주간 팀 회의',           place: '대회의실', dotColor: '#2288FF' },
-  { time: '11:00', title: '신규 입사자 OT',          place: 'HR 교육장', dotColor: '#7C8CFF' },
-  { time: '14:00', title: '프로젝트 진행 상황 공유', place: '회의실 A',  dotColor: '#4DABF7' },
-  { time: '16:00', title: '성과 리뷰 미팅',          place: '회의실 B',  dotColor: '#9775FA' },
+  { time: '09:00', title: '주간 팀 회의', place: '대회의실', dotColor: '#2288FF' },
+  { time: '11:00', title: '신규 입사자 OT', place: 'HR 교육장', dotColor: '#7C8CFF' },
+  { time: '14:00', title: '프로젝트 진행 상황 공유', place: '회의실 A', dotColor: '#4DABF7' },
+  { time: '16:00', title: '성과 리뷰 미팅', place: '회의실 B', dotColor: '#9775FA' },
 ];
 
 /* ── 빠른 바로가기 ── */
 const shortcuts = [
   { bg: '#EAF4FF', color: '#2288FF', icon: '🔍', label: '문서 검색' },
   { bg: '#E6F8F2', color: '#12B886', icon: '📖', label: '교육 찾기' },
-  { bg: '#FFF0F6', color: '#FF4D94', icon: '💬', label: '질문하기'  },
-  { bg: '#FFF5E6', color: '#FFAD33', icon: '⭐', label: '즐겨찾기'  },
-  { bg: '#F1EDFF', color: '#8B6CFF', icon: '📊', label: '내 활동'   },
-  { bg: '#EEF3F9', color: '#637087', icon: '⚙️', label: '설정'      },
+  { bg: '#FFF0F6', color: '#FF4D94', icon: '💬', label: '질문하기' },
+  { bg: '#FFF5E6', color: '#FFAD33', icon: '⭐', label: '즐겨찾기' },
+  { bg: '#F1EDFF', color: '#8B6CFF', icon: '📊', label: '내 활동' },
+  { bg: '#EEF3F9', color: '#637087', icon: '⚙️', label: '설정' },
 ];
 
 function DashboardPage() {
@@ -150,9 +239,14 @@ function DashboardPage() {
                 <div className={styles.eduBody}>
                   <div className={styles.eduTitleRow}>
                     <span className={styles.eduTitle}>{edu.title}</span>
-                    <span className={styles.badge} style={edu.required
-                      ? { background: '#DFF1FF', color: '#2288FF' }
-                      : { background: '#E2F8F0', color: '#099268' }}>
+                    <span
+                      className={styles.badge}
+                      style={
+                        edu.required
+                          ? { background: '#DFF1FF', color: '#2288FF' }
+                          : { background: '#E2F8F0', color: '#099268' }
+                      }
+                    >
                       {edu.required ? '필수' : '선택'}
                     </span>
                   </div>
@@ -163,7 +257,9 @@ function DashboardPage() {
                     <span className={styles.progressPct}>{edu.pct}%</span>
                   </div>
                   <div className={styles.eduMeta}>
-                    <span>{edu.chapter} 챕터 완료 · 예상 완료일 {edu.dueDate}</span>
+                    <span>
+                      {edu.chapter} 챕터 완료 · 예상 완료일 {edu.dueDate}
+                    </span>
                     <span>남은 학습 {edu.total - parseInt(edu.chapter)}개 챕터</span>
                   </div>
                 </div>
@@ -183,7 +279,10 @@ function DashboardPage() {
               const ts = TYPE_STYLE[doc.type] ?? TYPE_STYLE.DOCU;
               return (
                 <li key={i} className={styles.docItem}>
-                  <span className={styles.docTypeBadge} style={{ background: ts.bg, color: ts.color }}>
+                  <span
+                    className={styles.docTypeBadge}
+                    style={{ background: ts.bg, color: ts.color }}
+                  >
                     {doc.type}
                   </span>
                   <span className={styles.docTitle}>{doc.title}</span>
@@ -210,10 +309,14 @@ function DashboardPage() {
                 <div className={styles.qnaBody}>
                   <span className={styles.qnaTitle}>{q.title}</span>
                   <span className={styles.qnaMeta}>
-                    <span className={styles.qnaStatus} style={{ color: q.done ? '#20C997' : '#6F7B91' }}>
+                    <span
+                      className={styles.qnaStatus}
+                      style={{ color: q.done ? '#20C997' : '#6F7B91' }}
+                    >
                       {q.status}
                     </span>
-                    {' · '}{q.category}
+                    {' · '}
+                    {q.category}
                   </span>
                 </div>
                 <span className={styles.qnaDate}>{q.date}</span>
@@ -256,7 +359,10 @@ function DashboardPage() {
               const ts = TYPE_STYLE[doc.type] ?? TYPE_STYLE.DOCU;
               return (
                 <li key={i} className={styles.docItem}>
-                  <span className={styles.docTypeBadge} style={{ background: ts.bg, color: ts.color }}>
+                  <span
+                    className={styles.docTypeBadge}
+                    style={{ background: ts.bg, color: ts.color }}
+                  >
                     {doc.type}
                   </span>
                   <span className={styles.docTitle}>{doc.title}</span>

@@ -10,6 +10,7 @@ import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResult
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
+import QnaListPage from './pages/qna/QnaListPage/QnaListPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
@@ -33,7 +34,7 @@ function App() {
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DOC.LIST} element={<DocListPage />} />
             <Route path={ROUTES.DOC.DEPT} element={<DocFilterResultPage />} />
-            <Route path={ROUTES.QNA.LIST} element={<div>QnaListPage</div>} />
+            <Route path={ROUTES.QNA.LIST} element={<QnaListPage />} />
             <Route path={ROUTES.EDU.LIST} element={<div>EduListPage</div>} />
           </Route>
         </Route>
