@@ -70,7 +70,6 @@ function DocDetailModal({ doc, onClose }) {
 
         <div className={styles.modalActions}>
           <button className={styles.btnOutline}>북마크 저장</button>
-          <button className={styles.btnOutline}>AI에게 질문</button>
           <button className={styles.btnPrimary} onClick={() => navigate(`/doc/${doc.id}`)}>문서 열기</button>
         </div>
       </div>
