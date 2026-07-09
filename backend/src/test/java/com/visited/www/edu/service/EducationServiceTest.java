@@ -7,6 +7,7 @@ import com.visited.www.edu.StageInUseException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.mapper.AdminProgressDto;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
+import com.visited.www.edu.dto.mapper.IncompleteProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
 import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
@@ -15,6 +16,7 @@ import com.visited.www.edu.dto.request.StageUpdateRequestDto;
 import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
+import com.visited.www.edu.dto.response.IncompleteResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageCreateResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
@@ -566,6 +568,52 @@ class EducationServiceTest {
         // when
         Page<AdminProgressResponseDto> result =
                 educationService.getAdminProgress(1L, 1L, true, pageable);
+
+        // then
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(0);
+    }
+
+    // ==================== EDU-FR-010: 미완료자 조회 ====================
+
+    @Test
+    @DisplayName("미완료자 조회 - 매퍼 결과를 응답으로 매핑하고 전체 건수로 Page를 구성한다")
+    void getIncompleteProgress_success() {
+        // given
+        Pageable pageable = PageRequest.of(0, 20);
+
+        IncompleteProgressDto row = new IncompleteProgressDto();
+        row.setUserId(1L);
+        row.setUserName("관리자");
+        row.setDepartmentName("개발팀");
+        row.setEducationTitle("신입사원 온보딩 교육");
+        row.setProgressRate(66);
+        row.setCompletionCriteria(80);
+
+        given(educationMapper.findIncompleteProgress(1L, 20, 0L)).willReturn(List.of(row));
+        given(educationMapper.countIncompleteProgress(1L)).willReturn(1L);
+
+        // when
+        Page<IncompleteResponseDto> result = educationService.getIncompleteProgress(1L, pageable);
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).userId()).isEqualTo(1L);
+        assertThat(result.getContent().get(0).progressRate()).isEqualTo(66);
+        assertThat(result.getContent().get(0).completionCriteria()).isEqualTo(80);
+    }
+
+    @Test
+    @DisplayName("미완료자 조회 - 결과가 없으면 빈 Page를 반환한다")
+    void getIncompleteProgress_empty() {
+        // given
+        Pageable pageable = PageRequest.of(0, 20);
+        given(educationMapper.findIncompleteProgress(null, 20, 0L)).willReturn(List.of());
+        given(educationMapper.countIncompleteProgress(null)).willReturn(0L);
+
+        // when
+        Page<IncompleteResponseDto> result = educationService.getIncompleteProgress(null, pageable);
 
         // then
         assertThat(result.getContent()).isEmpty();
