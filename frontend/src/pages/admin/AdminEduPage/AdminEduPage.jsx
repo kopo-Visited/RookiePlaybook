@@ -44,8 +44,9 @@ function EducationSection() {
     try {
       await deleteEducation(edu.educationId);
       setRefreshKey(k => k + 1);
-    } catch {
-      alert('교육 과정 삭제에 실패했습니다.');
+    } catch (err) {
+      // 단계·진도가 있으면 백엔드가 409로 막으므로 그 사유를 그대로 보여준다
+      alert(err.response?.data?.message || '교육 과정 삭제에 실패했습니다.');
     }
   }
 
