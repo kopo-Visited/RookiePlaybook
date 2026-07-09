@@ -10,12 +10,10 @@ export const getMyProgress = () => axiosInstance.get('/api/progress/me');
 export const createEducation = data => axiosInstance.post('/api/admin/educations', data);
 export const updateEducation = (id, data) => axiosInstance.put(`/api/admin/educations/${id}`, data);
 export const deleteEducation = id => axiosInstance.delete(`/api/admin/educations/${id}`);
-export const createStage = (id, data) =>
-  axiosInstance.post(`/api/admin/educations/${id}/stages`, data);
-export const updateStage = (id, stageId, data) =>
-  axiosInstance.put(`/api/admin/educations/${id}/stages/${stageId}`, data);
-export const deleteStage = (id, stageId) =>
-  axiosInstance.delete(`/api/admin/educations/${id}/stages/${stageId}`);
+export const createStage = data => axiosInstance.post('/api/admin/stages', data);
+export const updateStage = (stageId, data) =>
+  axiosInstance.put(`/api/admin/stages/${stageId}`, data);
+export const deleteStage = stageId => axiosInstance.delete(`/api/admin/stages/${stageId}`);
 export const getAdminProgress = params =>
   axiosInstance.get('/api/admin/educations/progress', { params });
 export const getIncomplete = params =>
