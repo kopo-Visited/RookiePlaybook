@@ -138,6 +138,11 @@ function AdminDocPage() {
     }
   }, []);
 
+  const categoryOptions = useMemo(() =>
+    [...new Set(docs.map(d => d.categoryName).filter(Boolean))].sort(),
+    [docs]
+  );
+
   const deptBars = useMemo(() => {
     const counts = new Map();
     docs.forEach(d => {
@@ -234,10 +239,9 @@ function AdminDocPage() {
             onChange={e => setCategoryFilter(e.target.value)}
           >
             <option value="">카테고리 전체</option>
-            <option value="개발">개발</option>
-            <option value="인프라">인프라</option>
-            <option value="보안">보안</option>
-            <option value="네트워크">네트워크</option>
+            {categoryOptions.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
           <select
             className={styles.filterSelect}
