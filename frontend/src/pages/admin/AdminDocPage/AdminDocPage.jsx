@@ -3,26 +3,12 @@ import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
 import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
+import Badge from '../../../components/Badge/Badge';
+import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
 
 
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
-
-const CATEGORY_ICON = {
-  '개발': 'Dev',
-  '인프라': 'Infra',
-  '보안': 'Sec',
-  '네트워크': 'Net',
-  '공통': 'All',
-};
-
-const CATEGORY_COLOR = {
-  '공통': 'blue',
-  '개발': 'green',
-  '인프라': 'orange',
-  '보안': 'pink',
-  '네트워크': 'purple',
-};
 
 const STATUS_STYLE = {
   공개: { bg: '#E6F8F2', color: '#12B886' },
@@ -53,14 +39,6 @@ function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
         </span>
       </div>
     </div>
-  );
-}
-
-function CategoryBadge({ categoryName }) {
-  const colorKey = CATEGORY_COLOR[categoryName] ?? 'blue';
-  const text = CATEGORY_ICON[categoryName] ?? categoryName;
-  return (
-    <div className={`${styles.catIcon} ${styles[colorKey]}`}>{text}</div>
   );
 }
 
@@ -306,7 +284,11 @@ function AdminDocPage() {
                     <span className={styles.docTitle}>{row.title}</span>
                   </td>
                   <td>
-                    <div><CategoryBadge categoryName={row.categoryName} /></div>
+                    <div>
+                      <Badge colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+                        {row.categoryName}
+                      </Badge>
+                    </div>
                   </td>
                   <td>
                     <StatusBadge status={publicStatus} />

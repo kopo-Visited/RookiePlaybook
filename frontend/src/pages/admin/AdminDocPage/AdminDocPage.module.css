@@ -123,25 +123,6 @@
 .statIcon.orange { background: #FFF5E6; color: #FFAD33; }
 .statIcon.purple { background: #F3EEFF; color: #845EF7; }
 
-/* ── category badge ── */
-.catIcon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 900;
-  flex-shrink: 0;
-  letter-spacing: 0.02em;
-}
-.blue   { background: #EAF4FF; color: #2288FF; }
-.green  { background: #E6F8F2; color: #12B886; }
-.pink   { background: #FFF0F6; color: #FF4D94; }
-.orange { background: #FFF5E6; color: #FFAD33; }
-.purple { background: #F3EEFF; color: #845EF7; }
-
 /* ── table card ── */
 .tableCard {
   background: #ffffff;
