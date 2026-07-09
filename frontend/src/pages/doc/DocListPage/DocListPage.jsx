@@ -61,7 +61,7 @@ const bookmarkItems = [
 ];
 
 const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
-const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net' };
+const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net', '공통': 'All' };
 
 const onboardingCourses = [
   {
@@ -164,12 +164,18 @@ function DocListPage() {
   const summaryCards = useMemo(() => {
     const countMap = {};
     docs.forEach(d => { countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1; });
-    return Object.entries(countMap).map(([name, count], i) => ({
-      id: name,
-      categoryName: name,
-      colorKey: CARD_COLORS[i % CARD_COLORS.length],
-      count,
-    }));
+    return Object.entries(countMap)
+      .sort(([a], [b]) => {
+        if (a === '공통') return 1;
+        if (b === '공통') return -1;
+        return 0;
+      })
+      .map(([name, count], i) => ({
+        id: name,
+        categoryName: name,
+        colorKey: CARD_COLORS[i % CARD_COLORS.length],
+        count,
+      }));
   }, [docs]);
 
   const categoryColorMap = useMemo(() =>
