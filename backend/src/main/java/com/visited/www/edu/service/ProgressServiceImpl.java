@@ -2,6 +2,7 @@ package com.visited.www.edu.service;
 
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
+import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.entity.Education;
 import com.visited.www.edu.entity.EducationMaterial;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -95,5 +98,20 @@ public class ProgressServiceImpl implements ProgressService {
 
         log.info("영상 시청 위치 저장. userId={}, materialId={}, position={}",
                 userId, materialId, watchedPosition);
+    }
+
+    // EDU-FR-005: 내 진도 조회 (진도 기록이 있는 과정만)
+    @Override
+    @Transactional(readOnly = true)
+    public List<MyProgressResponseDto> getMyProgress(Long userId) {
+        return educationProgressRepository.findAllByUserId(userId).stream()
+                .map(progress -> new MyProgressResponseDto(
+                        progress.getEducation().getId(),
+                        progress.getEducation().getTitle(),
+                        progress.getProgressRate(),
+                        progress.isCompleted(),
+                        progress.getCompletedAt()
+                ))
+                .toList();
     }
 }
