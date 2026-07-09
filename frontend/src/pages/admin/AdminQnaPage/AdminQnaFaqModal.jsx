@@ -1,19 +1,42 @@
 import { useState } from 'react';
 import styles from './AdminQnaFaqModal.module.css';
+import { convertQnaToFaq } from '../../../api/qnaApi';
 
-const DEPTS = ['개발', '보안', '인프라', '네트워크'];
+// QNA/DOC 공통 카테고리 → DOC categories 테이블 id (시드 순서 고정: 공통1/개발2/인프라3/보안4/네트워크5)
+const CATEGORY_ID = { 공통: 1, 개발: 2, 인프라: 3, 보안: 4, 네트워크: 5 };
+const CATEGORIES = Object.keys(CATEGORY_ID);
 
-function AdminQnaFaqModal({ question, answer, onClose }) {
+function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) {
   const [form, setForm] = useState({
     title: question?.title ?? '',
     dept: question?.category ?? '',
     content: answer || question?.content || '',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
-  const handleSubmit = () => {
-    onClose();
+  const handleSubmit = async () => {
+    const faqCategoryId = CATEGORY_ID[form.dept];
+    if (!form.title.trim() || !faqCategoryId || !form.content.trim()) {
+      setError('제목·카테고리·내용을 모두 입력해 주세요.');
+      return;
+    }
+    setSubmitting(true);
+    setError('');
+    try {
+      await convertQnaToFaq(questionId, {
+        faqCategoryId,
+        question: form.title.trim(),
+        answer: form.content.trim(),
+      });
+      onSuccess?.();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || 'FAQ 전환에 실패했습니다.');
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -41,14 +64,14 @@ function AdminQnaFaqModal({ question, answer, onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>부서</label>
+            <label className={styles.label}>카테고리</label>
             <select
               className={styles.select}
               value={form.dept}
               onChange={e => handleChange('dept', e.target.value)}
             >
-              <option value="">부서 선택</option>
-              {DEPTS.map(d => (
+              <option value="">카테고리 선택</option>
+              {CATEGORIES.map(d => (
                 <option key={d} value={d}>
                   {d}
                 </option>
@@ -67,12 +90,14 @@ function AdminQnaFaqModal({ question, answer, onClose }) {
           </div>
         </div>
 
+        {error && <p className={styles.faqError}>{error}</p>}
+
         <div className={styles.modalActions}>
-          <button className={styles.cancelBtn} onClick={onClose}>
+          <button className={styles.cancelBtn} onClick={onClose} disabled={submitting}>
             취소
           </button>
-          <button className={styles.submitBtn} onClick={handleSubmit}>
-            등록하기
+          <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
+            {submitting ? '전환 중...' : '등록하기'}
           </button>
         </div>
       </div>

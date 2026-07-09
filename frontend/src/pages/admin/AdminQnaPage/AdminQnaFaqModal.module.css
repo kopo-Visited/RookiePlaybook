@@ -120,6 +120,11 @@
 }
 
 /* ── footer ── */
+.faqError {
+  margin: 12px 0 0;
+  color: var(--color-red);
+  font-size: 13px;
+}
 .modalActions {
   display: flex;
   justify-content: flex-end;

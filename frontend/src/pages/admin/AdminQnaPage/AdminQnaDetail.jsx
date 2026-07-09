@@ -267,9 +267,14 @@ function AdminQnaDetail({ questionId, onBack }) {
 
       {faqOpen && (
         <AdminQnaFaqModal
+          questionId={questionId}
           question={{ title: detail.title, category: detail.category?.name, content: detail.content }}
           answer={answer}
           onClose={() => setFaqOpen(false)}
+          onSuccess={() => {
+            setNotice('FAQ로 전환되었습니다.');
+            load();
+          }}
         />
       )}
     </div>
