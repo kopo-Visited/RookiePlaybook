@@ -63,57 +63,6 @@
 .searchInput::placeholder {
   color: #a0aec0;
 }
-.profile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.logoutBtn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #65738b;
-  background: none;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.logoutBtn:hover {
-  background: #f7f9fe;
-}
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background: #eff6ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 900;
-  color: #172033;
-}
-.userText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.userName {
-  font-size: 14px;
-  font-weight: 900;
-  color: #172033;
-  line-height: 17px;
-}
-.userRole {
-  font-size: 12px;
-  font-weight: 700;
-  color: #6f7b91;
-  line-height: 14px;
-}
-
 /* ── stats ── */
 .statsGrid {
   display: grid;

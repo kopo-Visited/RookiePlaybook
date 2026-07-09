@@ -1,8 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
-import { logout as logoutApi } from '../../../api/authApi';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { formatDate } from '../../../utils/formatDate';
@@ -222,27 +220,6 @@ function IconSearch() {
   );
 }
 
-function IconLogout() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M16 17l5-5-5-5M21 12H9"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function StatCard({ label, value, delta, deltaDirection, colorKey, icon, to, onNavigate }) {
   return (
     <button type="button" className={styles.statCard} onClick={() => onNavigate(to)}>
@@ -449,22 +426,6 @@ function ListPanel({ title, items, renderIcon, onMoreClick }) {
 
 function AdminDashboardPage() {
   const navigate = useNavigate();
-  const user = useAuthStore(state => state.user);
-  const clearAuth = useAuthStore(state => state.logout);
-  const displayName = user?.name ?? '윤정연';
-  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
-  const avatarChar = displayName[0];
-
-  async function handleLogout() {
-    try {
-      await logoutApi();
-    } catch {
-      // JWT는 stateless라 서버 호출이 실패해도 클라이언트 로그아웃은 진행한다
-    } finally {
-      clearAuth();
-      navigate(ROUTES.LOGIN);
-    }
-  }
 
   const { stats, loading: statsLoading } = useDashboardStats();
   const statCardValues = buildStatCardValues(stats);
@@ -483,23 +444,6 @@ function AdminDashboardPage() {
           <span className={styles.searchIcon}>
             <IconSearch />
           </span>
-        </div>
-        <div className={styles.headerRight}>
-          <div className={styles.userInfo}>
-            <div className={styles.avatar}>{avatarChar}</div>
-            <div className={styles.userText}>
-              <span className={styles.userName}>{displayName}님</span>
-              <span className={styles.userDept}>{displayDept}</span>
-            </div>
-          </div>
-          <button
-            type="button"
-            className={styles.logoutBtn}
-            onClick={handleLogout}
-            aria-label="로그아웃"
-          >
-            <IconLogout />
-          </button>
         </div>
       </header>
 
