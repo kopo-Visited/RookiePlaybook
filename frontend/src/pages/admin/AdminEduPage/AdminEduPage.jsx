@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './AdminEduPage.module.css';
 import useFetch from '../../../hooks/useFetch';
-import { getEducations, getEducationDetail } from '../../../api/eduApi';
+import { getEducations, getEducationDetail, deleteEducation } from '../../../api/eduApi';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
@@ -36,6 +36,16 @@ function EducationSection() {
       setModalOpen(true);
     } catch {
       alert('교육 과정 정보를 불러오지 못했습니다.');
+    }
+  }
+
+  async function handleDelete(edu) {
+    if (!window.confirm(`"${edu.title}" 교육 과정을 삭제하시겠습니까?`)) return;
+    try {
+      await deleteEducation(edu.educationId);
+      setRefreshKey(k => k + 1);
+    } catch {
+      alert('교육 과정 삭제에 실패했습니다.');
     }
   }
 
@@ -78,6 +88,12 @@ function EducationSection() {
                   <div className={styles.actionRow}>
                     <button className={styles.actionBtn} onClick={() => openEdit(edu)}>
                       수정
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                      onClick={() => handleDelete(edu)}
+                    >
+                      삭제
                     </button>
                   </div>
                 </td>
