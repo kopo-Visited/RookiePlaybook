@@ -44,4 +44,8 @@ public class Department {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void rename(String name) {
+        this.name = name;
+    }
 }

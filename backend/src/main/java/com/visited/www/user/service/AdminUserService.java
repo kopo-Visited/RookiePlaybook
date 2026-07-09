@@ -6,6 +6,8 @@ import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
 import com.visited.www.global.exception.BusinessException;
 import com.visited.www.global.exception.ErrorCode;
+import com.visited.www.user.dto.request.DepartmentCreateRequest;
+import com.visited.www.user.dto.request.DepartmentUpdateRequest;
 import com.visited.www.user.dto.request.PasswordChangeRequest;
 import com.visited.www.user.dto.request.UserCreateRequest;
 import com.visited.www.user.dto.request.UserRoleUpdateRequest;
@@ -140,6 +142,28 @@ public class AdminUserService {
                 .stream()
                 .map(RoleResponse::from)
                 .toList();
+    }
+
+    public DepartmentResponse createDepartment(DepartmentCreateRequest request) {
+        if (departmentRepository.existsByCode(request.code())) {
+            throw new IllegalArgumentException("이미 사용 중인 부서 코드입니다.");
+        }
+
+        Department department = Department.builder()
+                .code(request.code())
+                .name(request.name())
+                .build();
+
+        return DepartmentResponse.from(departmentRepository.save(department));
+    }
+
+    public DepartmentResponse renameDepartment(Long departmentId, DepartmentUpdateRequest request) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
+
+        department.rename(request.name());
+
+        return DepartmentResponse.from(department);
     }
 
     private User getUserEntity(Long userId) {

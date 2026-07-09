@@ -307,17 +307,6 @@
   font-weight: 400;
   color: #526078;
 }
-.statusBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 13px;
-  font-size: 12px;
-  font-weight: 900;
-  white-space: nowrap;
-}
 .actionRow {
   display: flex;
   align-items: center;
@@ -488,4 +477,46 @@
   color: var(--color-text-secondary);
   padding: 16px 0;
   text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 0 4px;
+}
+.pageArrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pageArrow:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+.pageNum {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-title);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.pageNumActive {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 900;
 }
