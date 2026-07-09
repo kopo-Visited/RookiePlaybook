@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './AdminUsersPage.module.css';
 import Button from '../../../components/Button/Button';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import useAuthStore from '../../../stores/authStore';
 import useAdminUsers from '../../../hooks/admin/useAdminUsers';
+import { logout as logoutApi } from '../../../api/authApi';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
+import { ROUTES } from '../../../constants/routes';
 
 const STAT_CARD_CONFIG = [
   { key: 'total', label: '전체 사용자', colorKey: COLOR_KEYS.BLUE, icon: <IconPerson /> },
@@ -186,6 +189,27 @@ function IconSearch() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
       <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
       <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconLogout() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 17l5-5-5-5M21 12H9"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -552,10 +576,23 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
 }
 
 function AdminUsersPage() {
+  const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
+  const clearAuth = useAuthStore(state => state.logout);
   const displayName = user?.name ?? '윤정연';
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
+
+  async function handleLogout() {
+    try {
+      await logoutApi();
+    } catch {
+      // JWT는 stateless라 서버 호출이 실패해도 클라이언트 로그아웃은 진행한다
+    } finally {
+      clearAuth();
+      navigate(ROUTES.LOGIN);
+    }
+  }
 
   const {
     users,
@@ -651,12 +688,22 @@ function AdminUsersPage() {
             <IconSearch />
           </span>
         </div>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>{avatarChar}</div>
-          <div className={styles.userText}>
-            <span className={styles.userName}>{displayName}님</span>
-            <span className={styles.userDept}>{displayDept}</span>
+        <div className={styles.headerRight}>
+          <div className={styles.userInfo}>
+            <div className={styles.avatar}>{avatarChar}</div>
+            <div className={styles.userText}>
+              <span className={styles.userName}>{displayName}님</span>
+              <span className={styles.userDept}>{displayDept}</span>
+            </div>
           </div>
+          <button
+            type="button"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            aria-label="로그아웃"
+          >
+            <IconLogout />
+          </button>
         </div>
       </header>
 
