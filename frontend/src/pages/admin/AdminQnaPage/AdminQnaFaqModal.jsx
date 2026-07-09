@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styles from './AdminQnaFaqModal.module.css';
 import { convertQnaToFaq } from '../../../api/qnaApi';
 
 // QNA/DOC 공통 카테고리 → DOC categories 테이블 id (시드 순서 고정: 공통1/개발2/인프라3/보안4/네트워크5)
 const CATEGORY_ID = { 공통: 1, 개발: 2, 인프라: 3, 보안: 4, 네트워크: 5 };
 const CATEGORIES = Object.keys(CATEGORY_ID);
+
+function IconChevronDown() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) {
   const [form, setForm] = useState({
@@ -14,6 +22,16 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [catOpen, setCatOpen] = useState(false);
+  const catRef = useRef(null);
+
+  useEffect(() => {
+    function onOutside(e) {
+      if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
+    }
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
 
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
@@ -63,20 +81,35 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
             />
           </div>
 
-          <div className={styles.field}>
+          <div className={styles.field} ref={catRef}>
             <label className={styles.label}>카테고리</label>
-            <select
-              className={styles.select}
-              value={form.dept}
-              onChange={e => handleChange('dept', e.target.value)}
+            <div
+              className={`${styles.select} ${catOpen ? styles.selectOpen : ''}`}
+              onClick={() => setCatOpen(o => !o)}
             >
-              <option value="">카테고리 선택</option>
-              {CATEGORIES.map(d => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+              <span className={form.dept ? styles.selectValue : styles.selectPlaceholder}>
+                {form.dept || '카테고리 선택'}
+              </span>
+              <span className={`${styles.selectArrow} ${catOpen ? styles.selectArrowUp : ''}`}>
+                <IconChevronDown />
+              </span>
+            </div>
+            {catOpen && (
+              <ul className={styles.dropdown}>
+                {CATEGORIES.map(d => (
+                  <li
+                    key={d}
+                    className={`${styles.dropdownItem} ${d === form.dept ? styles.dropdownItemActive : ''}`}
+                    onClick={() => {
+                      handleChange('dept', d);
+                      setCatOpen(false);
+                    }}
+                  >
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className={styles.field}>
