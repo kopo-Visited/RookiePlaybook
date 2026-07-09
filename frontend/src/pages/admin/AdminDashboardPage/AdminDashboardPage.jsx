@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
@@ -427,10 +426,6 @@ function ListPanel({ title, items, renderIcon, onMoreClick }) {
 
 function AdminDashboardPage() {
   const navigate = useNavigate();
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '윤정연';
-  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
-  const avatarChar = displayName[0];
 
   const { stats, loading: statsLoading } = useDashboardStats();
   const statCardValues = buildStatCardValues(stats);
@@ -449,13 +444,6 @@ function AdminDashboardPage() {
           <span className={styles.searchIcon}>
             <IconSearch />
           </span>
-        </div>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>{avatarChar}</div>
-          <div className={styles.userText}>
-            <span className={styles.userName}>{displayName}님</span>
-            <span className={styles.userDept}>{displayDept}</span>
-          </div>
         </div>
       </header>
 

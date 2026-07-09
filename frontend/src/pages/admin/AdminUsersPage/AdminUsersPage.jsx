@@ -3,7 +3,6 @@ import styles from './AdminUsersPage.module.css';
 import Button from '../../../components/Button/Button';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
-import useAuthStore from '../../../stores/authStore';
 import useAdminUsers from '../../../hooks/admin/useAdminUsers';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
@@ -552,10 +551,6 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
 }
 
 function AdminUsersPage() {
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '윤정연';
-  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
-  const avatarChar = displayName[0];
 
   const {
     users,
@@ -650,13 +645,6 @@ function AdminUsersPage() {
           <span className={styles.searchIcon}>
             <IconSearch />
           </span>
-        </div>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>{avatarChar}</div>
-          <div className={styles.userText}>
-            <span className={styles.userName}>{displayName}님</span>
-            <span className={styles.userDept}>{displayDept}</span>
-          </div>
         </div>
       </header>
 

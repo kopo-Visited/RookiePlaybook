@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import styles from './AdminDocPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
 import { getDocuments } from '../../../api/docApi';
@@ -135,10 +134,6 @@ function formatDate(dateStr) {
 }
 
 function AdminDocPage() {
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '관리자';
-  const avatarChar = displayName[0];
-
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -183,13 +178,6 @@ function AdminDocPage() {
               className={styles.searchInput}
               placeholder="문서, FAQ, 카테고리 검색"
             />
-          </div>
-          <div className={styles.profile}>
-            <div className={styles.avatar}>{avatarChar}</div>
-            <div className={styles.userText}>
-              <span className={styles.userName}>{displayName}님</span>
-              <span className={styles.userRole}>관리자</span>
-            </div>
           </div>
         </div>
       </header>
