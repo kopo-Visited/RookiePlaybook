@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './QnaListPage.module.css';
+import { ROUTES } from '../../../constants/routes';
 import useFetch from '../../../hooks/useFetch';
 import { getQnas } from '../../../api/qnaApi';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
+import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -92,14 +95,21 @@ function StatusBadge({ status }) {
 }
 
 function QnaListPage() {
+  const navigate = useNavigate();
   const [activeStatus, setActiveStatus] = useState(null);
   const [category, setCategory] = useState('전체 카테고리');
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [detailId, setDetailId] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
 
   const categoryDD = useDropdown();
 
-  const { data, loading, error } = useFetch(() => getQnas().then(r => r.data ?? r), []);
+  const { data, loading, error } = useFetch(
+    () => getQnas({ size: 100 }).then(r => r.data ?? r),
+    [refreshKey]
+  );
 
   const items = useMemo(() => {
     if (!data) return [];
@@ -132,6 +142,11 @@ function QnaListPage() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // 삭제/필터로 페이지 수가 줄면 현재 페이지를 범위 안으로 되돌린다
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   function handleStatusClick(key) {
     setActiveStatus(key);
@@ -201,9 +216,14 @@ function QnaListPage() {
           )}
         </div>
 
-        <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
-          + 질문하기
-        </button>
+        <div className={styles.actionBtns}>
+          <button className={styles.btnAllQna} onClick={() => navigate(ROUTES.QNA.ALL)}>
+            모든 QNA 확인하기
+          </button>
+          <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
+            + 질문하기
+          </button>
+        </div>
       </div>
 
       {/* 테이블 */}
@@ -225,8 +245,12 @@ function QnaListPage() {
             </thead>
             <tbody>
               {paged.map(item => (
-                /* TODO: QnaDetailModal 구현 후 onClick으로 상세 열기 */
-                <tr key={item.questionId} className={styles.tableRow}>
+                <tr
+                  key={item.questionId}
+                  className={styles.tableRow}
+                  onClick={() => setDetailId(item.questionId)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>
                     <StatusBadge status={item.status} />
                   </td>
@@ -269,7 +293,42 @@ function QnaListPage() {
         )}
       </section>
 
-      {modalOpen && <QnaQuestionModal onClose={() => setModalOpen(false)} />}
+      {modalOpen && (
+        <QnaQuestionModal
+          onClose={() => setModalOpen(false)}
+          onSuccess={() => {
+            setRefreshKey(k => k + 1);
+            setActiveStatus(null);
+            setPage(1);
+          }}
+        />
+      )}
+
+      {detailId != null && (
+        <QnaDetailModal
+          questionId={detailId}
+          onClose={() => setDetailId(null)}
+          onChanged={() => setRefreshKey(k => k + 1)}
+          onEdit={detail => {
+            setDetailId(null);
+            setEditTarget(detail);
+          }}
+        />
+      )}
+
+      {editTarget && (
+        <QnaQuestionModal
+          mode="edit"
+          questionId={editTarget.questionId}
+          initial={{
+            title: editTarget.title,
+            content: editTarget.content,
+            categoryName: editTarget.categoryName,
+          }}
+          onClose={() => setEditTarget(null)}
+          onSuccess={() => setRefreshKey(k => k + 1)}
+        />
+      )}
     </div>
   );
 }
