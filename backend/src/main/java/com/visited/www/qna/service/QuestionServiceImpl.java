@@ -43,6 +43,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final AnswerRepository answerRepository;
     private final QuestionCategoryRepository questionCategoryRepository;
     private final UserRepository userRepository;
+    private final AiCategoryClassifier aiCategoryClassifier;
 
     @Override
     @Transactional
@@ -58,7 +59,13 @@ public class QuestionServiceImpl implements QuestionService {
 
         Question saved = questionRepository.save(question);
         log.info("질문 등록. questionId={}, userId={}", saved.getId(), userId);
-        return QuestionCreateResponseDto.from(saved);
+
+        // AI가 내용 기반으로 카테고리를 한 번 더 확인(제안만, 실패 시 null)
+        List<String> categoryNames = questionCategoryRepository.findAll().stream()
+                .map(QuestionCategory::getName).toList();
+        String aiSuggested = aiCategoryClassifier.suggest(
+                request.getTitle(), request.getContent(), categoryNames);
+        return QuestionCreateResponseDto.of(saved, category.getName(), aiSuggested);
     }
 
     @Override
