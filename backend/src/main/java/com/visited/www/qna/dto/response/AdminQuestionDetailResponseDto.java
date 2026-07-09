@@ -30,11 +30,15 @@ public record AdminQuestionDetailResponseDto(
     public record AdminAnswerDto(Long answerId, String content, Long adminId, String adminName,
                                  LocalDateTime createdAt, LocalDateTime updatedAt) {
         public static AdminAnswerDto from(Answer answer) {
+            return from(answer, null);
+        }
+
+        public static AdminAnswerDto from(Answer answer, String adminName) {
             return new AdminAnswerDto(
                     answer.getId(),
                     answer.getContent(),
                     answer.getAdminId(),
-                    null,  // TODO: users merge 후 관리자 이름
+                    adminName,
                     answer.getCreatedAt(),
                     answer.getUpdatedAt()
             );
@@ -42,16 +46,18 @@ public record AdminQuestionDetailResponseDto(
     }
 
     public static AdminQuestionDetailResponseDto of(Question question, Answer answer,
-                                                    List<QuestionStatusHistoryResponseDto> histories) {
+                                                    List<QuestionStatusHistoryResponseDto> histories,
+                                                    String writerName, String departmentName,
+                                                    String adminName) {
         return new AdminQuestionDetailResponseDto(
                 question.getId(),
                 question.getTitle(),
                 question.getContent(),
                 question.getStatus(),
                 question.getCreatedAt(),
-                new WriterDto(question.getUserId(), null, null),  // TODO: users merge 후
+                new WriterDto(question.getUserId(), writerName, departmentName),
                 new CategoryDto(question.getCategory().getId(), question.getCategory().getName()),
-                answer == null ? null : AdminAnswerDto.from(answer),
+                answer == null ? null : AdminAnswerDto.from(answer, adminName),
                 question.getConvertedFaqId(),
                 histories
         );

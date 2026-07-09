@@ -21,9 +21,14 @@ import com.visited.www.qna.repository.AnswerRepository;
 import com.visited.www.qna.repository.QuestionRepository;
 import com.visited.www.qna.repository.QuestionSpecification;
 import com.visited.www.qna.repository.QuestionStatusHistoryRepository;
+import com.visited.www.entity.User;
+import com.visited.www.user.repository.UserRepository;
 import com.visited.www.global.response.PageResponse;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -41,16 +46,26 @@ public class AdminQnaServiceImpl implements AdminQnaService {
     private final QuestionStatusHistoryRepository statusHistoryRepository;
     private final NotificationService notificationService;
     private final FaqCreator faqCreator;
+    private final UserRepository userRepository;
 
     @Override
     public PageResponse<AdminQuestionListResponseDto> searchQuestions(
             String keyword, QuestionStatus status, Long categoryId,
             LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return PageResponse.of(
-                questionRepository.findAll(
-                        QuestionSpecification.search(keyword, status, categoryId, startDate, endDate),
-                        pageable),
-                AdminQuestionListResponseDto::from);
+        var page = questionRepository.findAll(
+                QuestionSpecification.search(keyword, status, categoryId, startDate, endDate),
+                pageable);
+        // 작성자 userId들을 한 번에 조회해 이름/부서 매핑 (N+1 방지)
+        List<Long> userIds = page.getContent().stream()
+                .map(Question::getUserId).distinct().toList();
+        Map<Long, User> users = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+        return PageResponse.of(page, question -> {
+            User writer = users.get(question.getUserId());
+            return AdminQuestionListResponseDto.from(question,
+                    writer == null ? null : writer.getName(),
+                    writer == null ? null : writer.getDepartment().getName());
+        });
     }
 
     @Override
@@ -61,7 +76,13 @@ public class AdminQnaServiceImpl implements AdminQnaService {
                 statusHistoryRepository.findAllByQuestionIdOrderByCreatedAtAsc(questionId).stream()
                         .map(QuestionStatusHistoryResponseDto::from)
                         .toList();
-        return AdminQuestionDetailResponseDto.of(question, answer, histories);
+        User writer = userRepository.findById(question.getUserId()).orElse(null);
+        String writerName = writer == null ? null : writer.getName();
+        String departmentName = writer == null ? null : writer.getDepartment().getName();
+        String adminName = answer == null ? null
+                : userRepository.findById(answer.getAdminId()).map(User::getName).orElse(null);
+        return AdminQuestionDetailResponseDto.of(
+                question, answer, histories, writerName, departmentName, adminName);
     }
 
     /**
