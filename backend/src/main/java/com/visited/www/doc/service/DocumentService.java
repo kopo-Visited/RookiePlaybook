@@ -10,6 +10,8 @@ public interface DocumentService {
 
     List<DocumentResponse> getDocuments();
 
+    List<DocumentResponse> getAllDocuments();
+
     DocumentResponse getDocument(Long id);
 
     List<DocumentResponse> searchDocuments(String keyword);

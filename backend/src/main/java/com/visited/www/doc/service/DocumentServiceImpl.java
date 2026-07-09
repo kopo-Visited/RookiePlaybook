@@ -32,6 +32,14 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<DocumentResponse> getAllDocuments() {
+        return documentRepository.findByStatusOrderByCreatedAtDesc(ACTIVE_STATUS)
+                .stream()
+                .map(DocumentResponse::from)
+                .toList();
+    }
+
+    @Override
     public DocumentResponse getDocument(Long id) {
         Document document = documentRepository.findByIdAndStatusAndIsPublicTrue(id, ACTIVE_STATUS)
                 .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다. id=" + id));

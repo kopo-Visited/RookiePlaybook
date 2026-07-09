@@ -13,6 +13,8 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     List<Document> findByStatusAndIsPublicTrueOrderByCreatedAtDesc(String status);
 
+    List<Document> findByStatusOrderByCreatedAtDesc(String status);
+
     Optional<Document> findByIdAndStatusAndIsPublicTrue(Long id, String status);
 
     List<Document> findByTitleContainingIgnoreCaseAndStatusAndIsPublicTrueOrderByCreatedAtDesc(

@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
-import { getDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
+import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
 
 
 const DEPT_BARS = [
@@ -85,18 +85,22 @@ function AdminDocPage() {
   const [editDoc, setEditDoc] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data: apiRes, loading } = useFetch(() => getDocuments(), [refreshKey]);
+  const { data: apiRes, loading } = useFetch(() => getAdminDocuments(), [refreshKey]);
   const docs = apiRes?.data ?? [];
 
   const { data: faqRes } = useFetch(() => getFaqs(), []);
   const totalFaqs = faqRes?.data?.length ?? 0;
 
+  const publicDocs  = useMemo(() => docs.filter(d => d.isPublic).length,  [docs]);
+  const privateDocs = useMemo(() => docs.filter(d => !d.isPublic).length, [docs]);
+
   const statCards = useMemo(() => [
-    { key: 'total',  label: '전체 문서',  value: `${docs.length}건`,  sub: '공개 문서 기준',      subColor: '#12B886', colorKey: 'blue',   iconText: 'Doc' },
-    { key: 'public', label: '공개 문서',  value: `${docs.length}건`,  sub: `카테고리 ${[...new Set(docs.map(d => d.categoryName))].length}개`, subColor: '#12B886', colorKey: 'green',  iconText: 'Pub' },
-    { key: 'review', label: '검토 필요',  value: '0건',                sub: '6개월 이상 미검토',   subColor: '#FF4D94', colorKey: 'pink',   iconText: 'Rev' },
-    { key: 'faq',    label: '등록 FAQ',   value: `${totalFaqs}건`,    sub: '전체 FAQ 목록',       subColor: '#12B886', colorKey: 'orange', iconText: 'FAQ' },
-  ], [docs, totalFaqs]);
+    { key: 'total',   label: '전체 문서',  value: `${docs.length}건`, sub: '전체 등록 문서',    subColor: '#12B886', colorKey: 'blue',   iconText: 'Doc' },
+    { key: 'public',  label: '공개 문서',  value: `${publicDocs}건`,  sub: '사용자에게 노출',   subColor: '#12B886', colorKey: 'green',  iconText: 'Pub' },
+    { key: 'private', label: '비공개 문서', value: `${privateDocs}건`, sub: '비공개 처리 문서', subColor: '#637087', colorKey: 'orange', iconText: 'Prv' },
+    { key: 'review',  label: '검토 필요',  value: '0건',               sub: '6개월 이상 미검토', subColor: '#FF4D94', colorKey: 'pink',   iconText: 'Rev' },
+    { key: 'faq',     label: '등록 FAQ',   value: `${totalFaqs}건`,   sub: '전체 FAQ 목록',    subColor: '#12B886', colorKey: 'purple', iconText: 'FAQ' },
+  ], [docs, publicDocs, privateDocs, totalFaqs]);
 
   const filtered = docs.filter(row => {
     const matchSearch = !search || row.title.includes(search) || row.categoryName.includes(search);

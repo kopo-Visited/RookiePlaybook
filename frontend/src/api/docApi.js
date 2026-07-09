@@ -2,6 +2,8 @@ import axiosInstance from './axiosInstance';
 
 export const getDocuments = (params = {}) => axiosInstance.get('/api/documents', { params });
 
+export const getAdminDocuments = () => axiosInstance.get('/api/admin/documents');
+
 export const getDocument = id => axiosInstance.get(`/api/documents/${id}`);
 
 export const searchDocuments = (keyword, params = {}) =>

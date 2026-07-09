@@ -39,6 +39,12 @@ public class DocumentController {
         return ApiResponse.success(response);
     }
 
+    @GetMapping("/admin/documents")
+    public ApiResponse<List<DocumentResponse>> getAllDocuments() {
+        List<DocumentResponse> response = documentService.getAllDocuments();
+        return ApiResponse.success(response);
+    }
+
     @PostMapping("/documents")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<DocumentResponse> createDocument(@RequestBody DocumentCreateRequest request) {
