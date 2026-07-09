@@ -2,6 +2,7 @@ package com.visited.www.edu.service;
 
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
+import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.entity.Education;
 import com.visited.www.edu.entity.EducationMaterial;
@@ -23,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -224,5 +226,61 @@ class ProgressServiceTest {
         // when & then
         assertThatThrownBy(() -> progressService.saveVideoProgress(userId, materialId, 120))
                 .isInstanceOf(MaterialNotFoundException.class);
+    }
+
+    // ==================== EDU-FR-005: 내 진도 조회 ====================
+
+    @Test
+    @DisplayName("내 진도 조회 - 진도 기록이 있는 과정을 과정명과 함께 반환한다")
+    void getMyProgress_success() {
+        // given
+        Long userId = 1L;
+
+        Education education1 = mock(Education.class);
+        given(education1.getId()).willReturn(1L);
+        given(education1.getTitle()).willReturn("신입사원 온보딩 교육");
+
+        EducationProgress progress1 = mock(EducationProgress.class);
+        given(progress1.getEducation()).willReturn(education1);
+        given(progress1.getProgressRate()).willReturn(100);
+        given(progress1.isCompleted()).willReturn(true);
+
+        Education education2 = mock(Education.class);
+        given(education2.getId()).willReturn(2L);
+        given(education2.getTitle()).willReturn("백엔드 기초 교육");
+
+        EducationProgress progress2 = mock(EducationProgress.class);
+        given(progress2.getEducation()).willReturn(education2);
+        given(progress2.getProgressRate()).willReturn(40);
+        given(progress2.isCompleted()).willReturn(false);
+
+        given(educationProgressRepository.findAllByUserId(userId))
+                .willReturn(List.of(progress1, progress2));
+
+        // when
+        List<MyProgressResponseDto> result = progressService.getMyProgress(userId);
+
+        // then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).educationId()).isEqualTo(1L);
+        assertThat(result.get(0).title()).isEqualTo("신입사원 온보딩 교육");
+        assertThat(result.get(0).progressRate()).isEqualTo(100);
+        assertThat(result.get(0).isCompleted()).isTrue();
+        assertThat(result.get(1).educationId()).isEqualTo(2L);
+        assertThat(result.get(1).isCompleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("내 진도 조회 - 진도 기록이 없으면 빈 목록을 반환한다")
+    void getMyProgress_empty() {
+        // given
+        Long userId = 1L;
+        given(educationProgressRepository.findAllByUserId(userId)).willReturn(List.of());
+
+        // when
+        List<MyProgressResponseDto> result = progressService.getMyProgress(userId);
+
+        // then
+        assertThat(result).isEmpty();
     }
 }
