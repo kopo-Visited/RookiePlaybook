@@ -1,51 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
-import { getDocuments } from '../../../api/docApi';
-
-const STAT_CARDS = [
-  {
-    key: 'total',
-    label: '전체 문서',
-    value: '208건',
-    sub: '▲ 12건 이번 달 추가',
-    subColor: '#12B886',
-    iconBg: '#EAF4FF',
-    iconColor: '#2288FF',
-    iconText: '문',
-  },
-  {
-    key: 'public',
-    label: '공개 문서',
-    value: '186건',
-    sub: '공개율 89.4%',
-    subColor: '#12B886',
-    iconBg: '#E6F8F2',
-    iconColor: '#12B886',
-    iconText: '공',
-  },
-  {
-    key: 'review',
-    label: '검토 필요',
-    value: '14건',
-    sub: '6개월 이상 미검토',
-    subColor: '#FF4D94',
-    iconBg: '#FFF0F6',
-    iconColor: '#FF4D94',
-    iconText: '!',
-  },
-  {
-    key: 'faq',
-    label: '등록 FAQ',
-    value: '64건',
-    sub: 'AI 추천 8건 포함',
-    subColor: '#12B886',
-    iconBg: '#FFF5E6',
-    iconColor: '#FFAD33',
-    iconText: 'Q',
-  },
-];
+import { getDocuments, getFaqs } from '../../../api/docApi';
 
 
 const DEPT_BARS = [
@@ -76,18 +33,18 @@ function IconSearch() {
   );
 }
 
-function StatCard({ label, value, sub, subColor, iconBg, iconColor, iconText }) {
+function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
   return (
     <div className={styles.statCard}>
+      <div className={`${styles.statIcon} ${styles[colorKey]}`}>
+        {iconText}
+      </div>
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
         <span className={styles.statSub} style={{ color: subColor }}>
           {sub}
         </span>
-      </div>
-      <div className={styles.statIcon} style={{ background: iconBg, color: iconColor }}>
-        {iconText}
       </div>
     </div>
   );
@@ -143,6 +100,16 @@ function AdminDocPage() {
   const { data: apiRes, loading } = useFetch(() => getDocuments(), [refreshKey]);
   const docs = apiRes?.data ?? [];
 
+  const { data: faqRes } = useFetch(() => getFaqs(), []);
+  const totalFaqs = faqRes?.data?.length ?? 0;
+
+  const statCards = useMemo(() => [
+    { key: 'total',  label: '전체 문서',  value: `${docs.length}건`,  sub: '공개 문서 기준',      subColor: '#12B886', colorKey: 'blue',   iconText: 'Doc' },
+    { key: 'public', label: '공개 문서',  value: `${docs.length}건`,  sub: `카테고리 ${[...new Set(docs.map(d => d.categoryName))].length}개`, subColor: '#12B886', colorKey: 'green',  iconText: 'Pub' },
+    { key: 'review', label: '검토 필요',  value: '0건',                sub: '6개월 이상 미검토',   subColor: '#FF4D94', colorKey: 'pink',   iconText: 'Rev' },
+    { key: 'faq',    label: '등록 FAQ',   value: `${totalFaqs}건`,    sub: '전체 FAQ 목록',       subColor: '#12B886', colorKey: 'orange', iconText: 'FAQ' },
+  ], [docs, totalFaqs]);
+
   const filtered = docs.filter(row => {
     const matchSearch = !search || row.title.includes(search) || row.categoryName.includes(search);
     const matchCategory = !categoryFilter || row.categoryName === categoryFilter;
@@ -183,7 +150,7 @@ function AdminDocPage() {
       </header>
 
       <div className={styles.statsGrid}>
-        {STAT_CARDS.map(card => (
+        {statCards.map(card => (
           <StatCard key={card.key} {...card} />
         ))}
       </div>
