@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './DocDetailModal.module.css';
 import Badge from '../Badge/Badge';
 import { COLOR_KEYS, BADGE_SIZES } from '../../constants/styles';
@@ -23,6 +24,7 @@ function IconX() {
 }
 
 function DocDetailModal({ doc, onClose }) {
+  const navigate = useNavigate();
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Escape') onClose();
@@ -69,7 +71,7 @@ function DocDetailModal({ doc, onClose }) {
         <div className={styles.modalActions}>
           <button className={styles.btnOutline}>북마크 저장</button>
           <button className={styles.btnOutline}>AI에게 질문</button>
-          <button className={styles.btnPrimary}>문서 열기</button>
+          <button className={styles.btnPrimary} onClick={() => navigate(`/doc/${doc.id}`)}>문서 열기</button>
         </div>
       </div>
     </div>
