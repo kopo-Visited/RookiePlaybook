@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
-import { getDocuments, getFaqs, deleteDocument } from '../../../api/docApi';
+import { getDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
 
 
 const DEPT_BARS = [
@@ -59,13 +59,14 @@ function StatusBadge({ status }) {
   );
 }
 
-function ActionButtons({ row, onEdit, onDelete }) {
-  const publicStatus = row.isPublic ? '공개' : '비공개';
+function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
   return (
     <div className={styles.actionRow}>
       <button className={styles.actionBtn} onClick={() => onEdit(row)}>수정</button>
       <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => onDelete(row)}>삭제</button>
-      <button className={styles.actionBtn}>{publicStatus === '공개' ? '비공개' : '공개'}</button>
+      <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
+        {row.isPublic ? '비공개' : '공개'}
+      </button>
     </div>
   );
 }
@@ -119,6 +120,20 @@ function AdminDocPage() {
       setRefreshKey(k => k + 1);
     } catch {
       alert('문서 삭제에 실패했습니다.');
+    }
+  }, []);
+
+  const handleTogglePublic = useCallback(async (doc) => {
+    try {
+      await updateDocument(doc.id, {
+        categoryName: doc.categoryName,
+        title: doc.title,
+        content: doc.content,
+        isPublic: !doc.isPublic,
+      });
+      setRefreshKey(k => k + 1);
+    } catch {
+      alert('공개 상태 변경에 실패했습니다.');
     }
   }, []);
 
@@ -238,7 +253,7 @@ function AdminDocPage() {
                   <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
                   <td className={styles.textCell}>{row.viewCount}</td>
                   <td>
-                    <ActionButtons row={row} onEdit={handleEdit} onDelete={handleDelete} />
+                    <ActionButtons row={row} onEdit={handleEdit} onDelete={handleDelete} onTogglePublic={handleTogglePublic} />
                   </td>
                 </tr>
               );
