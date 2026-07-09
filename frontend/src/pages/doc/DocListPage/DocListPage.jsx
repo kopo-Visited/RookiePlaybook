@@ -171,6 +171,11 @@ function DocListPage() {
     }));
   }, [docs]);
 
+  const categoryColorMap = useMemo(() =>
+    Object.fromEntries(summaryCards.map(c => [c.categoryName, c.colorKey])),
+    [summaryCards]
+  );
+
   function handleCategorySelect(option) {
     setCategory(option);
     categoryDD.setOpen(false);
@@ -317,7 +322,7 @@ function DocListPage() {
                       </div>
                     </td>
                     <td>
-                      <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>
+                      <Badge colorKey={categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
                         {doc.categoryName}
                       </Badge>
                     </td>
