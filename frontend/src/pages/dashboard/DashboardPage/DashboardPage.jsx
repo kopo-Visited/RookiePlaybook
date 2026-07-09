@@ -69,13 +69,15 @@ function DashboardPage() {
   const [qnaModalOpen, setQnaModalOpen] = useState(false);
   const [qnaRefreshKey, setQnaRefreshKey] = useState(0);
 
-  const { data: docRes }  = useFetch(() => getDocuments(), []);
-  const { data: qnaRes }  = useFetch(() => getQnas(), [qnaRefreshKey]);
-  const { data: eduRes }  = useFetch(() => getMyProgress(), []);
+  const { data: docRes }  = useFetch(() => getDocuments().catch(() => null), []);
+  const { data: qnaRes }  = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
+  const { data: eduRes }  = useFetch(() => getMyProgress().catch(() => null), []);
 
-  const docs    = docRes?.data ?? [];
-  const qnas    = qnaRes?.data?.content ?? [];
-  const eduList = eduRes?.data ?? [];
+  const docs    = Array.isArray(docRes?.data) ? docRes.data : [];
+  const qnaRaw  = qnaRes?.data;
+  const qnas    = Array.isArray(qnaRaw?.content) ? qnaRaw.content
+                : Array.isArray(qnaRaw) ? qnaRaw : [];
+  const eduList = Array.isArray(eduRes?.data) ? eduRes.data : [];
 
   const recentDocs = useMemo(() =>
     [...docs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5),
