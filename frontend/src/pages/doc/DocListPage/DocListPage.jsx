@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
+import Toast from '../../../components/Toast/Toast';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { getDocuments } from '../../../api/docApi';
@@ -44,21 +45,6 @@ const faqItems = [
   },
 ];
 
-const bookmarkItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE, title: '개발 환경 세팅 가이드', meta: '개발 · 2026.07.06' },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.ORANGE,
-    title: 'VPN 접속 방법 및 오류 해결',
-    meta: '네트워크 · 2026.06.12',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    title: '계정 보안과 권한 신청 절차',
-    meta: '보안 · 2026.06.20',
-  },
-];
 
 const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
 const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net' };
@@ -121,6 +107,8 @@ function DocListPage() {
   const [sort, setSort] = useState('최신순');
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [page, setPage] = useState(1);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [toast, setToast] = useState(null);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = apiRes?.data ?? [];
@@ -178,6 +166,23 @@ function DocListPage() {
     setSearch(value);
     setPage(1);
   }
+
+  const showToast = useCallback((msg) => {
+    setToast(msg);
+  }, []);
+
+  const handleBookmark = useCallback((doc) => {
+    const already = bookmarks.some(b => b.id === doc.id);
+    if (already) {
+      setBookmarks(prev => prev.filter(b => b.id !== doc.id));
+      showToast('북마크에서 제거되었습니다.');
+    } else {
+      const colorKey = categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE;
+      const date = doc.createdAt ? new Date(doc.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '') : '';
+      setBookmarks(prev => [{ id: doc.id, colorKey, title: doc.title, meta: `${doc.categoryName} · ${date}` }, ...prev]);
+      showToast('북마크에 저장되었습니다.');
+    }
+  }, [bookmarks, categoryColorMap, showToast]);
 
   return (
     <div className={styles.page}>
@@ -390,7 +395,10 @@ function DocListPage() {
               <button className={styles.linkBtn}>전체보기 ›</button>
             </div>
             <ul className={styles.bookmarkList}>
-              {bookmarkItems.map(({ id, colorKey, title, meta }) => (
+              {bookmarks.length === 0 && (
+                <li className={styles.bookmarkEmpty}>저장된 북마크가 없습니다.</li>
+              )}
+              {bookmarks.map(({ id, colorKey, title, meta }) => (
                 <li key={id} className={styles.bookmarkItem}>
                   <div className={`${styles.bookmarkIcon} ${styles[colorKey]}`}>
                     <IconHeart />
@@ -406,7 +414,15 @@ function DocListPage() {
         </aside>
       </div>
 
-      {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
+      {selectedDoc && (
+        <DocDetailModal
+          doc={selectedDoc}
+          onClose={() => setSelectedDoc(null)}
+          onBookmark={handleBookmark}
+          isBookmarked={bookmarks.some(b => b.id === selectedDoc.id)}
+        />
+      )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }
