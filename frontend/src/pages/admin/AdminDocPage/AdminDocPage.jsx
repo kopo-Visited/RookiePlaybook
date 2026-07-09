@@ -1,120 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useMemo } from 'react';
 import styles from './AdminDocPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import AdminDocModal from './AdminDocModal';
+import useFetch from '../../../hooks/useFetch';
+import { getDocuments, getFaqs } from '../../../api/docApi';
 
-const STAT_CARDS = [
-  {
-    key: 'total',
-    label: '전체 문서',
-    value: '208건',
-    sub: '▲ 12건 이번 달 추가',
-    subColor: '#12B886',
-    iconBg: '#EAF4FF',
-    iconColor: '#2288FF',
-    iconText: '문',
-  },
-  {
-    key: 'public',
-    label: '공개 문서',
-    value: '186건',
-    sub: '공개율 89.4%',
-    subColor: '#12B886',
-    iconBg: '#E6F8F2',
-    iconColor: '#12B886',
-    iconText: '공',
-  },
-  {
-    key: 'review',
-    label: '검토 필요',
-    value: '14건',
-    sub: '6개월 이상 미검토',
-    subColor: '#FF4D94',
-    iconBg: '#FFF0F6',
-    iconColor: '#FF4D94',
-    iconText: '!',
-  },
-  {
-    key: 'faq',
-    label: '등록 FAQ',
-    value: '64건',
-    sub: 'AI 추천 8건 포함',
-    subColor: '#12B886',
-    iconBg: '#FFF5E6',
-    iconColor: '#FFAD33',
-    iconText: 'Q',
-  },
-];
-
-const DOC_ROWS = [
-  {
-    id: 1,
-    type: 'DOCU',
-    isMust: true,
-    title: '개발 환경 세팅 가이드',
-    dept: '개발팀',
-    category: '환경 세팅',
-    status: '공개',
-    reviewedAt: '2026.07.06',
-    author: '관리자',
-  },
-  {
-    id: 2,
-    type: 'DOCX',
-    isMust: false,
-    title: 'Git 브랜치 전략 및 PR 작성 규칙',
-    dept: '개발팀',
-    category: '협업 규칙',
-    status: '공개',
-    reviewedAt: '2026.07.02',
-    author: '관리자',
-  },
-  {
-    id: 3,
-    type: 'PDF',
-    isMust: true,
-    title: '서버 접속 절차 및 Linux 기본 명령어',
-    dept: '인프라팀',
-    category: '서버 접속',
-    status: '검토필요',
-    reviewedAt: '2026.06.28',
-    author: '관리자',
-  },
-  {
-    id: 4,
-    type: 'PDF',
-    isMust: false,
-    title: '계정 보안과 권한 신청 절차',
-    dept: '보안팀',
-    category: '권한 관리',
-    status: '공개',
-    reviewedAt: '2026.06.20',
-    author: '관리자',
-  },
-  {
-    id: 5,
-    type: 'DOCX',
-    isMust: true,
-    title: 'VPN 접속 방법 및 오류 해결 가이드',
-    dept: '네트워크팀',
-    category: 'VPN',
-    status: '공개',
-    reviewedAt: '2026.06.12',
-    author: '관리자',
-  },
-  {
-    id: 6,
-    type: 'XLSX',
-    isMust: false,
-    title: '방화벽 포트 오픈 요청 템플릿',
-    dept: '네트워크팀',
-    category: '요청 템플릿',
-    status: '비공개',
-    reviewedAt: '2026.06.08',
-    author: '관리자',
-  },
-];
 
 const DEPT_BARS = [
   { label: '개발팀', count: 48, ratio: 0.78 },
@@ -128,13 +17,6 @@ const STALE_DOCS = [
   { id: 2, title: 'VPN 오류 해결 가이드', dept: '네트워크팀', daysAgo: 182 },
 ];
 
-const TYPE_STYLE = {
-  DOCU: { bg: '#EAF4FF', color: '#2288FF' },
-  DOCX: { bg: '#E7F2FF', color: '#1C7ED6' },
-  PDF: { bg: '#FFE5EA', color: '#F03E5C' },
-  XLSX: { bg: '#DCF7EB', color: '#10A36C' },
-  PPTX: { bg: '#FFF5E6', color: '#F08C00' },
-};
 
 const STATUS_STYLE = {
   공개: { bg: '#E6F8F2', color: '#12B886' },
@@ -151,18 +33,18 @@ function IconSearch() {
   );
 }
 
-function StatCard({ label, value, sub, subColor, iconBg, iconColor, iconText }) {
+function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
   return (
     <div className={styles.statCard}>
+      <div className={`${styles.statIcon} ${styles[colorKey]}`}>
+        {iconText}
+      </div>
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
         <span className={styles.statSub} style={{ color: subColor }}>
           {sub}
         </span>
-      </div>
-      <div className={styles.statIcon} style={{ background: iconBg, color: iconColor }}>
-        {iconText}
       </div>
     </div>
   );
@@ -202,30 +84,45 @@ function ActionButtons({ status }) {
   );
 }
 
-function AdminDocPage() {
-  const navigate = useNavigate();
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '관리자';
-  const avatarChar = displayName[0];
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
+function AdminDocPage() {
   const [search, setSearch] = useState('');
-  const [deptFilter, setDeptFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const filtered = DOC_ROWS.filter(row => {
-    const matchSearch = !search || row.title.includes(search) || row.category.includes(search);
-    const matchDept = !deptFilter || row.dept === deptFilter;
-    const matchType = !typeFilter || row.type === typeFilter;
-    const matchStatus = !statusFilter || row.status === statusFilter;
-    return matchSearch && matchDept && matchType && matchStatus;
+  const { data: apiRes, loading } = useFetch(() => getDocuments(), [refreshKey]);
+  const docs = apiRes?.data ?? [];
+
+  const { data: faqRes } = useFetch(() => getFaqs(), []);
+  const totalFaqs = faqRes?.data?.length ?? 0;
+
+  const statCards = useMemo(() => [
+    { key: 'total',  label: '전체 문서',  value: `${docs.length}건`,  sub: '공개 문서 기준',      subColor: '#12B886', colorKey: 'blue',   iconText: 'Doc' },
+    { key: 'public', label: '공개 문서',  value: `${docs.length}건`,  sub: `카테고리 ${[...new Set(docs.map(d => d.categoryName))].length}개`, subColor: '#12B886', colorKey: 'green',  iconText: 'Pub' },
+    { key: 'review', label: '검토 필요',  value: '0건',                sub: '6개월 이상 미검토',   subColor: '#FF4D94', colorKey: 'pink',   iconText: 'Rev' },
+    { key: 'faq',    label: '등록 FAQ',   value: `${totalFaqs}건`,    sub: '전체 FAQ 목록',       subColor: '#12B886', colorKey: 'orange', iconText: 'FAQ' },
+  ], [docs, totalFaqs]);
+
+  const filtered = docs.filter(row => {
+    const matchSearch = !search || row.title.includes(search) || row.categoryName.includes(search);
+    const matchCategory = !categoryFilter || row.categoryName === categoryFilter;
+    const publicStatus = row.isPublic ? '공개' : '비공개';
+    const matchStatus = !statusFilter || publicStatus === statusFilter;
+    return matchSearch && matchCategory && matchStatus;
   });
+
+  const handleCreated = useCallback(() => setRefreshKey(k => k + 1), []);
 
   const handleReset = () => {
     setSearch('');
-    setDeptFilter('');
-    setTypeFilter('');
+    setCategoryFilter('');
     setStatusFilter('');
   };
 
@@ -249,18 +146,11 @@ function AdminDocPage() {
               placeholder="문서, FAQ, 카테고리 검색"
             />
           </div>
-          <div className={styles.profile}>
-            <div className={styles.avatar}>{avatarChar}</div>
-            <div className={styles.userText}>
-              <span className={styles.userName}>{displayName}님</span>
-              <span className={styles.userRole}>관리자</span>
-            </div>
-          </div>
         </div>
       </header>
 
       <div className={styles.statsGrid}>
-        {STAT_CARDS.map(card => (
+        {statCards.map(card => (
           <StatCard key={card.key} {...card} />
         ))}
       </div>
@@ -284,32 +174,21 @@ function AdminDocPage() {
             <input
               type="text"
               className={styles.filterSearch}
-              placeholder="문서명 또는 태그 검색"
+              placeholder="문서명 또는 카테고리 검색"
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
           </div>
           <select
             className={styles.filterSelect}
-            value={deptFilter}
-            onChange={e => setDeptFilter(e.target.value)}
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
           >
-            <option value="">부서 전체</option>
-            <option value="개발팀">개발팀</option>
-            <option value="인프라팀">인프라팀</option>
-            <option value="보안팀">보안팀</option>
-            <option value="네트워크팀">네트워크팀</option>
-          </select>
-          <select
-            className={styles.filterSelect}
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-          >
-            <option value="">유형 전체</option>
-            <option value="DOCU">DOCU</option>
-            <option value="DOCX">DOCX</option>
-            <option value="PDF">PDF</option>
-            <option value="XLSX">XLSX</option>
+            <option value="">카테고리 전체</option>
+            <option value="개발">개발</option>
+            <option value="인프라">인프라</option>
+            <option value="보안">보안</option>
+            <option value="네트워크">네트워크</option>
           </select>
           <select
             className={styles.filterSelect}
@@ -319,7 +198,6 @@ function AdminDocPage() {
             <option value="">상태 전체</option>
             <option value="공개">공개</option>
             <option value="비공개">비공개</option>
-            <option value="검토필요">검토필요</option>
           </select>
           <button className={styles.resetBtn} onClick={handleReset}>
             초기화
@@ -329,44 +207,36 @@ function AdminDocPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>유형</th>
               <th>문서명</th>
-              <th>부서</th>
               <th>카테고리</th>
               <th>상태</th>
-              <th>최근 검토</th>
-              <th>작성자</th>
+              <th>등록일</th>
+              <th>조회수</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(row => {
-              const typeStyle = TYPE_STYLE[row.type] ?? {};
+            {loading && (
+              <tr><td colSpan={6} className={styles.textCell} style={{ textAlign: 'center', padding: '40px' }}>불러오는 중...</td></tr>
+            )}
+            {!loading && filtered.length === 0 && (
+              <tr><td colSpan={6} className={styles.textCell} style={{ textAlign: 'center', padding: '40px' }}>문서가 없습니다.</td></tr>
+            )}
+            {!loading && filtered.map(row => {
+              const publicStatus = row.isPublic ? '공개' : '비공개';
               return (
                 <tr key={row.id}>
                   <td>
-                    <span
-                      className={styles.typeBadge}
-                      style={{ background: typeStyle.bg, color: typeStyle.color }}
-                    >
-                      {row.type}
-                    </span>
+                    <span className={styles.docTitle}>{row.title}</span>
                   </td>
+                  <td className={styles.textCell}>{row.categoryName}</td>
                   <td>
-                    <div className={styles.titleCell}>
-                      {row.isMust && <span className={styles.mustBadge}>필독</span>}
-                      <span className={styles.docTitle}>{row.title}</span>
-                    </div>
+                    <StatusBadge status={publicStatus} />
                   </td>
-                  <td className={styles.textCell}>{row.dept}</td>
-                  <td className={styles.textCell}>{row.category}</td>
+                  <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
+                  <td className={styles.textCell}>{row.viewCount}</td>
                   <td>
-                    <StatusBadge status={row.status} />
-                  </td>
-                  <td className={styles.textCell}>{row.reviewedAt}</td>
-                  <td className={styles.textCell}>{row.author}</td>
-                  <td>
-                    <ActionButtons status={row.status} />
+                    <ActionButtons status={publicStatus} />
                   </td>
                 </tr>
               );
@@ -422,7 +292,7 @@ function AdminDocPage() {
           </div>
         </div>
       </div>
-      {modalOpen && <AdminDocModal onClose={() => setModalOpen(false)} />}
+      {modalOpen && <AdminDocModal onClose={() => setModalOpen(false)} onCreated={handleCreated} />}
     </div>
   );
 }

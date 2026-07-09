@@ -138,13 +138,8 @@
   justify-content: flex-end;
   gap: 16px;
   padding: 28px 40px 0;
-  min-width: 1024px;
-  box-sizing: border-box;
 }
 
-.notifWrap {
-  position: relative;
-}
 .notifBtn {
   position: relative;
   width: 40px;
@@ -153,9 +148,6 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: transparent;
-  border: none;
-  padding: 0;
 }
 .notifIcon {
   color: #65738b;
@@ -212,9 +204,24 @@
   line-height: 1.2;
 }
 
+.logoutBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #65738b;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.logoutBtn:hover {
+  background: #f7f9fe;
+}
+
 .main {
   flex: 1;
   padding: 24px 40px 48px;
-  min-width: 1024px;
-  box-sizing: border-box;
 }

@@ -7,6 +7,7 @@ import LoginPage from './pages/auth/LoginPage/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
+import DocDetailPage from './pages/doc/DocDetailPage/DocDetailPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
@@ -16,11 +17,13 @@ import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
+  if (import.meta.env.DEV) return <Outlet />;
   return token ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />;
 }
 
 function AdminRoute() {
   const user = useAuthStore(state => state.user);
+  if (import.meta.env.DEV) return <Outlet />;
   const isAdmin = user?.roleCode === 'ROLE_ADMIN';
   return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
 }
@@ -36,6 +39,7 @@ function App() {
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DOC.LIST} element={<DocListPage />} />
             <Route path={ROUTES.DOC.DEPT} element={<DocFilterResultPage />} />
+            <Route path="/doc/:id" element={<DocDetailPage />} />
             <Route path={ROUTES.QNA.LIST} element={<QnaListPage />} />
             <Route path={ROUTES.QNA.ALL} element={<QnaAllPage />} />
             <Route path={ROUTES.EDU.LIST} element={<div>EduListPage</div>} />

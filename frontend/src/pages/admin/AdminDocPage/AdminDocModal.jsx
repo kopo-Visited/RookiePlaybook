@@ -1,41 +1,43 @@
 import { useState, useRef } from 'react';
 import styles from './AdminDocModal.module.css';
+import { createDocument } from '../../../api/docApi';
 
-const DEPTS = ['개발팀', '인프라팀', '보안팀', '네트워크팀'];
-const CATEGORIES = ['환경 세팅', '협업 규칙', '서버 접속', '권한 관리', 'VPN', '요청 템플릿'];
-const FILE_TYPES = ['DOCU', 'DOCX', 'PDF', 'XLSX', 'PPTX'];
+const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
-const PRIORITIES = ['일반 문서', '필독 문서'];
 
-function AdminDocModal({ onClose }) {
+function AdminDocModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
     title: '',
-    dept: '',
     category: '',
-    fileType: '',
     visibility: '공개',
-    priority: '일반 문서',
-    description: '',
+    content: '',
   });
-  const [file, setFile] = useState(null);
-  const [dragging, setDragging] = useState(false);
-  const fileInputRef = useRef(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
-  const handleDrop = e => {
-    e.preventDefault();
-    setDragging(false);
-    const dropped = e.dataTransfer.files[0];
-    if (dropped) setFile(dropped);
-  };
+  const handleSubmit = async () => {
+    if (!form.title.trim()) { setError('문서 제목을 입력하세요.'); return; }
+    if (!form.category) { setError('카테고리를 선택하세요.'); return; }
+    if (!form.content.trim()) { setError('문서 내용을 입력하세요.'); return; }
 
-  const handleFileChange = e => {
-    if (e.target.files[0]) setFile(e.target.files[0]);
-  };
-
-  const handleSubmit = () => {
-    onClose();
+    setSubmitting(true);
+    setError('');
+    try {
+      await createDocument({
+        categoryName: form.category,
+        title: form.title.trim(),
+        content: form.content.trim(),
+        isPublic: form.visibility === '공개',
+      });
+      onCreated?.();
+      onClose();
+    } catch {
+      setError('문서 등록에 실패했습니다. 다시 시도해 주세요.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -64,22 +66,6 @@ function AdminDocModal({ onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>담당 부서</label>
-            <select
-              className={styles.select}
-              value={form.dept}
-              onChange={e => handleChange('dept', e.target.value)}
-            >
-              <option value="">부서 선택</option>
-              {DEPTS.map(d => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
             <label className={styles.label}>카테고리</label>
             <select
               className={styles.select}
@@ -90,22 +76,6 @@ function AdminDocModal({ onClose }) {
               {CATEGORIES.map(c => (
                 <option key={c} value={c}>
                   {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>파일 유형</label>
-            <select
-              className={styles.select}
-              value={form.fileType}
-              onChange={e => handleChange('fileType', e.target.value)}
-            >
-              <option value="">유형 선택</option>
-              {FILE_TYPES.map(t => (
-                <option key={t} value={t}>
-                  {t}
                 </option>
               ))}
             </select>
@@ -126,64 +96,26 @@ function AdminDocModal({ onClose }) {
             </select>
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.label}>중요도</label>
-            <select
-              className={styles.select}
-              value={form.priority}
-              onChange={e => handleChange('priority', e.target.value)}
-            >
-              {PRIORITIES.map(p => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className={`${styles.field} ${styles.fieldFull}`}>
-            <label className={styles.label}>문서 설명</label>
+            <label className={styles.label}>문서 내용</label>
             <textarea
               className={styles.textarea}
-              placeholder="문서에 대한 간단한 설명을 입력하세요"
-              value={form.description}
-              onChange={e => handleChange('description', e.target.value)}
-            />
-          </div>
-
-          <div className={`${styles.field} ${styles.fieldFull}`}>
-            <label className={styles.label}>파일 업로드</label>
-            <div
-              className={`${styles.dropZone} ${dragging ? styles.dragging : ''}`}
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={e => {
-                e.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={handleDrop}
-            >
-              {file ? (
-                <span className={styles.fileName}>{file.name}</span>
-              ) : (
-                <span className={styles.dropText}>파일을 드래그하거나 클릭해서 업로드</span>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              className={styles.hiddenInput}
-              onChange={handleFileChange}
+              placeholder="문서 내용을 입력하세요"
+              value={form.content}
+              onChange={e => handleChange('content', e.target.value)}
+              rows={8}
             />
           </div>
         </div>
 
+        {error && <p className={styles.errorMsg}>{error}</p>}
+
         <div className={styles.modalFooter}>
-          <button className={styles.cancelBtn} onClick={onClose}>
+          <button className={styles.cancelBtn} onClick={onClose} disabled={submitting}>
             취소
           </button>
-          <button className={styles.submitBtn} onClick={handleSubmit}>
-            등록하기
+          <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
+            {submitting ? '등록 중...' : '등록하기'}
           </button>
         </div>
       </div>

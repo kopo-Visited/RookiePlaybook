@@ -1,11 +1,13 @@
 package com.visited.www.doc.controller;
 
+import com.visited.www.doc.dto.request.DocumentCreateRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
 import com.visited.www.doc.dto.response.FaqResponse;
 import com.visited.www.doc.service.DocumentService;
 import com.visited.www.doc.service.FaqService;
 import com.visited.www.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +35,13 @@ public class DocumentController {
     @GetMapping("/documents/search")
     public ApiResponse<List<DocumentResponse>> searchDocuments(@RequestParam("q") String keyword) {
         List<DocumentResponse> response = documentService.searchDocuments(keyword);
+        return ApiResponse.success(response);
+    }
+
+    @PostMapping("/documents")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<DocumentResponse> createDocument(@RequestBody DocumentCreateRequest request) {
+        DocumentResponse response = documentService.createDocument(request);
         return ApiResponse.success(response);
     }
 

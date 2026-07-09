@@ -1,6 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import styles from './AdminLayout.module.css';
 import { ROUTES } from '../../constants/routes';
+import useAuthStore from '../../stores/authStore';
+import { logout as logoutApi } from '../../api/authApi';
 
 function IconHome() {
   return (
@@ -106,6 +108,27 @@ function IconFileTray() {
   );
 }
 
+function IconLogout() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 17l5-5-5-5M21 12H9"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function IconSettings() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -130,6 +153,24 @@ const NAV_ITEMS = [
 ];
 
 function AdminLayout() {
+  const navigate = useNavigate();
+  const user = useAuthStore(state => state.user);
+  const clearAuth = useAuthStore(state => state.logout);
+  const displayName = user?.name ?? '관리자';
+  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '';
+  const avatarChar = displayName[0];
+
+  async function handleLogout() {
+    try {
+      await logoutApi();
+    } catch {
+      // JWT는 stateless라 서버 호출이 실패해도 클라이언트 로그아웃은 진행한다
+    } finally {
+      clearAuth();
+      navigate(ROUTES.LOGIN);
+    }
+  }
+
   return (
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
@@ -156,6 +197,24 @@ function AdminLayout() {
       </aside>
 
       <div className={styles.mainWrapper}>
+        <header className={styles.topbar}>
+          <div className={styles.userInfo}>
+            <div className={styles.avatar}>{avatarChar}</div>
+            <div className={styles.userText}>
+              <span className={styles.userName}>{displayName}님</span>
+              {displayDept && <span className={styles.userDept}>{displayDept}</span>}
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            aria-label="로그아웃"
+          >
+            <IconLogout />
+          </button>
+        </header>
+
         <main className={styles.main}>
           <Outlet />
         </main>

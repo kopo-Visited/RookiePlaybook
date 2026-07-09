@@ -9,6 +9,7 @@ import com.visited.www.user.dto.request.UserRoleUpdateRequest;
 import com.visited.www.user.dto.request.UserStatusUpdateRequest;
 import com.visited.www.user.dto.request.UserUpdateRequest;
 import com.visited.www.user.dto.response.DepartmentResponse;
+import com.visited.www.user.dto.response.RoleResponse;
 import com.visited.www.user.dto.response.UserResponse;
 import com.visited.www.user.repository.DepartmentRepository;
 import com.visited.www.user.repository.RoleRepository;
@@ -114,6 +115,14 @@ public class AdminUserService {
         return departmentRepository.findByActiveTrueOrderByIdAsc()
                 .stream()
                 .map(DepartmentResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoleResponse> getRoles() {
+        return roleRepository.findByActiveTrueOrderByIdAsc()
+                .stream()
+                .map(RoleResponse::from)
                 .toList();
     }
 
