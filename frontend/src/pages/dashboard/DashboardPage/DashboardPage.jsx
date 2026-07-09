@@ -9,6 +9,7 @@ import { getMyProgress } from '../../../api/eduApi';
 import { getNotices } from '../../../api/noticeApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
+import NoticeListModal from '../../../components/NoticeListModal/NoticeListModal';
 
 const TYPE_STYLE = {
   DOCU: { bg: '#EAF4FF', color: '#2288FF' },
@@ -61,6 +62,7 @@ function DashboardPage() {
   const user = useAuthStore(s => s.user);
   const [qnaModalOpen, setQnaModalOpen] = useState(false);
   const [qnaRefreshKey, setQnaRefreshKey] = useState(0);
+  const [noticeModalOpen, setNoticeModalOpen] = useState(false);
 
   const { data: docRes }    = useFetch(() => getDocuments().catch(() => null), []);
   const { data: qnaRes }    = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
@@ -263,7 +265,7 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>공지사항</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            <button className={styles.linkBtn} onClick={() => setNoticeModalOpen(true)}>전체보기 ›</button>
           </div>
           <ul className={styles.noticeList}>
             {notices.length === 0 && (
@@ -338,6 +340,8 @@ function DashboardPage() {
           onSuccess={() => { setQnaRefreshKey(k => k + 1); setQnaModalOpen(false); }}
         />
       )}
+
+      {noticeModalOpen && <NoticeListModal onClose={() => setNoticeModalOpen(false)} />}
     </div>
   );
 }
