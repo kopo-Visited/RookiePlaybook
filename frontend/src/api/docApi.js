@@ -9,4 +9,8 @@ export const searchDocuments = (keyword, params = {}) =>
 
 export const createDocument = data => axiosInstance.post('/api/documents', data);
 
+export const updateDocument = (id, data) => axiosInstance.put(`/api/documents/${id}`, data);
+
+export const deleteDocument = id => axiosInstance.delete(`/api/documents/${id}`);
+
 export const getFaqs = (params = {}) => axiosInstance.get('/api/faqs', { params });

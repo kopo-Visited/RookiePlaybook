@@ -1,6 +1,7 @@
 package com.visited.www.doc.controller;
 
 import com.visited.www.doc.dto.request.DocumentCreateRequest;
+import com.visited.www.doc.dto.request.DocumentUpdateRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
 import com.visited.www.doc.dto.response.FaqResponse;
 import com.visited.www.doc.service.DocumentService;
@@ -43,6 +44,19 @@ public class DocumentController {
     public ApiResponse<DocumentResponse> createDocument(@RequestBody DocumentCreateRequest request) {
         DocumentResponse response = documentService.createDocument(request);
         return ApiResponse.success(response);
+    }
+
+    @PutMapping("/documents/{id}")
+    public ApiResponse<DocumentResponse> updateDocument(@PathVariable Long id,
+                                                        @RequestBody DocumentUpdateRequest request) {
+        DocumentResponse response = documentService.updateDocument(id, request);
+        return ApiResponse.success(response);
+    }
+
+    @DeleteMapping("/documents/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDocument(@PathVariable Long id) {
+        documentService.deleteDocument(id);
     }
 
     @GetMapping("/faqs")

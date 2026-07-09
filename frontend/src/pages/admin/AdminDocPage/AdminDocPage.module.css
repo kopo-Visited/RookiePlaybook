@@ -336,6 +336,13 @@
   font-family: inherit;
   white-space: nowrap;
 }
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  background: #fff0f3;
+}
 
 /* ── bottom ── */
 .bottomGrid {
