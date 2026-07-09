@@ -205,6 +205,11 @@
   border-color: var(--color-primary);
   box-shadow: 0 4px 12px rgba(34, 136, 255, 0.12);
 }
+.summaryCardActive {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(34, 136, 255, 0.12);
+  background: var(--color-primary-bg, #f0f7ff);
+}
 .summaryIcon {
   width: 46px;
   height: 46px;

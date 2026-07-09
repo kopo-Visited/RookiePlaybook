@@ -60,48 +60,7 @@ const bookmarkItems = [
   },
 ];
 
-const summaryCards = [
-  {
-    id: 'dev',
-    dept: '개발',
-    colorKey: COLOR_KEYS.BLUE,
-    icon: 'Dev',
-    count: 48,
-    label: '개발 · 환경 세팅 · Git · PR',
-  },
-  {
-    id: 'infra',
-    dept: '인프라',
-    colorKey: COLOR_KEYS.GREEN,
-    icon: 'Infra',
-    count: 36,
-    label: '인프라 · 서버 · 배포 · 로그',
-  },
-  {
-    id: 'sec',
-    dept: '보안',
-    colorKey: COLOR_KEYS.PINK,
-    icon: 'Sec',
-    count: 32,
-    label: '보안 · 계정 · 권한 · 사고 신고',
-  },
-  {
-    id: 'net',
-    dept: '네트워크',
-    colorKey: COLOR_KEYS.ORANGE,
-    icon: 'Net',
-    count: 28,
-    label: '네트워크 · VPN · IP · 방화벽',
-  },
-  {
-    id: 'all',
-    dept: '공통',
-    colorKey: COLOR_KEYS.PURPLE,
-    icon: 'All',
-    count: 64,
-    label: '공통 · 회사 소개 · 협업툴',
-  },
-];
+const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
 
 const onboardingCourses = [
   {
@@ -201,6 +160,17 @@ function DocListPage() {
     return list;
   }, [docs, search, category, sort]);
 
+  const summaryCards = useMemo(() => {
+    const countMap = {};
+    docs.forEach(d => { countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1; });
+    return Object.entries(countMap).map(([name, count], i) => ({
+      id: name,
+      categoryName: name,
+      colorKey: CARD_COLORS[i % CARD_COLORS.length],
+      count,
+    }));
+  }, [docs]);
+
   function handleCategorySelect(option) {
     setCategory(option);
     categoryDD.setOpen(false);
@@ -293,16 +263,16 @@ function DocListPage() {
         </div>
 
         <div className={styles.summaryRow}>
-          {summaryCards.map(({ id, dept: cardDept, colorKey, icon, count, label }) => (
+          {summaryCards.map(({ id, categoryName, colorKey, count }) => (
             <div
               key={id}
-              className={styles.summaryCard}
-              onClick={() => navigate(ROUTES.DOC.DEPT_PATH(cardDept))}
+              className={`${styles.summaryCard} ${category === categoryName ? styles.summaryCardActive : ''}`}
+              onClick={() => handleCategorySelect(category === categoryName ? '전체' : categoryName)}
             >
-              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{icon}</div>
+              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{count}</div>
               <div className={styles.summaryText}>
-                <span className={styles.summaryCount}>{count}</span>
-                <span className={styles.summaryLabel}>{label}</span>
+                <span className={styles.summaryCount}>{categoryName}</span>
+                <span className={styles.summaryLabel}>{count}개 문서</span>
               </div>
             </div>
           ))}
