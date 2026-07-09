@@ -154,6 +154,23 @@ function DashboardPage() {
         ))}
       </section>
 
+      {/* ── 빠른 바로가기 ── */}
+      <section className={styles.card}>
+        <div className={styles.sectionHead}>
+          <span className={styles.sectionTitle}>빠른 바로가기</span>
+        </div>
+        <div className={styles.shortcutGridWide}>
+          {shortcuts.map((s, i) => (
+            <button key={i} className={styles.shortcutItem} onClick={() => handleShortcut(s)}>
+              <div className={styles.shortcutIcon} style={{ background: s.bg }}>
+                <span style={{ fontSize: 24 }}>{s.icon}</span>
+              </div>
+              <span className={styles.shortcutLabel}>{s.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* ── 중단 3열 ── */}
       <div className={styles.midRow}>
         {/* 진행 중 교육 */}
@@ -313,22 +330,6 @@ function DashboardPage() {
           </ul>
         </section>
 
-        {/* 빠른 바로가기 */}
-        <section className={styles.card}>
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>빠른 바로가기</span>
-          </div>
-          <div className={styles.shortcutGrid}>
-            {shortcuts.map((s, i) => (
-              <button key={i} className={styles.shortcutItem} onClick={() => handleShortcut(s)}>
-                <div className={styles.shortcutIcon} style={{ background: s.bg }}>
-                  <span style={{ fontSize: 24 }}>{s.icon}</span>
-                </div>
-                <span className={styles.shortcutLabel}>{s.label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
       </div>
 
       {qnaModalOpen && (

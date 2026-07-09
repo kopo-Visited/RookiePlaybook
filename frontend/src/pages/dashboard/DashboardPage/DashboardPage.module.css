@@ -363,10 +363,10 @@
   width: 100%;
 }
 
-/* ── 하단 4열 ── */
+/* ── 하단 3열 ── */
 .bottomRow {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   align-items: start;
 }
@@ -509,6 +509,11 @@
 .shortcutGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.shortcutGridWide {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 12px;
 }
 .shortcutItem {
