@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import styles from './QnaDetailModal.module.css';
 import { getQna, getPublicQna, deleteQna } from '../../api/qnaApi';
+import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../constants/styles';
+import Badge from '../Badge/Badge';
 
 const STATUS_LABEL = {
   RECEIVED: '접수',
@@ -90,7 +92,12 @@ function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = f
               <span className={styles.statusBadge} style={{ color: s.color, background: s.background }}>
                 {STATUS_LABEL[detail.status]}
               </span>
-              <span className={styles.category}>{detail.categoryName}</span>
+              <Badge
+                colorKey={DEPT_COLOR[detail.categoryName] ?? COLOR_KEYS.PURPLE}
+                size={BADGE_SIZES.SM}
+              >
+                {detail.categoryName}
+              </Badge>
             </div>
             <h3 className={styles.qTitle}>{detail.title}</h3>
             <p className={styles.qContent}>{detail.content}</p>

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './QnaListPage.module.css';
 import { ROUTES } from '../../../constants/routes';
+import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
+import Badge from '../../../components/Badge/Badge';
 import useFetch from '../../../hooks/useFetch';
 import { getQnas } from '../../../api/qnaApi';
 import Spinner from '../../../components/Spinner/Spinner';
@@ -10,7 +12,7 @@ import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -255,7 +257,12 @@ function QnaListPage() {
                     <StatusBadge status={item.status} />
                   </td>
                   <td>
-                    <span className={styles.secondary}>{item.categoryName}</span>
+                    <Badge
+                      colorKey={DEPT_COLOR[item.categoryName] ?? COLOR_KEYS.PURPLE}
+                      size={BADGE_SIZES.SM}
+                    >
+                      {item.categoryName}
+                    </Badge>
                   </td>
                   <td>
                     <span className={styles.titleText}>{item.title}</span>
