@@ -39,14 +39,14 @@ VALUES
     (3, '보안 심화 교육', '웹 취약점과 보안 대응을 다루는 심화 과정', 60, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 교육 단계
-INSERT INTO education_stages (id, education_id, title, order_number, created_at, updated_at)
+INSERT INTO education_stages (id, education_id, title, description, order_number, created_at, updated_at)
 VALUES
-    (1, 1, '회사 소개', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (2, 1, '정보보안 기초', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (3, 1, '개발 프로세스', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (4, 2, 'Spring Boot 입문', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (5, 2, 'JPA 기초', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (6, 3, '웹 취약점 이해', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    (1, 1, '회사 소개', '회사 비전과 조직 구조 소개', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (2, 1, '정보보안 기초', '기본 보안 수칙과 사내 정책', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (3, 1, '개발 프로세스', 'Git 협업 및 개발 워크플로우', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (4, 2, 'Spring Boot 입문', 'Spring Boot 기본 개념과 구조', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (5, 2, 'JPA 기초', 'JPA 영속성 컨텍스트 이해', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (6, 3, '웹 취약점 이해', 'OWASP Top 10 개요', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 교육 자료 (단계 1:1), total_duration 단위: 초
 INSERT INTO education_materials (id, stage_id, title, video_url, total_duration)
