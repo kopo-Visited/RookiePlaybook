@@ -18,10 +18,10 @@ const TYPE_STYLE = {
 };
 
 const STATUS_STYLE = {
-  PENDING:     { label: '답변 대기', color: '#6F7B91' },
+  RECEIVED:    { label: '답변 대기', color: '#6F7B91' },
   IN_PROGRESS: { label: '처리 중',  color: '#2288FF' },
   ANSWERED:    { label: '답변 완료', color: '#20C997' },
-  CLOSED:      { label: '완료',     color: '#20C997' },
+  ON_HOLD:     { label: '보류',     color: '#F08C00' },
 };
 
 const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
@@ -74,7 +74,7 @@ function DashboardPage() {
   const { data: eduRes }  = useFetch(() => getMyProgress(), []);
 
   const docs    = docRes?.data ?? [];
-  const qnas    = qnaRes?.data ?? [];
+  const qnas    = qnaRes?.data?.content ?? [];
   const eduList = eduRes?.data ?? [];
 
   const recentDocs = useMemo(() =>
@@ -85,12 +85,12 @@ function DashboardPage() {
   const myQnas = useMemo(() => qnas.slice(0, 3), [qnas]);
 
   const pendingCount = useMemo(() =>
-    qnas.filter(q => q.status === 'PENDING' || q.status === 'IN_PROGRESS').length,
+    qnas.filter(q => q.status === 'RECEIVED' || q.status === 'IN_PROGRESS').length,
     [qnas]
   );
 
   const inProgressEdu = useMemo(() =>
-    eduList.filter(e => e.progressPercent > 0 && e.progressPercent < 100).slice(0, 3),
+    eduList.filter(e => !e.isCompleted && e.progressRate > 0).slice(0, 3),
     [eduList]
   );
 
@@ -178,13 +178,9 @@ function DashboardPage() {
                   </div>
                   <div className={styles.eduProgressRow}>
                     <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${edu.progressPercent ?? 0}%` }} />
+                      <div className={styles.progressFill} style={{ width: `${edu.progressRate ?? 0}%` }} />
                     </div>
-                    <span className={styles.progressPct}>{edu.progressPercent ?? 0}%</span>
-                  </div>
-                  <div className={styles.eduMeta}>
-                    <span>{edu.completedStages ?? 0}/{edu.totalStages ?? 0} 챕터 완료</span>
-                    <span>남은 {(edu.totalStages ?? 0) - (edu.completedStages ?? 0)}개 챕터</span>
+                    <span className={styles.progressPct}>{edu.progressRate ?? 0}%</span>
                   </div>
                 </div>
               </li>
@@ -224,10 +220,10 @@ function DashboardPage() {
               <li className={styles.emptyText}>등록한 질문이 없습니다.</li>
             )}
             {myQnas.map((q, i) => {
-              const st = STATUS_STYLE[q.status] ?? STATUS_STYLE.PENDING;
-              const isDone = q.status === 'ANSWERED' || q.status === 'CLOSED';
+              const st = STATUS_STYLE[q.status] ?? STATUS_STYLE.RECEIVED;
+              const isDone = q.status === 'ANSWERED';
               return (
-                <li key={q.id ?? i} className={styles.qnaItem}>
+                <li key={q.questionId ?? i} className={styles.qnaItem}>
                   <div className={styles.qnaIcon} style={{ background: isDone ? '#E7F8F3' : '#FFF0F6' }}>
                     <span style={{ fontSize: 18 }}>{isDone ? '✅' : '❓'}</span>
                   </div>
