@@ -37,15 +37,15 @@ function IconSearch() {
 function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
   return (
     <div className={styles.statCard}>
+      <div className={`${styles.statIcon} ${styles[colorKey]}`}>
+        {iconText}
+      </div>
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
         <span className={styles.statSub} style={{ color: subColor }}>
           {sub}
         </span>
-      </div>
-      <div className={`${styles.statIcon} ${styles[colorKey]}`}>
-        {iconText}
       </div>
     </div>
   );
