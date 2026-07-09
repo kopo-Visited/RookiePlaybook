@@ -4,13 +4,18 @@ import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
 import AiChatModal from '../../../components/AiChatModal/AiChatModal';
-import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../constants/styles';
+import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
-import { ALL_DOCS } from '../../../constants/docData';
+import { getDocuments } from '../../../api/docApi';
+import useFetch from '../../../hooks/useFetch';
 
-const DEPT_OPTIONS = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
-const CONTENT_TYPE_OPTIONS = ['전체', '문서', 'FAQ'];
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
 const faqItems = [
   {
@@ -170,33 +175,35 @@ function useDropdown() {
 function DocListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [dept, setDept] = useState('전체 부서');
-  const [contentType, setContentType] = useState('전체');
+  const [category, setCategory] = useState('전체');
   const [sort, setSort] = useState('최신순');
-  const [requiredOnly, setRequiredOnly] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [aiOpen, setAiOpen] = useState(false);
 
-  const deptDD = useDropdown();
-  const contentTypeDD = useDropdown();
+  const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
+  const docs = apiRes?.data ?? [];
+
+  const categoryDD = useDropdown();
   const sortDD = useDropdown();
 
-  const displayedDocs = useMemo(() => {
-    let list = ALL_DOCS;
-    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
-    if (contentType === '문서') list = list.filter(d => d.category !== 'FAQ');
-    if (contentType === 'FAQ') list = list.filter(d => d.category === 'FAQ');
-    if (requiredOnly) list = list.filter(d => d.required);
-    if (sort === '오래된순') list = [...list].sort((a, b) => a.date.localeCompare(b.date));
-    else if (sort === '조회순') list = [...list].sort((a, b) => b.views - a.views);
-    else list = [...list].sort((a, b) => b.date.localeCompare(a.date));
-    return list;
-  }, [search, contentType, sort, requiredOnly]);
+  const categoryOptions = useMemo(() => {
+    const names = [...new Set(docs.map(d => d.categoryName))];
+    return ['전체', ...names];
+  }, [docs]);
 
-  function handleDeptSelect(option) {
-    setDept(option);
-    deptDD.setOpen(false);
-    if (option !== '전체 부서') navigate(ROUTES.DOC.DEPT_PATH(option));
+  const displayedDocs = useMemo(() => {
+    let list = docs;
+    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
+    if (category !== '전체') list = list.filter(d => d.categoryName === category);
+    if (sort === '오래된순') list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    else if (sort === '조회순') list = [...list].sort((a, b) => b.viewCount - a.viewCount);
+    else list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return list;
+  }, [docs, search, category, sort]);
+
+  function handleCategorySelect(option) {
+    setCategory(option);
+    categoryDD.setOpen(false);
   }
 
   return (
@@ -226,57 +233,25 @@ function DocListPage() {
             </div>
           </div>
 
-          {/* 부서 */}
-          <div className={styles.filterField} ref={deptDD.ref}>
-            <label className={styles.filterLabel}>부서</label>
+          {/* 카테고리 */}
+          <div className={styles.filterField} ref={categoryDD.ref}>
+            <label className={styles.filterLabel}>카테고리</label>
             <div
-              className={`${styles.select} ${deptDD.open ? styles.selectOpen : ''}`}
-              onClick={() => deptDD.setOpen(o => !o)}
+              className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
+              onClick={() => categoryDD.setOpen(o => !o)}
             >
-              <span>{dept}</span>
-              <span className={`${styles.selectArrow} ${deptDD.open ? styles.selectArrowUp : ''}`}>
+              <span>{category}</span>
+              <span className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}>
                 <IconChevronDown />
               </span>
             </div>
-            {deptDD.open && (
+            {categoryDD.open && (
               <ul className={styles.dropdown}>
-                {DEPT_OPTIONS.map(opt => (
+                {categoryOptions.map(opt => (
                   <li
                     key={opt}
-                    className={`${styles.dropdownItem} ${opt === dept ? styles.dropdownItemActive : ''}`}
-                    onClick={() => handleDeptSelect(opt)}
-                  >
-                    {opt}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* 콘텐츠 유형 */}
-          <div className={styles.filterField} ref={contentTypeDD.ref}>
-            <label className={styles.filterLabel}>콘텐츠 유형</label>
-            <div
-              className={`${styles.select} ${contentTypeDD.open ? styles.selectOpen : ''}`}
-              onClick={() => contentTypeDD.setOpen(o => !o)}
-            >
-              <span>{contentType}</span>
-              <span
-                className={`${styles.selectArrow} ${contentTypeDD.open ? styles.selectArrowUp : ''}`}
-              >
-                <IconChevronDown />
-              </span>
-            </div>
-            {contentTypeDD.open && (
-              <ul className={styles.dropdown}>
-                {CONTENT_TYPE_OPTIONS.map(opt => (
-                  <li
-                    key={opt}
-                    className={`${styles.dropdownItem} ${opt === contentType ? styles.dropdownItemActive : ''}`}
-                    onClick={() => {
-                      setContentType(opt);
-                      contentTypeDD.setOpen(false);
-                    }}
+                    className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
+                    onClick={() => handleCategorySelect(opt)}
                   >
                     {opt}
                   </li>
@@ -315,17 +290,6 @@ function DocListPage() {
             )}
           </div>
 
-          <div className={styles.checkboxWrap}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={requiredOnly}
-                onChange={e => setRequiredOnly(e.target.checked)}
-              />
-              <span className={styles.checkboxBox} />
-              <span>필독만 보기</span>
-            </label>
-          </div>
         </div>
 
         <div className={styles.summaryRow}>
@@ -350,56 +314,61 @@ function DocListPage() {
         <section className={styles.docSection}>
           <div className={styles.sectionHead}>
             <div className={styles.sectionHeadLeft}>
-              <span className={styles.sectionTitle}>부서별 핵심 문서</span>
+              <span className={styles.sectionTitle}>카테고리별 핵심 문서</span>
               <Badge colorKey={COLOR_KEYS.BLUE}>총 {displayedDocs.length}건</Badge>
             </div>
             <button className={styles.linkBtn}>전체보기 ›</button>
           </div>
 
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>문서명</th>
-                <th>부서</th>
-                <th>핵심 방향</th>
-                <th>유형</th>
-                <th>최근 검토</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedDocs.map(doc => (
-                <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
-                  <td>
-                    <div className={styles.titleCell}>
-                      <Badge colorKey={DOC_TYPE_COLOR[doc.type]}>{doc.type}</Badge>
-                      <span className={styles.titleText}>{doc.title}</span>
-                      {doc.required && (
-                        <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>
-                          필수
-                        </Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>
-                      {doc.dept}
-                    </Badge>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.direction}</span>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.category}</span>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.date}</span>
-                  </td>
+          {loading && <p className={styles.empty}>문서를 불러오는 중...</p>}
+          {error && <p className={styles.empty}>문서를 불러오지 못했습니다.</p>}
+          {!loading && !error && (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>문서명</th>
+                  <th>카테고리</th>
+                  <th>내용</th>
+                  <th>조회수</th>
+                  <th>등록일</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {displayedDocs.map(doc => (
+                  <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
+                    <td>
+                      <div className={styles.titleCell}>
+                        <span className={styles.titleText}>{doc.title}</span>
+                        {doc.tags?.map(tag => (
+                          <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </td>
+                    <td>
+                      <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>
+                        {doc.categoryName}
+                      </Badge>
+                    </td>
+                    <td>
+                      <span className={styles.secondary}>
+                        {doc.content?.slice(0, 40)}{doc.content?.length > 40 ? '...' : ''}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.secondary}>{doc.viewCount}</span>
+                    </td>
+                    <td>
+                      <span className={styles.secondary}>{formatDate(doc.createdAt)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
-          {displayedDocs.length === 0 && (
+          {!loading && !error && displayedDocs.length === 0 && (
             <p className={styles.empty}>조건에 맞는 문서가 없습니다.</p>
           )}
 
