@@ -9,7 +9,7 @@ import { getDocuments } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 8;
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
