@@ -2,6 +2,8 @@ import { useState } from 'react';
 import styles from './LoginPage.module.css';
 import Button from '../../../components/Button/Button';
 import useLogin from '../../../hooks/auth/useLogin';
+import useFetch from '../../../hooks/useFetch';
+import { getNotices } from '../../../api/noticeApi';
 import { BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import heroImg from '../../../assets/login_screen.png';
 
@@ -26,11 +28,11 @@ const FEATURES = [
   },
 ];
 
-const NOTICES = [
-  { id: 1, title: '5월 온보딩 교육 일정 안내', date: '2024.05.17' },
-  { id: 2, title: '정보보안 교육 이수 안내', date: '2024.05.10' },
-  { id: 3, title: '시스템 점검 안내 (5/26)', date: '2024.05.28' },
-];
+function formatNoticeDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
 const QUICK_LINKS = [
   {
@@ -210,6 +212,8 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading, error } = useLogin();
+  const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
+  const notices = noticeRes?.data ?? [];
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -251,11 +255,16 @@ function LoginPage() {
               <span className={styles.moreLink}>더보기 ›</span>
             </div>
             <ul className={styles.noticeList}>
-              {NOTICES.map(({ id, title, date }) => (
-                <li key={id} className={styles.noticeItem}>
+              {notices.length === 0 && (
+                <li className={styles.noticeItem}>
+                  <span className={styles.noticeTitle}>등록된 공지사항이 없습니다.</span>
+                </li>
+              )}
+              {notices.map(({ noticeId, title, createdAt }) => (
+                <li key={noticeId} className={styles.noticeItem}>
                   <span className={styles.noticeDot} />
                   <span className={styles.noticeTitle}>{title}</span>
-                  <span className={styles.noticeDate}>{date}</span>
+                  <span className={styles.noticeDate}>{formatNoticeDate(createdAt)}</span>
                 </li>
               ))}
             </ul>

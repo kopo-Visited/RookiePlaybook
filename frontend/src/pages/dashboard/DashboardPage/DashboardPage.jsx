@@ -6,6 +6,7 @@ import useFetch from '../../../hooks/useFetch';
 import { getDocuments } from '../../../api/docApi';
 import { getQnas } from '../../../api/qnaApi';
 import { getMyProgress } from '../../../api/eduApi';
+import { getNotices } from '../../../api/noticeApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 
@@ -26,14 +27,6 @@ const STATUS_STYLE = {
 
 const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
 const EDU_ICON_COLORS = ['#2288FF', '#FF4D94', '#FFAD33', '#12B886', '#845EF7'];
-
-const notices = [
-  { title: '2026년 하계 휴가 일정 안내', date: '2026.07.06', isNew: true },
-  { title: '사내 시스템 점검 안내 (5/31)', date: '2026.05.27', isNew: false },
-  { title: '정보보안 교육 이수 필수 안내', date: '2026.05.24', isNew: false },
-  { title: '복지포인트 사용처 확대 안내', date: '2026.05.22', isNew: false },
-  { title: '사내 설문조사 참여 요청', date: '2026.05.20', isNew: false },
-];
 
 const schedules = [
   { time: '09:00', title: '주간 팀 회의', place: '대회의실', dotColor: '#2288FF' },
@@ -69,15 +62,17 @@ function DashboardPage() {
   const [qnaModalOpen, setQnaModalOpen] = useState(false);
   const [qnaRefreshKey, setQnaRefreshKey] = useState(0);
 
-  const { data: docRes }  = useFetch(() => getDocuments().catch(() => null), []);
-  const { data: qnaRes }  = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
-  const { data: eduRes }  = useFetch(() => getMyProgress().catch(() => null), []);
+  const { data: docRes }    = useFetch(() => getDocuments().catch(() => null), []);
+  const { data: qnaRes }    = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
+  const { data: eduRes }    = useFetch(() => getMyProgress().catch(() => null), []);
+  const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
 
   const docs    = Array.isArray(docRes?.data) ? docRes.data : [];
   const qnaRaw  = qnaRes?.data;
   const qnas    = Array.isArray(qnaRaw?.content) ? qnaRaw.content
                 : Array.isArray(qnaRaw) ? qnaRaw : [];
   const eduList = Array.isArray(eduRes?.data) ? eduRes.data : [];
+  const notices = Array.isArray(noticeRes?.data) ? noticeRes.data : [];
 
   const recentDocs = useMemo(() =>
     [...docs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5),
@@ -271,13 +266,16 @@ function DashboardPage() {
             <button className={styles.linkBtn}>전체보기 ›</button>
           </div>
           <ul className={styles.noticeList}>
-            {notices.map((n, i) => (
-              <li key={i} className={styles.noticeItem}>
+            {notices.length === 0 && (
+              <li className={styles.emptyText}>등록된 공지사항이 없습니다.</li>
+            )}
+            {notices.map(n => (
+              <li key={n.noticeId} className={styles.noticeItem}>
                 <span className={styles.noticeTitle}>
                   {n.title}
                   {n.isNew && <span className={styles.newBadge}>N</span>}
                 </span>
-                <span className={styles.noticeDate}>{n.date}</span>
+                <span className={styles.noticeDate}>{formatDate(n.createdAt)}</span>
               </li>
             ))}
           </ul>
