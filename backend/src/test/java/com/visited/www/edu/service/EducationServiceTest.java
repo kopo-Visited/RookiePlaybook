@@ -3,13 +3,18 @@ package com.visited.www.edu.service;
 import com.visited.www.edu.EducationInUseException;
 import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
+import com.visited.www.edu.StageInUseException;
+import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
 import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
+import com.visited.www.edu.dto.request.StageCreateRequestDto;
+import com.visited.www.edu.dto.request.StageUpdateRequestDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageCreateResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.entity.Education;
 import com.visited.www.edu.entity.EducationMaterial;
@@ -20,6 +25,7 @@ import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
+import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +74,9 @@ class EducationServiceTest {
 
     @Mock
     private EducationProgressRepository educationProgressRepository;
+
+    @Mock
+    private StageCompletionRepository stageCompletionRepository;
 
     // ==================== EDU-FR-001: 교육 과정 목록 조회 ====================
 
@@ -387,5 +396,126 @@ class EducationServiceTest {
         assertThatThrownBy(() -> educationService.deleteEducation(educationId))
                 .isInstanceOf(EducationInUseException.class);
         verify(educationRepository, never()).delete(any(Education.class));
+    }
+
+    // ==================== EDU-FR-008: 관리자 단계 CRUD ====================
+
+    @Test
+    @DisplayName("단계 등록 - 단계와 자료를 저장하고 stageId/title을 반환한다")
+    void createStage_success() {
+        // given
+        StageCreateRequestDto request = mock(StageCreateRequestDto.class);
+        given(request.getEducationId()).willReturn(1L);
+        given(request.getTitle()).willReturn("새 단계");
+        given(request.getDescription()).willReturn("설명");
+        given(request.getOrderNumber()).willReturn(2);
+        given(request.getVideoTitle()).willReturn("영상 제목");
+        given(request.getVideoUrl()).willReturn("https://videos.example.com/x.mp4");
+
+        given(educationRepository.findById(1L)).willReturn(Optional.of(mock(Education.class)));
+
+        EducationStage saved = mock(EducationStage.class);
+        given(saved.getId()).willReturn(20L);
+        given(saved.getTitle()).willReturn("새 단계");
+        given(educationStageRepository.save(any(EducationStage.class))).willReturn(saved);
+
+        // when
+        StageCreateResponseDto result = educationService.createStage(request);
+
+        // then
+        assertThat(result.stageId()).isEqualTo(20L);
+        assertThat(result.title()).isEqualTo("새 단계");
+        verify(educationMaterialRepository).save(any(EducationMaterial.class));
+    }
+
+    @Test
+    @DisplayName("단계 등록 - 존재하지 않는 educationId면 EducationNotFoundException 발생")
+    void createStage_educationNotFound() {
+        // given
+        StageCreateRequestDto request = mock(StageCreateRequestDto.class);
+        given(request.getEducationId()).willReturn(999L);
+        given(educationRepository.findById(999L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> educationService.createStage(request))
+                .isInstanceOf(EducationNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("단계 수정 - 단계와 자료가 함께 갱신된다")
+    void updateStage_success() {
+        // given
+        Long stageId = 1L;
+        StageUpdateRequestDto request = mock(StageUpdateRequestDto.class);
+        given(request.getTitle()).willReturn("수정 단계");
+        given(request.getDescription()).willReturn("수정 설명");
+        given(request.getOrderNumber()).willReturn(3);
+        given(request.getVideoTitle()).willReturn("수정 영상");
+        given(request.getVideoUrl()).willReturn("https://videos.example.com/y.mp4");
+
+        EducationStage stage = mock(EducationStage.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+
+        EducationMaterial material = mock(EducationMaterial.class);
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.of(material));
+
+        // when
+        educationService.updateStage(stageId, request);
+
+        // then
+        verify(stage).update("수정 단계", "수정 설명", 3);
+        verify(material).update("수정 영상", "https://videos.example.com/y.mp4");
+    }
+
+    @Test
+    @DisplayName("단계 수정 - 존재하지 않는 stageId면 StageNotFoundException 발생")
+    void updateStage_notFound() {
+        // given
+        Long stageId = 999L;
+        StageUpdateRequestDto request = mock(StageUpdateRequestDto.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> educationService.updateStage(stageId, request))
+                .isInstanceOf(StageNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("단계 삭제 - 완료/시청 진도가 없으면 자료와 단계가 삭제된다")
+    void deleteStage_success() {
+        // given
+        Long stageId = 1L;
+        EducationStage stage = mock(EducationStage.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+
+        EducationMaterial material = mock(EducationMaterial.class);
+        given(material.getId()).willReturn(5L);
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.of(material));
+
+        given(stageCompletionRepository.existsByStageId(stageId)).willReturn(false);
+        given(videoProgressRepository.existsByMaterialId(5L)).willReturn(false);
+
+        // when
+        educationService.deleteStage(stageId);
+
+        // then
+        verify(educationMaterialRepository).delete(material);
+        verify(educationStageRepository).delete(stage);
+    }
+
+    @Test
+    @DisplayName("단계 삭제 - 완료 이력이 있으면 StageInUseException 발생(삭제 안 함)")
+    void deleteStage_inUse() {
+        // given
+        Long stageId = 1L;
+        EducationStage stage = mock(EducationStage.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.empty());
+        given(stageCompletionRepository.existsByStageId(stageId)).willReturn(true);
+
+        // when & then
+        assertThatThrownBy(() -> educationService.deleteStage(stageId))
+                .isInstanceOf(StageInUseException.class);
+        verify(educationStageRepository, never()).delete(any(EducationStage.class));
     }
 }
