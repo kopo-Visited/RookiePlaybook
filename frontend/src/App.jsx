@@ -15,6 +15,8 @@ import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
 import AdminQnaPage from './pages/admin/AdminQnaPage/AdminQnaPage';
 import QnaListPage from './pages/qna/QnaListPage/QnaListPage';
 import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
+import InquiryPage from './pages/inquiry/InquiryPage/InquiryPage';
+import AdminInquiryPage from './pages/admin/AdminInquiryPage/AdminInquiryPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
@@ -45,6 +47,7 @@ function App() {
             <Route path={ROUTES.QNA.LIST} element={<QnaListPage />} />
             <Route path={ROUTES.QNA.ALL} element={<QnaAllPage />} />
             <Route path={ROUTES.EDU.LIST} element={<div>EduListPage</div>} />
+            <Route path={ROUTES.INQUIRY} element={<InquiryPage />} />
           </Route>
         </Route>
 
@@ -55,7 +58,7 @@ function App() {
             <Route path={ROUTES.ADMIN.DOC} element={<AdminDocPage />} />
             <Route path={ROUTES.ADMIN.QNA} element={<AdminQnaPage />} />
             <Route path={ROUTES.ADMIN.EDU} element={<div>AdminEduPage</div>} />
-            <Route path={ROUTES.ADMIN.INQUIRY} element={<div>AdminInquiryPage</div>} />
+            <Route path={ROUTES.ADMIN.INQUIRY} element={<AdminInquiryPage />} />
             <Route path={ROUTES.ADMIN.SETTINGS} element={<div>AdminSettingsPage</div>} />
           </Route>
         </Route>

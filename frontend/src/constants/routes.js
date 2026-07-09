@@ -15,6 +15,7 @@ export const ROUTES = {
   EDU: {
     LIST: '/edu',
   },
+  INQUIRY: '/contact',
   ADMIN: {
     DASHBOARD: '/admin',
     USERS: '/admin/users',

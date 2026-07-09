@@ -1,0 +1,78 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2f3a;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+.tableCard {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table thead tr th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: #8a99ad;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f7fa;
+}
+.table tbody tr td {
+  font-size: 12px;
+  color: #46556e;
+  padding: 14px 8px 14px 0;
+  border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+.tableRow:hover td {
+  background: #f7f9fc;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.titleText {
+  font-weight: 700;
+  color: var(--color-text-body);
+}
+.secondary {
+  color: var(--color-text-secondary);
+}

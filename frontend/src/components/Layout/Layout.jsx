@@ -184,7 +184,7 @@ const NAV_ITEMS = [
   { to: ROUTES.DOC.LIST, label: '지식문서', icon: <IconDoc /> },
   { to: ROUTES.QNA.LIST, label: '질문·답변', icon: <IconChat /> },
   { to: ROUTES.EDU.LIST, label: '온보딩 교육', icon: <IconGraduate /> },
-  { to: '/contact', label: '문의하기', icon: <IconMail /> },
+  { to: ROUTES.INQUIRY, label: '문의하기', icon: <IconMail /> },
 ];
 
 function Layout() {
