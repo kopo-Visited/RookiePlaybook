@@ -71,7 +71,11 @@ function EducationDetailPage() {
             <span className={styles.stageHeading}>단계 ({edu.stages?.length ?? 0})</span>
             <ul className={styles.stageList}>
               {(edu.stages ?? []).map(stage => (
-                <li key={stage.stageId} className={styles.stageItem}>
+                <li
+                  key={stage.stageId}
+                  className={styles.stageItem}
+                  onClick={() => navigate(ROUTES.EDU.VIDEO(edu.educationId, stage.stageId))}
+                >
                   <div className={styles.stageOrder}>{stage.orderNumber}</div>
                   <div className={styles.stageBody}>
                     <div className={styles.stageTitleRow}>

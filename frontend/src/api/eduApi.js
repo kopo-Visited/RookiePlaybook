@@ -2,11 +2,9 @@ import axiosInstance from './axiosInstance';
 
 export const getEducations = params => axiosInstance.get('/api/educations', { params });
 export const getEducationDetail = id => axiosInstance.get(`/api/educations/${id}`);
-export const getMaterial = id => axiosInstance.get(`/api/educations/${id}/material`);
-export const saveVideoProgress = (id, data) =>
-  axiosInstance.post(`/api/educations/${id}/progress`, data);
-export const completeStage = (id, stageId) =>
-  axiosInstance.post(`/api/educations/${id}/stages/${stageId}/complete`);
+export const getMaterial = stageId => axiosInstance.get(`/api/stages/${stageId}/material`);
+export const saveVideoProgress = data => axiosInstance.post('/api/progress/video', data);
+export const completeStage = stageId => axiosInstance.post('/api/progress/stage', { stageId });
 export const getMyProgress = () => axiosInstance.get('/api/educations/my-progress');
 
 export const createEducation = data => axiosInstance.post('/api/admin/educations', data);
