@@ -4,6 +4,7 @@ import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
 import com.visited.www.edu.dto.request.StageCreateRequestDto;
 import com.visited.www.edu.dto.request.StageUpdateRequestDto;
+import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
@@ -40,4 +41,8 @@ public interface EducationService {
 
     // EDU-FR-008: 관리자 단계 삭제 (완료/시청 진도가 있으면 삭제 불가)
     void deleteStage(Long stageId);
+
+    // EDU-FR-009: 관리자 진도 현황 조회 (부서/과정/완료여부 필터 + 페이징)
+    Page<AdminProgressResponseDto> getAdminProgress(
+            Long departmentId, Long educationId, Boolean isCompleted, Pageable pageable);
 }

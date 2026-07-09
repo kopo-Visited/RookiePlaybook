@@ -12,6 +12,7 @@ import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
 import com.visited.www.edu.dto.request.StageCreateRequestDto;
 import com.visited.www.edu.dto.request.StageUpdateRequestDto;
+import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
@@ -248,5 +249,30 @@ public class EducationServiceImpl implements EducationService {
             educationMaterialRepository.delete(material);
         }
         educationStageRepository.delete(stage);
+    }
+
+    // EDU-FR-009: 관리자 진도 현황 조회 (부서/과정/완료여부 필터 + 페이징)
+    @Override
+    public Page<AdminProgressResponseDto> getAdminProgress(
+            Long departmentId, Long educationId, Boolean isCompleted, Pageable pageable) {
+
+        List<AdminProgressResponseDto> content = educationMapper
+                .findAdminProgress(departmentId, educationId, isCompleted,
+                        pageable.getPageSize(), pageable.getOffset())
+                .stream()
+                .map(row -> new AdminProgressResponseDto(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getDepartmentName(),
+                        row.getEducationTitle(),
+                        row.getProgressRate(),
+                        Boolean.TRUE.equals(row.getIsCompleted()),
+                        row.getLastStudiedAt()
+                ))
+                .toList();
+
+        long total = educationMapper.countAdminProgress(departmentId, educationId, isCompleted);
+
+        return new PageImpl<>(content, pageable, total);
     }
 }
