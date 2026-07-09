@@ -6,6 +6,7 @@ import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import EducationFormModal from '../../../components/EducationFormModal/EducationFormModal';
+import StageManageModal from '../../../components/StageManageModal/StageManageModal';
 
 const TABS = [
   { key: 'course', label: '교육 과정 관리' },
@@ -15,6 +16,7 @@ const TABS = [
 function EducationSection() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editEducation, setEditEducation] = useState(null);
+  const [stageEducation, setStageEducation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const { data, loading, error } = useFetch(
@@ -87,6 +89,9 @@ function EducationSection() {
                 </td>
                 <td>
                   <div className={styles.actionRow}>
+                    <button className={styles.actionBtn} onClick={() => setStageEducation(edu)}>
+                      단계 관리
+                    </button>
                     <button className={styles.actionBtn} onClick={() => openEdit(edu)}>
                       수정
                     </button>
@@ -109,6 +114,17 @@ function EducationSection() {
           education={editEducation}
           onClose={() => setModalOpen(false)}
           onSuccess={() => setRefreshKey(k => k + 1)}
+        />
+      )}
+
+      {stageEducation && (
+        <StageManageModal
+          education={stageEducation}
+          onClose={() => {
+            setStageEducation(null);
+            // 단계 수가 바뀌었을 수 있으니 과정 목록을 다시 조회한다
+            setRefreshKey(k => k + 1);
+          }}
         />
       )}
     </section>
