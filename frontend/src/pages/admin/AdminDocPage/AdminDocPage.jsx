@@ -3,16 +3,16 @@ import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
 import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
+import Badge from '../../../components/Badge/Badge';
+import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
 
 
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
 
-
-const STATUS_STYLE = {
-  공개: { bg: '#E6F8F2', color: '#12B886' },
-  비공개: { bg: '#EEF3F9', color: '#637087' },
-  검토필요: { bg: '#FFF5E6', color: '#F08C00' },
+const STATUS_COLOR = {
+  공개: COLOR_KEYS.BLUE2,
+  비공개: COLOR_KEYS.AMBER,
 };
 
 function IconSearch() {
@@ -42,11 +42,10 @@ function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
 }
 
 function StatusBadge({ status }) {
-  const s = STATUS_STYLE[status] ?? STATUS_STYLE['비공개'];
   return (
-    <span className={styles.statusBadge} style={{ background: s.bg, color: s.color }}>
+    <Badge colorKey={STATUS_COLOR[status] ?? COLOR_KEYS.AMBER} size={BADGE_SIZES.SM}>
       {status}
-    </span>
+    </Badge>
   );
 }
 
@@ -282,9 +281,15 @@ function AdminDocPage() {
                   <td>
                     <span className={styles.docTitle}>{row.title}</span>
                   </td>
-                  <td className={styles.textCell}>{row.categoryName}</td>
                   <td>
-                    <StatusBadge status={publicStatus} />
+                    <div>
+                      <Badge colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+                        {row.categoryName}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td>
+                    <div><StatusBadge status={publicStatus} /></div>
                   </td>
                   <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
                   <td className={styles.textCell}>{row.viewCount}</td>
