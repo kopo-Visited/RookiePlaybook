@@ -52,6 +52,10 @@ public class User {
     @Column(nullable = false, length = 20)
     private UserStatus status;
 
+    // 초기/관리자 재설정 비밀번호 상태라 사용자가 반드시 비밀번호를 바꿔야 하는지 여부
+    @Column(name = "password_change_required", nullable = false, columnDefinition = "boolean default false")
+    private boolean passwordChangeRequired;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
@@ -64,6 +68,7 @@ public class User {
     @PrePersist
     protected void onCreate() {
         this.status = this.status == null ? UserStatus.ACTIVE : this.status;
+        this.passwordChangeRequired = true;
         this.createdAt = LocalDateTime.now();
     }
 
@@ -85,6 +90,11 @@ public class User {
 
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void completePasswordChange(String encodedPassword) {
+        this.password = encodedPassword;
+        this.passwordChangeRequired = false;
     }
 
     public void updateLastLoginAt() {
