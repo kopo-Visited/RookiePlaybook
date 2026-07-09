@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import styles from './AdminQnaDetail.module.css';
 import AdminQnaFaqModal from './AdminQnaFaqModal';
 import { getAdminQna, answerQna, updateQnaStatus } from '../../../api/qnaApi';
+import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
+import Badge from '../../../components/Badge/Badge';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -151,7 +153,12 @@ function AdminQnaDetail({ questionId, onBack }) {
             >
               {QNA_STATUS_LABEL[detail.status]}
             </span>
-            <span className={styles.qDept}>{detail.category?.name}</span>
+            <Badge
+              colorKey={DEPT_COLOR[detail.category?.name] ?? COLOR_KEYS.PURPLE}
+              size={BADGE_SIZES.SM}
+            >
+              {detail.category?.name}
+            </Badge>
           </div>
           <h1 className={styles.qTitle}>{detail.title}</h1>
           <p className={styles.qContent}>{detail.content}</p>

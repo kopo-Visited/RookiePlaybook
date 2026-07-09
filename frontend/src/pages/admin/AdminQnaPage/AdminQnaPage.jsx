@@ -3,6 +3,8 @@ import styles from './AdminQnaPage.module.css';
 import useAuthStore from '../../../stores/authStore';
 import AdminQnaDetail from './AdminQnaDetail';
 import { getAdminQnas } from '../../../api/qnaApi';
+import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
+import Badge from '../../../components/Badge/Badge';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -321,7 +323,14 @@ function AdminQnaPage() {
                 </td>
                 <td className={styles.textCell}>{row.author}</td>
                 <td className={styles.textCell}>{row.dept}</td>
-                <td className={styles.textCell}>{row.category}</td>
+                <td>
+                  <Badge
+                    colorKey={DEPT_COLOR[row.category] ?? COLOR_KEYS.PURPLE}
+                    size={BADGE_SIZES.SM}
+                  >
+                    {row.category}
+                  </Badge>
+                </td>
                 <td>
                   <StatusBadge status={row.status} />
                 </td>

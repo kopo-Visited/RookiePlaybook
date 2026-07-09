@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import styles from '../QnaListPage/QnaListPage.module.css';
 import { getAllQnas } from '../../../api/qnaApi';
 import { ROUTES } from '../../../constants/routes';
+import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
+import Badge from '../../../components/Badge/Badge';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -117,7 +119,12 @@ function QnaAllPage() {
                     <StatusBadge status={item.status} />
                   </td>
                   <td>
-                    <span className={styles.secondary}>{item.categoryName}</span>
+                    <Badge
+                      colorKey={DEPT_COLOR[item.categoryName] ?? COLOR_KEYS.PURPLE}
+                      size={BADGE_SIZES.SM}
+                    >
+                      {item.categoryName}
+                    </Badge>
                   </td>
                   <td>
                     <span className={styles.titleText}>{item.title}</span>
