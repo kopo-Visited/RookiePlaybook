@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import styles from './AdminDocModal.module.css';
 
 const DEPTS = ['개발팀', '인프라팀', '보안팀', '네트워크팀'];
-const CATEGORIES = ['환경 세팅', '협업 규칙', '서버 접속', '권한 관리', 'VPN', '요청 템플릿'];
+const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const FILE_TYPES = ['DOCU', 'DOCX', 'PDF', 'XLSX', 'PPTX'];
 const VISIBILITIES = ['공개', '비공개'];
 const PRIORITIES = ['일반 문서', '필독 문서'];
