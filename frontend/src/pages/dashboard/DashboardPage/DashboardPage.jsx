@@ -51,6 +51,38 @@ const shortcuts = [
   { bg: '#EEF3F9', color: '#637087', icon: '⚙️', label: '설정', route: ROUTES.CHANGE_PASSWORD },
 ];
 
+function IconDocText() {
+  return (
+    <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
+      <path d="M6 2h9l5 5v15a1 1 0 01-1 1H5a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M14 2v5h5M8 12h8M8 16h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconAcademicCap() {
+  return (
+    <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3L2 8l10 5 10-5-10-5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M6 11.5v5c0 2.21 2.69 4 6 4s6-1.79 6-4v-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconChatBubble() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M7 9h.01M12 9h.01M17 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconStar() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function todayLabel() {
   const d = new Date();
   const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -97,26 +129,10 @@ function DashboardPage() {
   );
 
   const statCards = [
-    {
-      bg: '#EAF4FF', icon: '📄', label: '전체 문서',
-      value: docs.length > 0 ? `${docs.length}` : '—',
-      subIcon: null, subText: '지식문서 전체', subColor: '#2288FF',
-    },
-    {
-      bg: '#E6F8F2', icon: '📚', label: '진행 중 교육',
-      value: inProgressEdu.length > 0 ? `${inProgressEdu.length}` : '—',
-      subIcon: null, subText: '현재 수강 중', subColor: '#12B886',
-    },
-    {
-      bg: '#FFF0F6', icon: '❓', label: '미답변 질문',
-      value: `${pendingCount}`,
-      subIcon: null, subText: '내가 작성한 질문', subColor: '#6B7588',
-    },
-    {
-      bg: '#FFF5E6', icon: '⭐', label: '등록 FAQ',
-      value: '—',
-      subIcon: null, subText: '전체 FAQ 목록', subColor: '#6B7588',
-    },
+    { colorKey: 'blue',   icon: <IconDocText />,    label: '전체 문서',   value: docs.length > 0 ? `${docs.length}` : '—',               subText: '지식문서 전체',    subColor: '#2288FF' },
+    { colorKey: 'green',  icon: <IconAcademicCap />, label: '진행 중 교육', value: inProgressEdu.length > 0 ? `${inProgressEdu.length}` : '—', subText: '현재 수강 중',    subColor: '#12B886' },
+    { colorKey: 'pink',   icon: <IconChatBubble />,  label: '미답변 질문', value: `${pendingCount}`,                                        subText: '내가 작성한 질문', subColor: '#6B7588' },
+    { colorKey: 'orange', icon: <IconStar />,         label: '등록 FAQ',   value: '—',                                                      subText: '전체 FAQ 목록',   subColor: '#6B7588' },
   ];
 
   function handleShortcut(s) {
@@ -141,16 +157,13 @@ function DashboardPage() {
       <section className={styles.statsRow}>
         {statCards.map((card, i) => (
           <div key={i} className={styles.statCard}>
-            <div className={styles.statIcon} style={{ background: card.bg }}>
-              <span style={{ fontSize: 28 }}>{card.icon}</span>
+            <div className={`${styles.statIcon} ${styles[card.colorKey]}`}>
+              {card.icon}
             </div>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>{card.label}</span>
               <span className={styles.statValue}>{card.value}</span>
-              <span className={styles.statSub} style={{ color: card.subColor }}>
-                {card.subIcon && <span className={styles.statSubIcon}>{card.subIcon}</span>}
-                {card.subText}
-              </span>
+              <span className={styles.statSub} style={{ color: card.subColor }}>{card.subText}</span>
             </div>
           </div>
         ))}

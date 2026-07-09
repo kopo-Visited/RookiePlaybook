@@ -96,6 +96,13 @@
   font-family: inherit;
 }
 
+/* ── 통계 카드 아이콘 색상 ── */
+.statIcon.blue   { background: #eaf4ff; color: #2288ff; }
+.statIcon.green  { background: #e6f8f2; color: #12b886; }
+.statIcon.pink   { background: #fff0f6; color: #ff4d94; }
+.statIcon.orange { background: #fff5e6; color: #ffad33; }
+.statIcon.purple { background: #f3eeff; color: #845ef7; }
+
 /* ── 통계 카드 ── */
 .statsRow {
   display: grid;
