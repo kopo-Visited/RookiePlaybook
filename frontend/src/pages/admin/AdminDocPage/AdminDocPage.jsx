@@ -5,17 +5,7 @@ import useFetch from '../../../hooks/useFetch';
 import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
 
 
-const DEPT_BARS = [
-  { label: '개발팀', count: 48, ratio: 0.78 },
-  { label: '인프라팀', count: 36, ratio: 0.58 },
-  { label: '보안팀', count: 32, ratio: 0.52 },
-  { label: '네트워크팀', count: 28, ratio: 0.45 },
-];
-
-const STALE_DOCS = [
-  { id: 1, title: '서버 접속 절차 및 Linux 기본 명령어', dept: '인프라팀', daysAgo: 191 },
-  { id: 2, title: 'VPN 오류 해결 가이드', dept: '네트워크팀', daysAgo: 182 },
-];
+const STALE_THRESHOLD_DAYS = 90;
 
 
 const STATUS_STYLE = {
@@ -140,6 +130,36 @@ function AdminDocPage() {
       alert('공개 상태 변경에 실패했습니다.');
     }
   }, []);
+
+  const deptBars = useMemo(() => {
+    const counts = new Map();
+    docs.forEach(d => {
+      const key = d.categoryName ?? '기타';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    const sorted = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+    const max = sorted[0]?.[1] ?? 1;
+    return sorted.map(([label, count]) => ({ label, count, ratio: count / max }));
+  }, [docs]);
+
+  const staleDocs = useMemo(() => {
+    const now = Date.now();
+    return docs
+      .filter(d => {
+        const last = new Date(d.updatedAt ?? d.createdAt).getTime();
+        return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
+      })
+      .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
+      .slice(0, 5)
+      .map(d => ({
+        id: d.id,
+        title: d.title,
+        dept: d.categoryName,
+        daysAgo: Math.floor((now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+      }));
+  }, [docs]);
 
   const handleReset = () => {
     setSearch('');
@@ -270,15 +290,16 @@ function AdminDocPage() {
         <div className={styles.bottomCard}>
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>부서별 문서 현황</h2>
-              <p className={styles.sectionSubtitle}>공개 문서 기준</p>
+              <h2 className={styles.sectionTitle}>카테고리별 문서 현황</h2>
+              <p className={styles.sectionSubtitle}>전체 문서 기준 (상위 5개)</p>
             </div>
             <span className={styles.totalBadge}>
-              <span className={styles.totalDot} />총 208건
+              <span className={styles.totalDot} />총 {docs.length}건
             </span>
           </div>
           <div className={styles.barList}>
-            {DEPT_BARS.map(({ label, count, ratio }) => (
+            {deptBars.length === 0 && <p className={styles.emptyText}>등록된 문서가 없습니다.</p>}
+            {deptBars.map(({ label, count, ratio }) => (
               <div key={label} className={styles.barRow}>
                 <span className={styles.barLabel}>{label}</span>
                 <div className={styles.barTrack}>
@@ -299,7 +320,10 @@ function AdminDocPage() {
             <button className={styles.resetBtn}>전체보기</button>
           </div>
           <div className={styles.staleList}>
-            {STALE_DOCS.map(doc => (
+            {staleDocs.length === 0 && (
+              <p className={styles.emptyText}>{STALE_THRESHOLD_DAYS}일 이상 미갱신 문서가 없습니다.</p>
+            )}
+            {staleDocs.map(doc => (
               <div key={doc.id} className={styles.staleItem}>
                 <div className={styles.staleInfo}>
                   <span className={styles.staleTitle}>{doc.title}</span>
