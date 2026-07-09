@@ -153,6 +153,12 @@
   display: none;
 }
 
+.errorMsg {
+  font-size: 13px;
+  color: #f03e5c;
+  margin: 0 0 4px;
+}
+
 /* ── footer ── */
 .modalFooter {
   display: flex;

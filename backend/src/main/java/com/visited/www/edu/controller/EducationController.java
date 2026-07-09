@@ -2,8 +2,13 @@ package com.visited.www.edu.controller;
 
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.service.EducationService;
 import com.visited.www.global.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +24,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "Education", description = "교육 과정 API")
 public class EducationController {
     private final EducationService educationService;
 
     /**
      * EDU-FR-001: 교육 과정 목록 조회 (페이징 적용)
      */
+    @Operation(summary = "교육 과정 목록 조회",
+            description = "교육 과정 목록을 사용자의 진도 정보와 함께 페이징 조회한다")
     @GetMapping("/educations")
     public ApiResponse<Page<EducationListResponseDto>> getEducations(
-            @AuthenticationPrincipal Long userId,
+            @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Page<EducationListResponseDto> response = educationService.getEducations(userId, pageable);
@@ -37,12 +45,35 @@ public class EducationController {
     /**
      * EDU-FR-002: 교육 과정 상세 조회
      */
+    @Operation(summary = "교육 과정 상세 조회",
+            description = "교육 과정의 단계 목록과 사용자 진도 정보를 함께 조회한다")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 교육 과정")
+    })
     @GetMapping("/educations/{educationId}")
     public ApiResponse<EducationDetailResponseDto> getEducationDetail(
-            @AuthenticationPrincipal Long userId,
+            @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
             @PathVariable Long educationId
     ) {
         EducationDetailResponseDto response = educationService.getEducationDetail(userId, educationId);
+        return ApiResponse.success(response);
+    }
+
+    /**
+     * EDU-FR-003: 단계 자료 조회 (이어보기 위치 포함)
+     */
+    @Operation(summary = "단계 자료 조회", description = "단계의 학습 자료(영상)를 이어보기 위치와 함께 조회한다")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 자료")
+    })
+    @GetMapping("/stages/{stageId}/material")
+    public ApiResponse<StageMaterialResponseDto> getStageMaterial(
+            @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
+            @PathVariable Long stageId
+    ) {
+        StageMaterialResponseDto response = educationService.getStageMaterial(userId, stageId);
         return ApiResponse.success(response);
     }
 }

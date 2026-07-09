@@ -1,7 +1,10 @@
 package com.visited.www.doc.service;
 
+import com.visited.www.doc.dto.request.DocumentCreateRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
+import com.visited.www.doc.entity.Category;
 import com.visited.www.doc.entity.Document;
+import com.visited.www.doc.repository.CategoryRepository;
 import com.visited.www.doc.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ public class DocumentServiceImpl implements DocumentService {
     private static final String ACTIVE_STATUS = "ACTIVE";
 
     private final DocumentRepository documentRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<DocumentResponse> getDocuments() {
@@ -48,5 +52,22 @@ public class DocumentServiceImpl implements DocumentService {
                 .stream()
                 .map(DocumentResponse::from)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public DocumentResponse createDocument(DocumentCreateRequest request) {
+        Category category = categoryRepository.findByCategoryName(request.getCategoryName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다: " + request.getCategoryName()));
+
+        Document document = Document.builder()
+                .category(category)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .isPublic(request.getIsPublic() != null ? request.getIsPublic() : true)
+                .build();
+
+        Document saved = documentRepository.save(document);
+        return DocumentResponse.from(saved);
     }
 }

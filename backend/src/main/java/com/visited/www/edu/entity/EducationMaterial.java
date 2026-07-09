@@ -24,4 +24,7 @@ public class EducationMaterial {
 
     @Column(nullable = false, length = 500)
     private String videoUrl;
+
+    // 영상 전체 길이(초). 관리자 단계 등록 시 입력되며, 미입력 시 null
+    private Integer totalDuration;
 }

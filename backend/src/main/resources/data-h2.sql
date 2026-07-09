@@ -48,15 +48,15 @@ VALUES
     (5, 2, 'JPA 기초', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (6, 3, '웹 취약점 이해', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- 교육 자료 (단계 1:1)
-INSERT INTO education_materials (id, stage_id, title, video_url)
+-- 교육 자료 (단계 1:1), total_duration 단위: 초
+INSERT INTO education_materials (id, stage_id, title, video_url, total_duration)
 VALUES
-    (1, 1, '회사 소개 영상', 'https://videos.example.com/company-intro.mp4'),
-    (2, 2, '정보보안 기초 강의', 'https://videos.example.com/security-basic.mp4'),
-    (3, 3, 'Git 워크플로우', 'https://videos.example.com/git-workflow.mp4'),
-    (4, 4, 'Spring Boot 시작하기', 'https://videos.example.com/springboot-intro.mp4'),
-    (5, 5, 'JPA 영속성 컨텍스트', 'https://videos.example.com/jpa-basic.mp4'),
-    (6, 6, 'OWASP Top 10', 'https://videos.example.com/owasp-top10.mp4');
+    (1, 1, '회사 소개 영상', 'https://videos.example.com/company-intro.mp4', 600),
+    (2, 2, '정보보안 기초 강의', 'https://videos.example.com/security-basic.mp4', 900),
+    (3, 3, 'Git 워크플로우', 'https://videos.example.com/git-workflow.mp4', 720),
+    (4, 4, 'Spring Boot 시작하기', 'https://videos.example.com/springboot-intro.mp4', 1200),
+    (5, 5, 'JPA 영속성 컨텍스트', 'https://videos.example.com/jpa-basic.mp4', 1500),
+    (6, 6, 'OWASP Top 10', 'https://videos.example.com/owasp-top10.mp4', 1800);
 
 -- 과정 진도 (관리자 id=1, 일반 사용자 id=2)
 INSERT INTO education_progress (id, user_id, education_id, progress_rate, status, completed_at, created_at, updated_at)
