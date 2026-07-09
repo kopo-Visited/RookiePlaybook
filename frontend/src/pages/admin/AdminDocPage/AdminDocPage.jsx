@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
@@ -6,6 +6,7 @@ import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../.
 
 
 const STALE_THRESHOLD_DAYS = 90;
+const PAGE_SIZE = 10;
 
 
 const STATUS_STYLE = {
@@ -74,6 +75,7 @@ function AdminDocPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editDoc, setEditDoc] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [page, setPage] = useState(1);
 
   const { data: apiRes, loading } = useFetch(() => getAdminDocuments(), [refreshKey]);
   const docs = apiRes?.data ?? [];
@@ -92,13 +94,18 @@ function AdminDocPage() {
     { key: 'faq',     label: '등록 FAQ',   value: `${totalFaqs}건`,   sub: '전체 FAQ 목록',    subColor: '#12B886', colorKey: 'purple', iconText: 'FAQ' },
   ], [docs, publicDocs, privateDocs, totalFaqs]);
 
-  const filtered = docs.filter(row => {
+  const filtered = useMemo(() => docs.filter(row => {
     const matchSearch = !search || row.title.includes(search) || row.categoryName.includes(search);
     const matchCategory = !categoryFilter || row.categoryName === categoryFilter;
     const publicStatus = row.isPublic ? '공개' : '비공개';
     const matchStatus = !statusFilter || publicStatus === statusFilter;
     return matchSearch && matchCategory && matchStatus;
-  });
+  }), [docs, search, categoryFilter, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pagedDocs  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => { setPage(1); }, [search, categoryFilter, statusFilter]);
 
   const handleCreated = useCallback(() => setRefreshKey(k => k + 1), []);
 
@@ -130,6 +137,11 @@ function AdminDocPage() {
       alert('공개 상태 변경에 실패했습니다.');
     }
   }, []);
+
+  const categoryOptions = useMemo(() =>
+    [...new Set(docs.map(d => d.categoryName).filter(Boolean))].sort(),
+    [docs]
+  );
 
   const deptBars = useMemo(() => {
     const counts = new Map();
@@ -165,6 +177,7 @@ function AdminDocPage() {
     setSearch('');
     setCategoryFilter('');
     setStatusFilter('');
+    setPage(1);
   };
 
   return (
@@ -226,10 +239,9 @@ function AdminDocPage() {
             onChange={e => setCategoryFilter(e.target.value)}
           >
             <option value="">카테고리 전체</option>
-            <option value="개발">개발</option>
-            <option value="인프라">인프라</option>
-            <option value="보안">보안</option>
-            <option value="네트워크">네트워크</option>
+            {categoryOptions.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
           <select
             className={styles.filterSelect}
@@ -263,7 +275,7 @@ function AdminDocPage() {
             {!loading && filtered.length === 0 && (
               <tr><td colSpan={6} className={styles.textCell} style={{ textAlign: 'center', padding: '40px' }}>문서가 없습니다.</td></tr>
             )}
-            {!loading && filtered.map(row => {
+            {!loading && pagedDocs.map(row => {
               const publicStatus = row.isPublic ? '공개' : '비공개';
               return (
                 <tr key={row.id}>
@@ -284,6 +296,20 @@ function AdminDocPage() {
             })}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button className={styles.pageArrow} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>‹</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
+                onClick={() => setPage(n)}
+              >{n}</button>
+            ))}
+            <button className={styles.pageArrow} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>›</button>
+          </div>
+        )}
       </div>
 
       <div className={styles.bottomGrid}>
