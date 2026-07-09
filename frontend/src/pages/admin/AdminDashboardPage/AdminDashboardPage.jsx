@@ -1,16 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
 import useAuthStore from '../../../stores/authStore';
+import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 
-const STAT_CARDS = [
+// 진행 중 교육은 Education 도메인이 아직 백엔드에 구현되지 않아 실 데이터를 낼 수 없다 (F-51 범위 제외).
+const STAT_CARD_CONFIG = [
   {
     key: 'users',
     label: '전체 사용자',
-    value: '1,248명',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.BLUE,
     icon: <IconPerson />,
     to: ROUTES.ADMIN.USERS,
@@ -18,9 +17,6 @@ const STAT_CARDS = [
   {
     key: 'docs',
     label: '전체 문서',
-    value: '856개',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.GREEN,
     icon: <IconDocText />,
     to: ROUTES.ADMIN.DOC,
@@ -28,9 +24,6 @@ const STAT_CARDS = [
   {
     key: 'unanswered',
     label: '미답변 질문',
-    value: '32건',
-    deltaDirection: 'down',
-    delta: '▼ 7.2%',
     colorKey: COLOR_KEYS.PINK,
     icon: <IconChatBubble />,
     to: ROUTES.ADMIN.QNA,
@@ -38,14 +31,56 @@ const STAT_CARDS = [
   {
     key: 'inProgress',
     label: '진행 중 교육',
-    value: '18개 과정',
-    deltaDirection: 'up',
-    delta: '▲ 7.2%',
     colorKey: COLOR_KEYS.ORANGE,
     icon: <IconAcademicCap />,
     to: ROUTES.ADMIN.EDU,
+    ready: false,
   },
 ];
+
+function formatDelta(ratePercent) {
+  const rounded = Math.abs(ratePercent).toFixed(1);
+  if (ratePercent > 0) return { delta: `▲ ${rounded}%`, deltaDirection: 'up' };
+  if (ratePercent < 0) return { delta: `▼ ${rounded}%`, deltaDirection: 'down' };
+  return { delta: `- ${rounded}%`, deltaDirection: 'flat' };
+}
+
+function buildStatCardValues(stats) {
+  if (!stats) return {};
+  const { totalUsers, userGrowthRatePercent, totalDocuments, documentGrowthRatePercent, unansweredQuestions } =
+    stats;
+  return {
+    users: { value: `${totalUsers.toLocaleString()}명`, ...formatDelta(userGrowthRatePercent) },
+    docs: { value: `${totalDocuments.toLocaleString()}개`, ...formatDelta(documentGrowthRatePercent) },
+    unanswered: { value: `${unansweredQuestions.toLocaleString()}건`, deltaDirection: 'flat', delta: '' },
+  };
+}
+
+const CATEGORY_COLORS = ['#2288FF', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE', '#EFF6FF'];
+
+function buildCategoryDonutData(distribution) {
+  if (!distribution || distribution.length === 0) return [];
+  return distribution.map((item, index) => ({
+    key: item.categoryName,
+    label: item.categoryName,
+    value: item.count,
+    color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+  }));
+}
+
+const ACCESS_BUCKET_LABELS = ['00-03시', '04-07시', '08-11시', '12-15시', '16-19시', '20-23시'];
+
+// 별도 접속 로그가 없어 사용자별 마지막 로그인 시각(hour)을 4시간 단위로 묶은 근사치다.
+function buildAccessTrendBuckets(hourlyAccessTrend) {
+  if (!hourlyAccessTrend) return [];
+  return ACCESS_BUCKET_LABELS.map((label, bucketIndex) => {
+    const startHour = bucketIndex * 4;
+    const value = hourlyAccessTrend
+      .slice(startHour, startHour + 4)
+      .reduce((sum, h) => sum + h.count, 0);
+    return { label, value };
+  });
+}
 
 const RECENT_USERS = [
   {
@@ -90,19 +125,6 @@ const RECENT_USERS = [
   },
 ];
 
-const DOC_CATEGORY_DATA = [
-  { key: 'dev', label: '개발팀', value: 312, color: '#2288FF' },
-  { key: 'network', label: '네트워크팀', value: 248, color: '#60A5FA' },
-  { key: 'infra', label: '인프라팀', value: 156, color: '#BFDBFE' },
-  { key: 'security', label: '보안팀', value: 140, color: '#DBEAFE' },
-];
-
-const EDU_COMPLETION_DATA = [
-  { key: 'done', label: '완료', value: 1124, color: '#22C55E' },
-  { key: 'progress', label: '진행 중', value: 312, color: '#86EFAC' },
-  { key: 'notStarted', label: '미시작', value: 116, color: '#DCFCE7' },
-];
-
 const RECENT_DOCS = [
   { id: 1, title: '2024년 하반기 인사제도 변경 안내', meta: '인사제도 ㅣ 2024.05.28' },
   { id: 2, title: '재택근무 가이드라인', meta: '업무가이드 ㅣ 2024.05.27' },
@@ -119,15 +141,6 @@ const NOTICES = [
   { id: 1, title: '[공지] 시스템 점검 안내 (5/30)', date: '2025.05.28' },
   { id: 2, title: '[안내] 개인정보 처리방침 변경 안내', date: '2025.05.27' },
   { id: 3, title: '[공지] 신규 교육 과정 업데이트 안내', date: '2025.05.20' },
-];
-
-const ACCESS_TREND = [
-  { label: '06시', value: 180 },
-  { label: '09시', value: 220 },
-  { label: '12시', value: 310 },
-  { label: '15시', value: 380 },
-  { label: '18시', value: 460 },
-  { label: '21시', value: 542 },
 ];
 
 function IconPerson() {
@@ -250,14 +263,16 @@ function StatCard({ label, value, delta, deltaDirection, colorKey, icon, to, onN
       <div className={styles.statInfo}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
-        <div className={styles.statFooter}>
-          <span
-            className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
-          >
-            {delta}
-          </span>
-          <span className={styles.statDeltaCaption}>지난주 대비</span>
-        </div>
+        {delta && (
+          <div className={styles.statFooter}>
+            <span
+              className={`${styles.statDelta} ${deltaDirection === 'down' ? styles.statDeltaDown : ''}`}
+            >
+              {delta}
+            </span>
+            <span className={styles.statDeltaCaption}>지난주 대비</span>
+          </div>
+        )}
       </div>
     </button>
   );
@@ -351,7 +366,7 @@ function DonutLegend({ data }) {
 
 function TrendChart({ data, width = 330, height = 160 }) {
   const values = data.map(d => d.value);
-  const max = Math.ceil(Math.max(...values) / 100) * 100;
+  const max = Math.max(Math.ceil(Math.max(...values) / 100) * 100, 1);
   const padding = { top: 8, right: 8, bottom: 24, left: 8 };
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
@@ -452,6 +467,12 @@ function AdminDashboardPage() {
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
 
+  const { stats, loading: statsLoading } = useDashboardStats();
+  const statCardValues = buildStatCardValues(stats);
+  const categoryDonutData = buildCategoryDonutData(stats?.documentCategoryDistribution);
+  const accessTrendData = buildAccessTrendBuckets(stats?.accessTrend);
+  const recentLoginCount = stats?.accessTrend?.reduce((sum, h) => sum + h.count, 0) ?? 0;
+
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
@@ -476,9 +497,13 @@ function AdminDashboardPage() {
       </div>
 
       <div className={styles.statGrid}>
-        {STAT_CARDS.map(({ key, ...card }) => (
-          <StatCard key={key} {...card} onNavigate={navigate} />
-        ))}
+        {STAT_CARD_CONFIG.map(({ key, ready, ...card }) => {
+          const computed =
+            ready === false
+              ? { value: '준비 중', delta: '', deltaDirection: 'flat' }
+              : (statCardValues[key] ?? { value: statsLoading ? '—' : '0', delta: '', deltaDirection: 'flat' });
+          return <StatCard key={key} {...card} {...computed} onNavigate={navigate} />;
+        })}
       </div>
 
       <div className={styles.midGrid}>
@@ -522,10 +547,18 @@ function AdminDashboardPage() {
             <span className={styles.panelTitle}>문서 카테고리 분포</span>
             <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.DOC)} />
           </div>
-          <div className={styles.donutWrap}>
-            <DonutChart data={DOC_CATEGORY_DATA} />
-          </div>
-          <DonutLegend data={DOC_CATEGORY_DATA} />
+          {categoryDonutData.length > 0 ? (
+            <>
+              <div className={styles.donutWrap}>
+                <DonutChart data={categoryDonutData} />
+              </div>
+              <DonutLegend data={categoryDonutData} />
+            </>
+          ) : (
+            <p className={styles.statDeltaCaption}>
+              {statsLoading ? '불러오는 중...' : '등록된 문서가 없습니다.'}
+            </p>
+          )}
         </section>
 
         <section className={styles.panel}>
@@ -533,10 +566,7 @@ function AdminDashboardPage() {
             <span className={styles.panelTitle}>교육 완료 현황</span>
             <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.EDU)} />
           </div>
-          <div className={styles.donutWrap}>
-            <DonutChart data={EDU_COMPLETION_DATA} />
-          </div>
-          <DonutLegend data={EDU_COMPLETION_DATA} />
+          <p className={styles.statDeltaCaption}>Education 기능 연동 후 제공될 예정입니다.</p>
         </section>
       </div>
 
@@ -562,15 +592,17 @@ function AdminDashboardPage() {
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
-            <span className={styles.panelTitle}>접속 현황 (오늘)</span>
+            <span className={styles.panelTitle}>접속 현황 (최근 로그인 기준)</span>
             <MoreLinkButton />
           </div>
           <div className={styles.trendHeader}>
-            <span className={styles.trendValue}>542명</span>
-            <span className={styles.statDelta}>▲ 7.2%</span>
-            <span className={styles.statDeltaCaption}>지난주 대비</span>
+            <span className={styles.trendValue}>{recentLoginCount.toLocaleString()}명</span>
           </div>
-          <TrendChart data={ACCESS_TREND} />
+          {accessTrendData.length > 0 ? (
+            <TrendChart data={accessTrendData} />
+          ) : (
+            <p className={styles.statDeltaCaption}>불러오는 중...</p>
+          )}
         </section>
       </div>
     </div>
