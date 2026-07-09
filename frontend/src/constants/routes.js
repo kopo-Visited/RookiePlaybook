@@ -9,6 +9,7 @@ export const ROUTES = {
   },
   QNA: {
     LIST: '/qna',
+    ALL: '/qna/all',
   },
   EDU: {
     LIST: '/edu',

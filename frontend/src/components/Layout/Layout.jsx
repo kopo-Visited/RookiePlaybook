@@ -1,10 +1,45 @@
+import { useState, useRef, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
+import NotificationPanel from '../NotificationPanel/NotificationPanel';
+import { getNotifications, markNotificationRead, deleteAllNotifications } from '../../api/qnaApi';
 import { logout as logoutApi } from '../../api/authApi';
 import chatbotImg from '../../assets/chatbot.png';
 import logoImg from '../../assets/logo.png';
+
+// 알림 이벤트 타입 → 상태 뱃지(칩)용 상태값 매핑
+const NOTIF_TYPE_TO_STATUS = {
+  ANSWER_REGISTERED: 'ANSWERED',
+  STATUS_CHANGED: 'IN_PROGRESS',
+};
+
+function formatRelativeTime(iso) {
+  if (!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return '방금 전';
+  if (min < 60) return `${min}분 전`;
+  const hour = Math.floor(min / 60);
+  if (hour < 24) return `${hour}시간 전`;
+  const day = Math.floor(hour / 24);
+  if (day === 1) return '어제';
+  if (day < 7) return `${day}일 전`;
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// 백엔드 알림 응답 → NotificationPanel 표시용 형태로 변환
+function mapNotification(n) {
+  return {
+    id: n.notificationId,
+    status: NOTIF_TYPE_TO_STATUS[n.type] ?? n.type,
+    title: n.message,
+    time: formatRelativeTime(n.createdAt),
+    read: n.isRead,
+  };
+}
 
 function IconHome() {
   return (
@@ -160,6 +195,50 @@ function Layout() {
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
 
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  useEffect(() => {
+    let ignore = false;
+    getNotifications()
+      .then(res => {
+        if (ignore) return;
+        const list = res?.data?.content ?? [];
+        setNotifications(list.map(mapNotification));
+      })
+      .catch(() => {
+        if (!ignore) setNotifications([]);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const markRead = id => {
+    setNotifications(list => list.map(n => (n.id === id ? { ...n, read: true } : n)));
+    markNotificationRead(id).catch(() => {});
+  };
+  const markAllRead = () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    setNotifications(list => list.map(n => ({ ...n, read: true })));
+    unreadIds.forEach(id => markNotificationRead(id).catch(() => {}));
+  };
+  const clearAll = () => {
+    setNotifications([]);
+    deleteAllNotifications().catch(() => {});
+  };
+
   async function handleLogout() {
     try {
       await logoutApi();
@@ -226,11 +305,26 @@ function Layout() {
 
       <div className={styles.mainWrapper}>
         <header className={styles.topbar}>
-          <div className={styles.notifBtn}>
-            <span className={styles.notifIcon}>
-              <IconBell />
-            </span>
-            <span className={styles.notifBadge}>3</span>
+          <div className={styles.notifWrap} ref={notifRef}>
+            <button
+              type="button"
+              className={styles.notifBtn}
+              onClick={() => setNotifOpen(o => !o)}
+              aria-label="알림"
+            >
+              <span className={styles.notifIcon}>
+                <IconBell />
+              </span>
+              {unreadCount > 0 && <span className={styles.notifBadge}>{unreadCount}</span>}
+            </button>
+            {notifOpen && (
+              <NotificationPanel
+                notifications={notifications}
+                onItemClick={markRead}
+                onMarkAll={markAllRead}
+                onClearAll={clearAll}
+              />
+            )}
           </div>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>{avatarChar}</div>

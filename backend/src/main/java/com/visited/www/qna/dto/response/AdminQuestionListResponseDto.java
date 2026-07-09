@@ -18,11 +18,16 @@ public record AdminQuestionListResponseDto(
         LocalDateTime createdAt
 ) {
     public static AdminQuestionListResponseDto from(Question question) {
+        return from(question, null, null);
+    }
+
+    public static AdminQuestionListResponseDto from(Question question,
+                                                    String writerName, String departmentName) {
         return new AdminQuestionListResponseDto(
                 question.getId(),
                 question.getTitle(),
-                null,  // TODO: users merge 후 작성자 이름
-                null,  // TODO: users merge 후 부서명
+                writerName,
+                departmentName,
                 question.getCategory().getName(),
                 question.getStatus(),
                 question.getCreatedAt()

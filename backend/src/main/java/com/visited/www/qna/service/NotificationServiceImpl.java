@@ -48,6 +48,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
+    public void deleteAll(Long userId) {
+        notificationRepository.deleteAllByUserId(userId);
+        log.info("알림 전체 삭제. userId={}", userId);
+    }
+
+    @Override
+    @Transactional
     public void notify(Question question, NotificationType type) {
         notificationRepository.save(Notification.builder()
                 .userId(question.getUserId())

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,5 +44,13 @@ public class NotificationController {
             @PathVariable Long notificationId) {
         return ResponseEntity.ok(ApiResponse.success(
                 notificationService.markAsRead(userId, notificationId)));
+    }
+
+    @Operation(summary = "알림 전체 삭제", description = "본인 알림 기록을 모두 삭제한다")
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteAllNotifications(
+            @AuthenticationPrincipal Long userId) {
+        notificationService.deleteAll(userId);
+        return ResponseEntity.ok(ApiResponse.success(null, "알림이 모두 삭제되었습니다."));
     }
 }
