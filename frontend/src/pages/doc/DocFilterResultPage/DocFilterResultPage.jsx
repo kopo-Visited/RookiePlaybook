@@ -8,23 +8,78 @@ import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../co
 import { ROUTES } from '../../../constants/routes';
 import { ALL_DOCS } from '../../../constants/docData';
 
-const DEPT_OPTIONS         = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
+const DEPT_OPTIONS = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
 const CONTENT_TYPE_OPTIONS = ['전체', '문서', 'FAQ'];
-const SORT_OPTIONS         = ['최신순', '오래된순', '조회순'];
+const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
 
 const faqItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE,   question: 'Git 충돌이 나면 어떻게 하나요?',      tags: '개발 · Git · PR' },
-  { id: 2, colorKey: COLOR_KEYS.GREEN,  question: '서버 접속 권한은 어디서 요청하나요?',  tags: '인프라 · 권한' },
-  { id: 3, colorKey: COLOR_KEYS.PINK,   question: '개인정보 파일은 어떻게 공유하나요?',   tags: '보안 · 개인정보' },
-  { id: 4, colorKey: COLOR_KEYS.ORANGE, question: 'VPN이 안 될 때 무엇을 확인하나요?',   tags: '네트워크 · VPN' },
+  {
+    id: 1,
+    colorKey: COLOR_KEYS.BLUE,
+    question: 'Git 충돌이 나면 어떻게 하나요?',
+    tags: '개발 · Git · PR',
+  },
+  {
+    id: 2,
+    colorKey: COLOR_KEYS.GREEN,
+    question: '서버 접속 권한은 어디서 요청하나요?',
+    tags: '인프라 · 권한',
+  },
+  {
+    id: 3,
+    colorKey: COLOR_KEYS.PINK,
+    question: '개인정보 파일은 어떻게 공유하나요?',
+    tags: '보안 · 개인정보',
+  },
+  {
+    id: 4,
+    colorKey: COLOR_KEYS.ORANGE,
+    question: 'VPN이 안 될 때 무엇을 확인하나요?',
+    tags: '네트워크 · VPN',
+  },
 ];
 
 const summaryCards = [
-  { id: 'dev',   dept: '개발',    colorKey: COLOR_KEYS.BLUE,   icon: 'Dev',   count: 48, label: '개발 · 환경 세팅 · Git · PR' },
-  { id: 'infra', dept: '인프라',  colorKey: COLOR_KEYS.GREEN,  icon: 'Infra', count: 36, label: '인프라 · 서버 · 배포 · 로그' },
-  { id: 'sec',   dept: '보안',    colorKey: COLOR_KEYS.PINK,   icon: 'Sec',   count: 32, label: '보안 · 계정 · 권한 · 사고 신고' },
-  { id: 'net',   dept: '네트워크', colorKey: COLOR_KEYS.ORANGE, icon: 'Net',  count: 28, label: '네트워크 · VPN · IP · 방화벽' },
-  { id: 'all',   dept: '공통',    colorKey: COLOR_KEYS.PURPLE, icon: 'All',   count: 64, label: '공통 · 회사 소개 · 협업툴' },
+  {
+    id: 'dev',
+    dept: '개발',
+    colorKey: COLOR_KEYS.BLUE,
+    icon: 'Dev',
+    count: 48,
+    label: '개발 · 환경 세팅 · Git · PR',
+  },
+  {
+    id: 'infra',
+    dept: '인프라',
+    colorKey: COLOR_KEYS.GREEN,
+    icon: 'Infra',
+    count: 36,
+    label: '인프라 · 서버 · 배포 · 로그',
+  },
+  {
+    id: 'sec',
+    dept: '보안',
+    colorKey: COLOR_KEYS.PINK,
+    icon: 'Sec',
+    count: 32,
+    label: '보안 · 계정 · 권한 · 사고 신고',
+  },
+  {
+    id: 'net',
+    dept: '네트워크',
+    colorKey: COLOR_KEYS.ORANGE,
+    icon: 'Net',
+    count: 28,
+    label: '네트워크 · VPN · IP · 방화벽',
+  },
+  {
+    id: 'all',
+    dept: '공통',
+    colorKey: COLOR_KEYS.PURPLE,
+    icon: 'All',
+    count: 64,
+    label: '공통 · 회사 소개 · 협업툴',
+  },
 ];
 
 function IconSearch() {
@@ -39,7 +94,13 @@ function IconSearch() {
 function IconChevronDown() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -47,37 +108,38 @@ function IconChevronDown() {
 function DocFilterResultPage() {
   const { dept: selectedDept } = useParams();
   const navigate = useNavigate();
-  const [search, setSearch]           = useState('');
+  const [search, setSearch] = useState('');
   const [contentType, setContentType] = useState('전체');
-  const [sort, setSort]               = useState('최신순');
+  const [sort, setSort] = useState('최신순');
   const [requiredOnly, setRequiredOnly] = useState(false);
 
-  const deptRef        = useRef(null);
+  const deptRef = useRef(null);
   const contentTypeRef = useRef(null);
-  const sortRef        = useRef(null);
-  const [deptOpen, setDeptOpen]               = useState(false);
+  const sortRef = useRef(null);
+  const [deptOpen, setDeptOpen] = useState(false);
   const [contentTypeOpen, setContentTypeOpen] = useState(false);
-  const [sortOpen, setSortOpen]               = useState(false);
-  const [selectedDoc, setSelectedDoc]         = useState(null);
-  const [questionOpen, setQuestionOpen]       = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [questionOpen, setQuestionOpen] = useState(false);
 
   const filteredData = useMemo(() => {
     let list = ALL_DOCS.filter(d => d.dept === selectedDept);
-    if (search.trim())        list = list.filter(d => d.title.includes(search.trim()));
+    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
     if (contentType === '문서') list = list.filter(d => d.category !== 'FAQ');
-    if (contentType === 'FAQ')  list = list.filter(d => d.category === 'FAQ');
-    if (requiredOnly)         list = list.filter(d => d.required);
-    if (sort === '오래된순')   list = [...list].sort((a, b) => a.date.localeCompare(b.date));
+    if (contentType === 'FAQ') list = list.filter(d => d.category === 'FAQ');
+    if (requiredOnly) list = list.filter(d => d.required);
+    if (sort === '오래된순') list = [...list].sort((a, b) => a.date.localeCompare(b.date));
     else if (sort === '조회순') list = [...list].sort((a, b) => b.views - a.views);
-    else                      list = [...list].sort((a, b) => b.date.localeCompare(a.date));
+    else list = [...list].sort((a, b) => b.date.localeCompare(a.date));
     return list;
   }, [selectedDept, search, contentType, sort, requiredOnly]);
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (deptRef.current && !deptRef.current.contains(e.target))               setDeptOpen(false);
-      if (contentTypeRef.current && !contentTypeRef.current.contains(e.target)) setContentTypeOpen(false);
-      if (sortRef.current && !sortRef.current.contains(e.target))               setSortOpen(false);
+      if (deptRef.current && !deptRef.current.contains(e.target)) setDeptOpen(false);
+      if (contentTypeRef.current && !contentTypeRef.current.contains(e.target))
+        setContentTypeOpen(false);
+      if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -113,7 +175,9 @@ function DocFilterResultPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-              <span className={styles.inputIcon}><IconSearch /></span>
+              <span className={styles.inputIcon}>
+                <IconSearch />
+              </span>
             </div>
           </div>
 
@@ -151,7 +215,9 @@ function DocFilterResultPage() {
               onClick={() => setContentTypeOpen(o => !o)}
             >
               <span>{contentType}</span>
-              <span className={`${styles.selectArrow} ${contentTypeOpen ? styles.selectArrowUp : ''}`}>
+              <span
+                className={`${styles.selectArrow} ${contentTypeOpen ? styles.selectArrowUp : ''}`}
+              >
                 <IconChevronDown />
               </span>
             </div>
@@ -161,7 +227,10 @@ function DocFilterResultPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === contentType ? styles.dropdownItemActive : ''}`}
-                    onClick={() => { setContentType(opt); setContentTypeOpen(false); }}
+                    onClick={() => {
+                      setContentType(opt);
+                      setContentTypeOpen(false);
+                    }}
                   >
                     {opt}
                   </li>
@@ -188,7 +257,10 @@ function DocFilterResultPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
-                    onClick={() => { setSort(opt); setSortOpen(false); }}
+                    onClick={() => {
+                      setSort(opt);
+                      setSortOpen(false);
+                    }}
                   >
                     {opt}
                   </li>
@@ -259,16 +331,26 @@ function DocFilterResultPage() {
                       <Badge colorKey={DOC_TYPE_COLOR[doc.type]}>{doc.type}</Badge>
                       <span className={styles.titleText}>{doc.title}</span>
                       {doc.required && (
-                        <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>필수</Badge>
+                        <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>
+                          필수
+                        </Badge>
                       )}
                     </div>
                   </td>
                   <td>
-                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>{doc.dept}</Badge>
+                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>
+                      {doc.dept}
+                    </Badge>
                   </td>
-                  <td><span className={styles.secondary}>{doc.direction}</span></td>
-                  <td><span className={styles.secondary}>{doc.category}</span></td>
-                  <td><span className={styles.secondary}>{doc.date}</span></td>
+                  <td>
+                    <span className={styles.secondary}>{doc.direction}</span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{doc.category}</span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{doc.date}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -305,18 +387,16 @@ function DocFilterResultPage() {
             </ul>
             <div className={styles.faqActions}>
               <button className={styles.btnPrimary}>AI에게 물어보기</button>
-              <button className={styles.btnOutline} onClick={() => setQuestionOpen(true)}>질문하기</button>
+              <button className={styles.btnOutline} onClick={() => setQuestionOpen(true)}>
+                질문하기
+              </button>
             </div>
           </section>
         </aside>
       </div>
 
-      {selectedDoc && (
-        <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
-      )}
-      {questionOpen && (
-        <QnaQuestionModal onClose={() => setQuestionOpen(false)} />
-      )}
+      {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
+      {questionOpen && <QnaQuestionModal onClose={() => setQuestionOpen(false)} />}
     </div>
   );
 }

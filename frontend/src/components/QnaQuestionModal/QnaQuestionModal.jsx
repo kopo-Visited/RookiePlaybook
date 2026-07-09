@@ -6,7 +6,12 @@ const DEPT_OPTIONS = ['개발', '인프라', '보안', '네트워크', '공통']
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -14,22 +19,30 @@ function IconX() {
 function IconChevronDown() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function QnaQuestionModal({ onClose }) {
-  const [title, setTitle]       = useState('');
-  const [dept, setDept]         = useState('');
-  const [content, setContent]   = useState('');
-  const [tags, setTags]         = useState([]);
+  const [title, setTitle] = useState('');
+  const [dept, setDept] = useState('');
+  const [content, setContent] = useState('');
+  const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [deptOpen, setDeptOpen] = useState(false);
   const deptRef = useRef(null);
 
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') onClose(); }
+    function onKey(e) {
+      if (e.key === 'Escape') onClose();
+    }
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     return () => {
@@ -75,7 +88,6 @@ function QnaQuestionModal({ onClose }) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
-
         <div className={styles.modalTop}>
           <div className={styles.modalTitleWrap}>
             <h2 className={styles.title}>질문 작성</h2>
@@ -87,7 +99,6 @@ function QnaQuestionModal({ onClose }) {
         </div>
 
         <div className={styles.formGrid}>
-
           <div className={styles.field}>
             <label className={styles.fieldLabel}>질문 제목</label>
             <input
@@ -117,7 +128,10 @@ function QnaQuestionModal({ onClose }) {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === dept ? styles.dropdownItemActive : ''}`}
-                    onClick={() => { setDept(opt); setDeptOpen(false); }}
+                    onClick={() => {
+                      setDept(opt);
+                      setDeptOpen(false);
+                    }}
                   >
                     {opt}
                   </li>
@@ -157,11 +171,12 @@ function QnaQuestionModal({ onClose }) {
               />
             </div>
           </div>
-
         </div>
 
         <div className={styles.modalActions}>
-          <button className={styles.btnOutline} onClick={onClose}>취소</button>
+          <button className={styles.btnOutline} onClick={onClose}>
+            취소
+          </button>
           <button
             className={styles.btnPrimary}
             onClick={handleSubmit}
@@ -170,7 +185,6 @@ function QnaQuestionModal({ onClose }) {
             등록하기
           </button>
         </div>
-
       </div>
     </div>
   );

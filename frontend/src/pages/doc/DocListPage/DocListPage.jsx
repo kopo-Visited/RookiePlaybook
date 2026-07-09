@@ -7,29 +7,94 @@ import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../co
 import { ROUTES } from '../../../constants/routes';
 import { ALL_DOCS } from '../../../constants/docData';
 
-const DEPT_OPTIONS         = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
+const DEPT_OPTIONS = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
 const CONTENT_TYPE_OPTIONS = ['전체', '문서', 'FAQ'];
-const SORT_OPTIONS         = ['최신순', '오래된순', '조회순'];
+const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
 
 const faqItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE,   question: 'Git 충돌이 나면 어떻게 하나요?',      tags: '개발 · Git · PR' },
-  { id: 2, colorKey: COLOR_KEYS.GREEN,  question: '서버 접속 권한은 어디서 요청하나요?',  tags: '인프라 · 권한' },
-  { id: 3, colorKey: COLOR_KEYS.PINK,   question: '개인정보 파일은 어떻게 공유하나요?',   tags: '보안 · 개인정보' },
-  { id: 4, colorKey: COLOR_KEYS.ORANGE, question: 'VPN이 안 될 때 무엇을 확인하나요?',   tags: '네트워크 · VPN' },
+  {
+    id: 1,
+    colorKey: COLOR_KEYS.BLUE,
+    question: 'Git 충돌이 나면 어떻게 하나요?',
+    tags: '개발 · Git · PR',
+  },
+  {
+    id: 2,
+    colorKey: COLOR_KEYS.GREEN,
+    question: '서버 접속 권한은 어디서 요청하나요?',
+    tags: '인프라 · 권한',
+  },
+  {
+    id: 3,
+    colorKey: COLOR_KEYS.PINK,
+    question: '개인정보 파일은 어떻게 공유하나요?',
+    tags: '보안 · 개인정보',
+  },
+  {
+    id: 4,
+    colorKey: COLOR_KEYS.ORANGE,
+    question: 'VPN이 안 될 때 무엇을 확인하나요?',
+    tags: '네트워크 · VPN',
+  },
 ];
 
 const bookmarkItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE,   title: '개발 환경 세팅 가이드',      meta: '개발 · 2026.07.06' },
-  { id: 2, colorKey: COLOR_KEYS.ORANGE, title: 'VPN 접속 방법 및 오류 해결', meta: '네트워크 · 2026.06.12' },
-  { id: 3, colorKey: COLOR_KEYS.PINK,   title: '계정 보안과 권한 신청 절차', meta: '보안 · 2026.06.20' },
+  { id: 1, colorKey: COLOR_KEYS.BLUE, title: '개발 환경 세팅 가이드', meta: '개발 · 2026.07.06' },
+  {
+    id: 2,
+    colorKey: COLOR_KEYS.ORANGE,
+    title: 'VPN 접속 방법 및 오류 해결',
+    meta: '네트워크 · 2026.06.12',
+  },
+  {
+    id: 3,
+    colorKey: COLOR_KEYS.PINK,
+    title: '계정 보안과 권한 신청 절차',
+    meta: '보안 · 2026.06.20',
+  },
 ];
 
 const summaryCards = [
-  { id: 'dev',   dept: '개발',     colorKey: COLOR_KEYS.BLUE,   icon: 'Dev',   count: 48, label: '개발 · 환경 세팅 · Git · PR' },
-  { id: 'infra', dept: '인프라',   colorKey: COLOR_KEYS.GREEN,  icon: 'Infra', count: 36, label: '인프라 · 서버 · 배포 · 로그' },
-  { id: 'sec',   dept: '보안',     colorKey: COLOR_KEYS.PINK,   icon: 'Sec',   count: 32, label: '보안 · 계정 · 권한 · 사고 신고' },
-  { id: 'net',   dept: '네트워크', colorKey: COLOR_KEYS.ORANGE, icon: 'Net',   count: 28, label: '네트워크 · VPN · IP · 방화벽' },
-  { id: 'all',   dept: '공통',     colorKey: COLOR_KEYS.PURPLE, icon: 'All',   count: 64, label: '공통 · 회사 소개 · 협업툴' },
+  {
+    id: 'dev',
+    dept: '개발',
+    colorKey: COLOR_KEYS.BLUE,
+    icon: 'Dev',
+    count: 48,
+    label: '개발 · 환경 세팅 · Git · PR',
+  },
+  {
+    id: 'infra',
+    dept: '인프라',
+    colorKey: COLOR_KEYS.GREEN,
+    icon: 'Infra',
+    count: 36,
+    label: '인프라 · 서버 · 배포 · 로그',
+  },
+  {
+    id: 'sec',
+    dept: '보안',
+    colorKey: COLOR_KEYS.PINK,
+    icon: 'Sec',
+    count: 32,
+    label: '보안 · 계정 · 권한 · 사고 신고',
+  },
+  {
+    id: 'net',
+    dept: '네트워크',
+    colorKey: COLOR_KEYS.ORANGE,
+    icon: 'Net',
+    count: 28,
+    label: '네트워크 · VPN · IP · 방화벽',
+  },
+  {
+    id: 'all',
+    dept: '공통',
+    colorKey: COLOR_KEYS.PURPLE,
+    icon: 'All',
+    count: 64,
+    label: '공통 · 회사 소개 · 협업툴',
+  },
 ];
 
 const onboardingCourses = [
@@ -37,7 +102,7 @@ const onboardingCourses = [
     id: 'dev',
     team: '개발팀',
     steps: [
-      { badge: 'D1', title: '환경 세팅',    desc: 'Node, Java, Python 사내 표준 버전' },
+      { badge: 'D1', title: '환경 세팅', desc: 'Node, Java, Python 사내 표준 버전' },
       { badge: 'W1', title: '첫 PR 날리기', desc: '브랜치 전략, 커밋, 코드 리뷰' },
     ],
   },
@@ -63,7 +128,13 @@ function IconSearch() {
 function IconChevronDown() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -71,7 +142,13 @@ function IconChevronDown() {
 function IconHeart() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -91,26 +168,26 @@ function useDropdown() {
 
 function DocListPage() {
   const navigate = useNavigate();
-  const [search, setSearch]           = useState('');
-  const [dept, setDept]               = useState('전체 부서');
+  const [search, setSearch] = useState('');
+  const [dept, setDept] = useState('전체 부서');
   const [contentType, setContentType] = useState('전체');
-  const [sort, setSort]               = useState('최신순');
+  const [sort, setSort] = useState('최신순');
   const [requiredOnly, setRequiredOnly] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  const deptDD        = useDropdown();
+  const deptDD = useDropdown();
   const contentTypeDD = useDropdown();
-  const sortDD        = useDropdown();
+  const sortDD = useDropdown();
 
   const displayedDocs = useMemo(() => {
     let list = ALL_DOCS;
-    if (search.trim())       list = list.filter(d => d.title.includes(search.trim()));
+    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
     if (contentType === '문서') list = list.filter(d => d.category !== 'FAQ');
-    if (contentType === 'FAQ')  list = list.filter(d => d.category === 'FAQ');
-    if (requiredOnly)        list = list.filter(d => d.required);
+    if (contentType === 'FAQ') list = list.filter(d => d.category === 'FAQ');
+    if (requiredOnly) list = list.filter(d => d.required);
     if (sort === '오래된순') list = [...list].sort((a, b) => a.date.localeCompare(b.date));
     else if (sort === '조회순') list = [...list].sort((a, b) => b.views - a.views);
-    else                     list = [...list].sort((a, b) => b.date.localeCompare(a.date));
+    else list = [...list].sort((a, b) => b.date.localeCompare(a.date));
     return list;
   }, [search, contentType, sort, requiredOnly]);
 
@@ -141,7 +218,9 @@ function DocListPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-              <span className={styles.inputIcon}><IconSearch /></span>
+              <span className={styles.inputIcon}>
+                <IconSearch />
+              </span>
             </div>
           </div>
 
@@ -180,7 +259,9 @@ function DocListPage() {
               onClick={() => contentTypeDD.setOpen(o => !o)}
             >
               <span>{contentType}</span>
-              <span className={`${styles.selectArrow} ${contentTypeDD.open ? styles.selectArrowUp : ''}`}>
+              <span
+                className={`${styles.selectArrow} ${contentTypeDD.open ? styles.selectArrowUp : ''}`}
+              >
                 <IconChevronDown />
               </span>
             </div>
@@ -190,7 +271,10 @@ function DocListPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === contentType ? styles.dropdownItemActive : ''}`}
-                    onClick={() => { setContentType(opt); contentTypeDD.setOpen(false); }}
+                    onClick={() => {
+                      setContentType(opt);
+                      contentTypeDD.setOpen(false);
+                    }}
                   >
                     {opt}
                   </li>
@@ -217,7 +301,10 @@ function DocListPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
-                    onClick={() => { setSort(opt); sortDD.setOpen(false); }}
+                    onClick={() => {
+                      setSort(opt);
+                      sortDD.setOpen(false);
+                    }}
                   >
                     {opt}
                   </li>
@@ -284,13 +371,27 @@ function DocListPage() {
                     <div className={styles.titleCell}>
                       <Badge colorKey={DOC_TYPE_COLOR[doc.type]}>{doc.type}</Badge>
                       <span className={styles.titleText}>{doc.title}</span>
-                      {doc.required && <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>필수</Badge>}
+                      {doc.required && (
+                        <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>
+                          필수
+                        </Badge>
+                      )}
                     </div>
                   </td>
-                  <td><Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>{doc.dept}</Badge></td>
-                  <td><span className={styles.secondary}>{doc.direction}</span></td>
-                  <td><span className={styles.secondary}>{doc.category}</span></td>
-                  <td><span className={styles.secondary}>{doc.date}</span></td>
+                  <td>
+                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>
+                      {doc.dept}
+                    </Badge>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{doc.direction}</span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{doc.category}</span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{doc.date}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -380,9 +481,7 @@ function DocListPage() {
         </div>
       </section>
 
-      {selectedDoc && (
-        <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />
-      )}
+      {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
     </div>
   );
 }

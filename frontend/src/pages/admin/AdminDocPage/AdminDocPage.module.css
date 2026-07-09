@@ -27,7 +27,7 @@
 .pageSubtitle {
   font-size: 13px;
   font-weight: 500;
-  color: #6F7B91;
+  color: #6f7b91;
   line-height: 16px;
 }
 .headerRight {
@@ -42,13 +42,13 @@
   width: 280px;
   height: 44px;
   padding: 0 14px;
-  background: #FFFFFF;
-  border: 1px solid #E8EDF5;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
   box-shadow: 0px 4px 16px rgba(33, 45, 70, 0.04);
   border-radius: 12px;
 }
 .searchIcon {
-  color: #A0AEC0;
+  color: #a0aec0;
   display: flex;
   align-items: center;
 }
@@ -61,7 +61,7 @@
   background: transparent;
 }
 .searchInput::placeholder {
-  color: #A0AEC0;
+  color: #a0aec0;
 }
 .profile {
   display: flex;
@@ -72,7 +72,7 @@
   width: 40px;
   height: 40px;
   border-radius: 20px;
-  background: #EFF6FF;
+  background: #eff6ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,7 +94,7 @@
 .userRole {
   font-size: 12px;
   font-weight: 700;
-  color: #6F7B91;
+  color: #6f7b91;
   line-height: 14px;
 }
 
@@ -105,8 +105,8 @@
   gap: 16px;
 }
 .statCard {
-  background: #FFFFFF;
-  border: 1px solid #E8EDF5;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
   box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
   border-radius: 20px;
   padding: 22px 24px;
@@ -154,8 +154,8 @@
 
 /* ── table card ── */
 .tableCard {
-  background: #FFFFFF;
-  border: 1px solid #E8EDF5;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
   box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
   border-radius: 20px;
   padding: 25px;
@@ -179,7 +179,7 @@
 .sectionSubtitle {
   font-size: 13px;
   font-weight: 400;
-  color: #6F7B91;
+  color: #6f7b91;
   line-height: 16px;
   margin-top: 4px;
 }
@@ -190,24 +190,24 @@
 .btnOutline {
   height: 44px;
   padding: 0 18px;
-  background: #FFFFFF;
-  border: 1px solid #CFE4FF;
+  background: #ffffff;
+  border: 1px solid #cfe4ff;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 900;
-  color: #2288FF;
+  color: #2288ff;
   cursor: pointer;
   font-family: inherit;
 }
 .btnPrimary {
   height: 44px;
   padding: 0 18px;
-  background: #2288FF;
+  background: #2288ff;
   border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 900;
-  color: #FFFFFF;
+  color: #ffffff;
   cursor: pointer;
   font-family: inherit;
 }
@@ -226,8 +226,8 @@
   width: 100%;
   height: 44px;
   padding: 0 16px;
-  background: #FFFFFF;
-  border: 1px solid #D7E1EF;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
   border-radius: 10px;
   font-size: 14px;
   color: #172033;
@@ -241,8 +241,8 @@
 .filterSelect {
   height: 44px;
   padding: 0 12px;
-  background: #FFFFFF;
-  border: 1px solid #D7E1EF;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
   border-radius: 10px;
   font-size: 14px;
   color: #637087;
@@ -255,8 +255,8 @@
 .resetBtn {
   height: 40px;
   padding: 0 14px;
-  background: #FFFFFF;
-  border: 1px solid #E8EDF5;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 800;
@@ -271,19 +271,19 @@
   border-collapse: collapse;
 }
 .table thead tr {
-  background: #F6F8FB;
+  background: #f6f8fb;
 }
 .table th {
   padding: 14px 16px;
   font-size: 13px;
   font-weight: 400;
-  color: #8A96AA;
+  color: #8a96aa;
   text-align: left;
   white-space: nowrap;
 }
 .table td {
   padding: 0;
-  border-bottom: 1px solid #E8EDF5;
+  border-bottom: 1px solid #e8edf5;
   height: 54px;
   vertical-align: middle;
 }
@@ -316,8 +316,8 @@
   height: 26px;
   padding: 0 10px;
   border-radius: 13px;
-  background: #EAF4FF;
-  color: #2288FF;
+  background: #eaf4ff;
+  color: #2288ff;
   font-size: 12px;
   font-weight: 900;
   white-space: nowrap;
@@ -356,8 +356,8 @@
 .actionBtn {
   height: 32px;
   padding: 0 12px;
-  background: #FFFFFF;
-  border: 1px solid #D7E1EF;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 800;
@@ -375,8 +375,8 @@
   align-items: start;
 }
 .bottomCard {
-  background: #FFFFFF;
-  border: 1px solid #E8EDF5;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
   box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
   border-radius: 20px;
   padding: 25px;
@@ -389,12 +389,12 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #8A96AA;
+  color: #8a96aa;
 }
 .totalDot {
   width: 8px;
   height: 8px;
-  background: #2288FF;
+  background: #2288ff;
   border-radius: 4px;
   flex-shrink: 0;
 }
@@ -419,19 +419,19 @@
 .barTrack {
   flex: 1;
   height: 14px;
-  background: #EEF3F9;
+  background: #eef3f9;
   border-radius: 7px;
   overflow: hidden;
 }
 .barFill {
   height: 100%;
-  background: linear-gradient(90deg, #78ABFF 0%, #2288FF 100%);
+  background: linear-gradient(90deg, #78abff 0%, #2288ff 100%);
   border-radius: 7px;
 }
 .barCount {
   width: 36px;
   font-size: 13px;
-  color: #8A96AA;
+  color: #8a96aa;
   text-align: right;
   flex-shrink: 0;
 }
@@ -446,8 +446,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #FAFCFF;
-  border: 1px solid #E8EDF5;
+  background: #fafcff;
+  border: 1px solid #e8edf5;
   border-radius: 14px;
   padding: 17px;
 }
@@ -464,7 +464,7 @@
 .staleMeta {
   font-size: 12px;
   font-weight: 400;
-  color: #6F7B91;
+  color: #6f7b91;
 }
 .staleBadge {
   display: inline-flex;
@@ -473,8 +473,8 @@
   height: 26px;
   padding: 0 10px;
   border-radius: 13px;
-  background: #FFF5E6;
-  color: #F08C00;
+  background: #fff5e6;
+  color: #f08c00;
   font-size: 12px;
   font-weight: 900;
   white-space: nowrap;

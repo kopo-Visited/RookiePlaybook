@@ -32,7 +32,7 @@
 .logoText {
   font-size: 17px;
   font-weight: 700;
-  color: #2B2F3A;
+  color: #2b2f3a;
   white-space: nowrap;
 }
 
@@ -52,15 +52,15 @@
   transition: background 0.15s;
 }
 .navItem:hover {
-  background: #F7F9FE;
+  background: #f7f9fe;
 }
 .navItemActive {
-  background: #E2F3FC;
-  color: #019FF8;
+  background: #e2f3fc;
+  color: #019ff8;
   font-weight: 500;
 }
 .navItemActive .navIcon {
-  color: #019FF8;
+  color: #019ff8;
 }
 .navIcon {
   width: 22px;
@@ -88,7 +88,7 @@
 
 .helpCard {
   margin: auto 20px 24px;
-  background: linear-gradient(180deg, #F7F9FE 0%, #EEF3FB 100%);
+  background: linear-gradient(180deg, #f7f9fe 0%, #eef3fb 100%);
   border-radius: 18px;
   padding: 18px 16px 16px;
   text-align: center;
@@ -102,7 +102,7 @@
 }
 .helpDesc {
   font-size: 10px;
-  color: #6B7588;
+  color: #6b7588;
   line-height: 1.5;
   margin-bottom: 12px;
 }
@@ -150,7 +150,7 @@
   cursor: pointer;
 }
 .notifIcon {
-  color: #65738B;
+  color: #65738b;
 }
 .notifBadge {
   position: absolute;
@@ -159,7 +159,7 @@
   width: 17px;
   height: 17px;
   background: var(--color-primary);
-  border: 2px solid #F5F7FB;
+  border: 2px solid #f5f7fb;
   border-radius: 50%;
   font-size: 10px;
   font-weight: 900;
@@ -177,7 +177,7 @@
 .avatar {
   width: 44px;
   height: 44px;
-  background: #EDF2F8;
+  background: #edf2f8;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -200,7 +200,7 @@
 }
 .userDept {
   font-size: 12px;
-  color: #7D8799;
+  color: #7d8799;
   line-height: 1.2;
 }
 

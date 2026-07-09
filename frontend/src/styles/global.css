@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -6,39 +8,39 @@
 
 :root {
   /* Primary */
-  --color-primary: #2288FF;
-  --color-primary-bg: #EAF4FF;
-  --color-primary-dark: #1C7ED6;
-  --color-primary-dark-bg: #E7F2FF;
+  --color-primary: #2288ff;
+  --color-primary-bg: #eaf4ff;
+  --color-primary-dark: #1c7ed6;
+  --color-primary-dark-bg: #e7f2ff;
 
   /* Semantic */
-  --color-red: #F03E5C;
-  --color-red-bg: #FFE5EA;
-  --color-amber: #F08C00;
-  --color-amber-bg: #FFF0DB;
-  --color-green: #12B886;
-  --color-green-bg: #E6F8F2;
-  --color-pink: #FF4D94;
-  --color-pink-bg: #FFF0F6;
-  --color-orange: #FFAD33;
-  --color-orange-bg: #FFF5E6;
-  --color-purple: #8B6CFF;
-  --color-purple-bg: #F1EDFF;
+  --color-red: #f03e5c;
+  --color-red-bg: #ffe5ea;
+  --color-amber: #f08c00;
+  --color-amber-bg: #fff0db;
+  --color-green: #12b886;
+  --color-green-bg: #e6f8f2;
+  --color-pink: #ff4d94;
+  --color-pink-bg: #fff0f6;
+  --color-orange: #ffad33;
+  --color-orange-bg: #fff5e6;
+  --color-purple: #8b6cff;
+  --color-purple-bg: #f1edff;
 
   /* Text */
   --color-text-title: #172033;
   --color-text-body: #253049;
-  --color-text-secondary: #6F7B91;
-  --color-text-label: #5E6B82;
-  --color-text-nav: #4A5568;
+  --color-text-secondary: #6f7b91;
+  --color-text-label: #5e6b82;
+  --color-text-nav: #4a5568;
 
   /* Background */
-  --color-bg-page: #F4F6F9;
-  --color-bg-white: #FFFFFF;
+  --color-bg-page: #f4f6f9;
+  --color-bg-white: #ffffff;
 
   /* Border */
-  --color-border: #E8EDF5;
-  --color-border-input: #D9E1EB;
+  --color-border: #e8edf5;
+  --color-border-input: #d9e1eb;
 
   /* Shadow */
   --shadow-card: 0px 10px 30px rgba(33, 45, 70, 0.05);
