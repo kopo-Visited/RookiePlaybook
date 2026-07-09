@@ -2,6 +2,7 @@ package com.visited.www.edu.controller;
 
 import com.visited.www.edu.dto.request.StageCompleteRequestDto;
 import com.visited.www.edu.dto.request.VideoProgressRequestDto;
+import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.service.ProgressService;
 import com.visited.www.global.response.ApiResponse;
@@ -10,10 +11,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/progress")
@@ -47,5 +51,17 @@ public class ProgressController {
     ) {
         progressService.saveVideoProgress(userId, request.getMaterialId(), request.getWatchedPosition());
         return ApiResponse.<Void>success(null, "영상 시청 위치가 저장되었습니다.");
+    }
+
+    /**
+     * EDU-FR-005: 내 진도 조회
+     */
+    @Operation(summary = "내 진도 조회", description = "로그인한 사용자의 과정별 진도 현황을 조회한다")
+    @GetMapping("/me")
+    public ApiResponse<List<MyProgressResponseDto>> getMyProgress(
+            @AuthenticationPrincipal Long userId
+    ) {
+        List<MyProgressResponseDto> response = progressService.getMyProgress(userId);
+        return ApiResponse.success(response);
     }
 }
