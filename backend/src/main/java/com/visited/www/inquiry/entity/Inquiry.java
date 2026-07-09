@@ -2,6 +2,7 @@ package com.visited.www.inquiry.entity;
 
 import com.visited.www.entity.User;
 import com.visited.www.inquiry.enums.InquiryStatus;
+import com.visited.www.inquiry.enums.InquiryType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -22,6 +23,10 @@ public class Inquiry {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User writer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private InquiryType type;
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -46,8 +51,9 @@ public class Inquiry {
     private LocalDateTime updatedAt;
 
     @Builder
-    private Inquiry(User writer, String title, String content) {
+    private Inquiry(User writer, InquiryType type, String title, String content) {
         this.writer = writer;
+        this.type = type;
         this.title = title;
         this.content = content;
         this.status = InquiryStatus.RECEIVED;

@@ -27,6 +27,7 @@ public class InquiryService {
 
         Inquiry inquiry = Inquiry.builder()
                 .writer(writer)
+                .type(request.type())
                 .title(request.title())
                 .content(request.content())
                 .build();
