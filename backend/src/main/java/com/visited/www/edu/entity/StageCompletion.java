@@ -27,4 +27,14 @@ public class StageCompletion {
     private EducationStage stage;
 
     private LocalDateTime completedAt;
+
+    private StageCompletion(User user, EducationStage stage) {
+        this.user = user;
+        this.stage = stage;
+        this.completedAt = LocalDateTime.now();
+    }
+
+    public static StageCompletion of(User user, EducationStage stage) {
+        return new StageCompletion(user, stage);
+    }
 }
