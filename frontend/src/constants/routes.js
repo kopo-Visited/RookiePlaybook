@@ -14,6 +14,7 @@ export const ROUTES = {
   },
   EDU: {
     LIST: '/edu',
+    DETAIL: id => `/edu/${id}`,
   },
   INQUIRY: '/contact',
   ADMIN: {
