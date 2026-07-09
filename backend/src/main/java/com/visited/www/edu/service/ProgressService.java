@@ -6,4 +6,7 @@ public interface ProgressService {
 
     // EDU-FR-004: 단계 완료 처리
     StageCompleteResponseDto completeStage(Long userId, Long stageId);
+
+    // EDU-FR-003: 영상 시청 위치 저장
+    void saveVideoProgress(Long userId, Long materialId, Integer watchedPosition);
 }
