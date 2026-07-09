@@ -2,6 +2,7 @@ package com.visited.www.edu.controller;
 
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
+import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.service.ProgressService;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -155,6 +157,33 @@ class ProgressControllerTest {
                         .content("{\"materialId\": 999, \"watchedPosition\": 10}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    // ==================== EDU-FR-005: 내 진도 조회 ====================
+
+    @Test
+    @DisplayName("GET /api/progress/me - 내 진도 목록 조회 성공")
+    void getMyProgress_success() throws Exception {
+        // given
+        Long userId = 1L;
+        List<MyProgressResponseDto> response = List.of(
+                new MyProgressResponseDto(1L, "신입사원 온보딩 교육", 100, true,
+                        LocalDateTime.of(2026, 7, 9, 9, 0)),
+                new MyProgressResponseDto(2L, "백엔드 기초 교육", 40, false, null)
+        );
+        given(progressService.getMyProgress(userId)).willReturn(response);
+
+        // when & then
+        mockMvc.perform(get("/api/progress/me")
+                        .with(authentication(userAuth(userId)))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].educationId").value(1L))
+                .andExpect(jsonPath("$.data[0].progressRate").value(100))
+                .andExpect(jsonPath("$.data[0].isCompleted").value(true))
+                .andExpect(jsonPath("$.data[1].isCompleted").value(false))
                 .andDo(print());
     }
 }
