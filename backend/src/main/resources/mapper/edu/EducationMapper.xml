@@ -102,4 +102,36 @@
         </where>
     </select>
 
+    <!-- EDU-FR-010: 미완료자 조회 목록 (status != COMPLETED, 과정 필터 + 페이징) -->
+    <select id="findIncompleteProgress"
+            resultType="com.visited.www.edu.dto.mapper.IncompleteProgressDto">
+        SELECT
+            u.id AS userId,
+            u.name AS userName,
+            d.name AS departmentName,
+            e.title AS educationTitle,
+            ep.progress_rate AS progressRate,
+            e.completion_criteria AS completionCriteria
+        FROM education_progress ep
+                 JOIN users u ON u.id = ep.user_id
+                 LEFT JOIN departments d ON d.id = u.department_id
+                 JOIN educations e ON e.id = ep.education_id
+        WHERE ep.status != 'COMPLETED'
+        <if test="educationId != null">
+            AND ep.education_id = #{educationId}
+        </if>
+        ORDER BY ep.id ASC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- EDU-FR-010: 미완료자 전체 건수 (필터 적용) -->
+    <select id="countIncompleteProgress" resultType="long">
+        SELECT COUNT(*)
+        FROM education_progress ep
+        WHERE ep.status != 'COMPLETED'
+        <if test="educationId != null">
+            AND ep.education_id = #{educationId}
+        </if>
+    </select>
+
 </mapper>
