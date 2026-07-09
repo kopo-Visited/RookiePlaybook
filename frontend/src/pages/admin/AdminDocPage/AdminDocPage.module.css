@@ -482,3 +482,10 @@
     height: auto;
   }
 }
+
+.emptyText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 16px 0;
+  text-align: center;
+}
