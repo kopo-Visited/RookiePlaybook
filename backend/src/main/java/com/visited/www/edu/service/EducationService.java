@@ -8,6 +8,7 @@ import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.IncompleteResponseDto;
 import com.visited.www.edu.dto.response.StageCreateResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import org.springframework.data.domain.Page;
@@ -45,4 +46,7 @@ public interface EducationService {
     // EDU-FR-009: 관리자 진도 현황 조회 (부서/과정/완료여부 필터 + 페이징)
     Page<AdminProgressResponseDto> getAdminProgress(
             Long departmentId, Long educationId, Boolean isCompleted, Pageable pageable);
+
+    // EDU-FR-010: 미완료자 조회 (과정 필터 + 페이징)
+    Page<IncompleteResponseDto> getIncompleteProgress(Long educationId, Pageable pageable);
 }

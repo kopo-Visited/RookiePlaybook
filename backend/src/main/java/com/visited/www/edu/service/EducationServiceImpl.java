@@ -14,6 +14,7 @@ import com.visited.www.edu.dto.request.StageCreateRequestDto;
 import com.visited.www.edu.dto.request.StageUpdateRequestDto;
 import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
+import com.visited.www.edu.dto.response.IncompleteResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageCreateResponseDto;
@@ -272,6 +273,27 @@ public class EducationServiceImpl implements EducationService {
                 .toList();
 
         long total = educationMapper.countAdminProgress(departmentId, educationId, isCompleted);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    // EDU-FR-010: 미완료자 조회 (과정 필터 + 페이징)
+    @Override
+    public Page<IncompleteResponseDto> getIncompleteProgress(Long educationId, Pageable pageable) {
+        List<IncompleteResponseDto> content = educationMapper
+                .findIncompleteProgress(educationId, pageable.getPageSize(), pageable.getOffset())
+                .stream()
+                .map(row -> new IncompleteResponseDto(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getDepartmentName(),
+                        row.getEducationTitle(),
+                        row.getProgressRate(),
+                        row.getCompletionCriteria()
+                ))
+                .toList();
+
+        long total = educationMapper.countIncompleteProgress(educationId);
 
         return new PageImpl<>(content, pageable, total);
     }
