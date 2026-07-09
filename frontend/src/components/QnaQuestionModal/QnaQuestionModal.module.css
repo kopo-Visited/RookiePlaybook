@@ -243,6 +243,15 @@
   color: var(--color-red);
   font-size: 13px;
 }
+.aiNotice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: #eaf4ff;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-body);
+  font-size: 13px;
+  line-height: 1.5;
+}
 .modalActions {
   display: flex;
   justify-content: flex-end;

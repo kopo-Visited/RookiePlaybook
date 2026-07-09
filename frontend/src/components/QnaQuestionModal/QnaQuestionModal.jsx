@@ -40,6 +40,7 @@ function QnaQuestionModal({ onClose, onSuccess, mode = 'create', questionId, ini
   const [catOpen, setCatOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [aiNotice, setAiNotice] = useState('');
   const catRef = useRef(null);
 
   const selectedCategory = categories.find(c => c.categoryId === categoryId);
@@ -108,10 +109,21 @@ function QnaQuestionModal({ onClose, onSuccess, mode = 'create', questionId, ini
     try {
       if (isEdit) {
         await updateQna(questionId, payload);
-      } else {
-        await createQna(payload);
+        onSuccess?.();
+        onClose();
+        return;
       }
+      const res = await createQna(payload);
       onSuccess?.();
+      const d = res?.data;
+      // 제안만: AI가 다른 카테고리를 추천하면 안내하고 모달은 열어둔다(수정은 목록에서)
+      if (d?.aiSuggestedCategory && d?.categoryMatched === false) {
+        setAiNotice(
+          `AI는 '${d.aiSuggestedCategory}' 카테고리를 추천해요. 필요하면 목록에서 질문을 눌러 수정할 수 있어요.`
+        );
+        setSubmitting(false);
+        return;
+      }
       onClose();
     } catch (err) {
       setError(
@@ -215,24 +227,33 @@ function QnaQuestionModal({ onClose, onSuccess, mode = 'create', questionId, ini
         </div>
 
         {error && <p className={styles.formError}>{error}</p>}
+        {aiNotice && <p className={styles.aiNotice}>💡 {aiNotice}</p>}
 
         <div className={styles.modalActions}>
-          <button className={styles.btnOutline} onClick={onClose} disabled={submitting}>
-            취소
-          </button>
-          <button
-            className={styles.btnPrimary}
-            onClick={handleSubmit}
-            disabled={!title.trim() || !categoryId || !content.trim() || submitting}
-          >
-            {submitting
-              ? isEdit
-                ? '수정 중...'
-                : '등록 중...'
-              : isEdit
-                ? '수정하기'
-                : '등록하기'}
-          </button>
+          {aiNotice ? (
+            <button className={styles.btnPrimary} onClick={onClose}>
+              확인
+            </button>
+          ) : (
+            <>
+              <button className={styles.btnOutline} onClick={onClose} disabled={submitting}>
+                취소
+              </button>
+              <button
+                className={styles.btnPrimary}
+                onClick={handleSubmit}
+                disabled={!title.trim() || !categoryId || !content.trim() || submitting}
+              >
+                {submitting
+                  ? isEdit
+                    ? '수정 중...'
+                    : '등록 중...'
+                  : isEdit
+                    ? '수정하기'
+                    : '등록하기'}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
