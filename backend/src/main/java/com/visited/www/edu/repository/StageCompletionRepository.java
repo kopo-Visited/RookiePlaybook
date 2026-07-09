@@ -9,4 +9,10 @@ public interface StageCompletionRepository extends JpaRepository<StageCompletion
 
     // 특정 유저가 완료한 단계 ID 목록 조회
     List<StageCompletion> findAllByUserIdAndStageIdIn(Long userId, List<Long> stageIds);
+
+    // 특정 유저가 특정 단계를 이미 완료했는지 여부 (중복 완료 멱등 처리용)
+    boolean existsByUserIdAndStageId(Long userId, Long stageId);
+
+    // 특정 유저가 특정 과정에서 완료한 단계 수 (진도율 계산용)
+    long countByUserIdAndStage_Education_Id(Long userId, Long educationId);
 }

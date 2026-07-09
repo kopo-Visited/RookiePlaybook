@@ -43,4 +43,35 @@ public class EducationProgress {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    private EducationProgress(User user, Education education) {
+        this.user = user;
+        this.education = education;
+        this.progressRate = 0;
+        this.status = ProgressStatus.NOT_STARTED;
+    }
+
+    public static EducationProgress create(User user, Education education) {
+        return new EducationProgress(user, education);
+    }
+
+    // 진도율을 갱신하고 수료 기준 이상이면 수료 처리한다 (완료 시각은 최초 1회만 기록)
+    public void updateProgress(int progressRate, int completionCriteria) {
+        this.progressRate = progressRate;
+
+        if (progressRate >= completionCriteria) {
+            if (this.status != ProgressStatus.COMPLETED) {
+                this.status = ProgressStatus.COMPLETED;
+                this.completedAt = LocalDateTime.now();
+            }
+        } else if (progressRate > 0) {
+            this.status = ProgressStatus.IN_PROGRESS;
+        } else {
+            this.status = ProgressStatus.NOT_STARTED;
+        }
+    }
+
+    public boolean isCompleted() {
+        return this.status == ProgressStatus.COMPLETED;
+    }
 }
