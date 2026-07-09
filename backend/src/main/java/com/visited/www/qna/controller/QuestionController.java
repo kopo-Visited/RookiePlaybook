@@ -5,6 +5,8 @@ import com.visited.www.qna.dto.request.QuestionUpdateRequestDto;
 import com.visited.www.qna.dto.response.QuestionCreateResponseDto;
 import com.visited.www.qna.dto.response.QuestionDetailResponseDto;
 import com.visited.www.qna.dto.response.QuestionListResponseDto;
+import com.visited.www.qna.dto.response.PublicQuestionListResponseDto;
+import com.visited.www.qna.dto.response.PublicQuestionDetailResponseDto;
 import com.visited.www.qna.enums.QuestionStatus;
 import com.visited.www.qna.service.QuestionService;
 import com.visited.www.global.response.ApiResponse;
@@ -59,6 +61,22 @@ public class QuestionController {
             Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
                 questionService.getMyQuestions(userId, status, categoryId, pageable)));
+    }
+
+    @Operation(summary = "전체 질문 목록 조회", description = "모든 사용자의 질문을 최신순으로 조회한다")
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<PageResponse<PublicQuestionListResponseDto>>> getAllQuestions(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(questionService.getAllQuestions(pageable)));
+    }
+
+    @Operation(summary = "전체 질문 상세 조회", description = "소유자 검증 없이 질문 내용과 답변을 조회한다")
+    @GetMapping("/all/{questionId}")
+    public ResponseEntity<ApiResponse<PublicQuestionDetailResponseDto>> getPublicQuestion(
+            @PathVariable Long questionId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                questionService.getPublicQuestion(questionId)));
     }
 
     @Operation(summary = "질문 상세 조회", description = "본인 질문의 상세 내용과 상태, 답변을 조회한다")
