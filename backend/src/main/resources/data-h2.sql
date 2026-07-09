@@ -32,11 +32,11 @@ ALTER TABLE users ALTER COLUMN id RESTART WITH 3;
 -- ============================================================
 
 -- 교육 과정
-INSERT INTO educations (id, title, completion_criteria, created_at, updated_at)
+INSERT INTO educations (id, title, description, completion_criteria, created_at, updated_at)
 VALUES
-    (1, '신입사원 온보딩 교육', 80, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (2, '백엔드 기초 교육', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-    (3, '보안 심화 교육', 60, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+    (1, '신입사원 온보딩 교육', '신입사원이 반드시 이수해야 하는 기본 온보딩 과정', 80, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (2, '백엔드 기초 교육', 'Spring Boot와 JPA 기반 백엔드 기초 과정', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    (3, '보안 심화 교육', '웹 취약점과 보안 대응을 다루는 심화 과정', 60, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 교육 단계
 INSERT INTO education_stages (id, education_id, title, order_number, created_at, updated_at)

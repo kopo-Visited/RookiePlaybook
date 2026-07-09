@@ -119,6 +119,7 @@ public class EducationServiceImpl implements EducationService {
         return new EducationDetailResponseDto(
                 education.getId(),
                 education.getTitle(),
+                education.getDescription(),
                 education.getCompletionCriteria(),
                 progressRate,
                 isCompleted,
