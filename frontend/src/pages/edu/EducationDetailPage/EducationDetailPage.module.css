@@ -1,0 +1,179 @@
+/* ── DocDetailPage 레이아웃 패턴 재사용 ── */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: fit-content;
+}
+.backBtn:hover {
+  color: var(--color-primary);
+}
+
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  padding: 36px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.titleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.title {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  line-height: 1.4;
+}
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.criteria {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.desc {
+  font-size: 14px;
+  color: var(--color-text-body);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
+
+/* ── 상태 칩 (DashboardPage 칩 패턴 재사용) ── */
+.badge {
+  font-size: 10.3px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 16px;
+}
+
+/* ── 진도바 (DashboardPage 패턴 재사용) ── */
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progressBar {
+  flex: 1;
+  height: 7px;
+  background: #e9edf4;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 99px;
+}
+.progressPct {
+  font-size: 12.9px;
+  color: #49566d;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ── 단계 목록 (기존 항목 리스트 패턴 재사용) ── */
+.stageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stageHeading {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  letter-spacing: -0.2px;
+}
+.stageList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.stageItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.stageItem:last-child {
+  border-bottom: none;
+}
+.stageOrder {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.stageBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.stageTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stageTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text-body);
+}
+.stageDesc {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 18px;
+}
+
+/* ── 로딩/에러 상태 (DocDetailPage 인라인 텍스트 방식) ── */
+.stateMsg {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 60px 0;
+}
