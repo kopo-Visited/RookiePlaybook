@@ -5,12 +5,14 @@ import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageInUseException;
 import com.visited.www.edu.StageNotFoundException;
+import com.visited.www.edu.dto.mapper.AdminProgressDto;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
 import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
 import com.visited.www.edu.dto.request.StageCreateRequestDto;
 import com.visited.www.edu.dto.request.StageUpdateRequestDto;
+import com.visited.www.edu.dto.response.AdminProgressResponseDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
@@ -38,6 +40,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -517,5 +520,55 @@ class EducationServiceTest {
         assertThatThrownBy(() -> educationService.deleteStage(stageId))
                 .isInstanceOf(StageInUseException.class);
         verify(educationStageRepository, never()).delete(any(EducationStage.class));
+    }
+
+    // ==================== EDU-FR-009: 관리자 진도 현황 조회 ====================
+
+    @Test
+    @DisplayName("관리자 진도 현황 조회 - 매퍼 결과를 응답으로 매핑하고 전체 건수로 Page를 구성한다")
+    void getAdminProgress_success() {
+        // given
+        Pageable pageable = PageRequest.of(0, 20);
+
+        AdminProgressDto row = new AdminProgressDto();
+        row.setUserId(2L);
+        row.setUserName("홍길동");
+        row.setDepartmentName("개발팀");
+        row.setEducationTitle("백엔드 기초 교육");
+        row.setProgressRate(100);
+        row.setIsCompleted(true);
+        row.setLastStudiedAt(LocalDateTime.of(2026, 7, 9, 9, 0));
+
+        given(educationMapper.findAdminProgress(null, null, null, 20, 0L))
+                .willReturn(List.of(row));
+        given(educationMapper.countAdminProgress(null, null, null)).willReturn(1L);
+
+        // when
+        Page<AdminProgressResponseDto> result =
+                educationService.getAdminProgress(null, null, null, pageable);
+
+        // then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).userId()).isEqualTo(2L);
+        assertThat(result.getContent().get(0).departmentName()).isEqualTo("개발팀");
+        assertThat(result.getContent().get(0).isCompleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("관리자 진도 현황 조회 - 결과가 없으면 빈 Page를 반환한다")
+    void getAdminProgress_empty() {
+        // given
+        Pageable pageable = PageRequest.of(0, 20);
+        given(educationMapper.findAdminProgress(1L, 1L, true, 20, 0L)).willReturn(List.of());
+        given(educationMapper.countAdminProgress(1L, 1L, true)).willReturn(0L);
+
+        // when
+        Page<AdminProgressResponseDto> result =
+                educationService.getAdminProgress(1L, 1L, true, pageable);
+
+        // then
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(0);
     }
 }
