@@ -7,6 +7,7 @@ DELETE FROM categories;
 
 -- 카테고리 (categories) - 테이블 정의서 기준
 INSERT INTO categories (category_name, description, is_public, status, created_at) VALUES
+('공통', '전 부서 공통 공지 및 필수 문서', true, 'ACTIVE', NOW()),
 ('개발', '개발 관련 지식 문서', true, 'ACTIVE', NOW()),
 ('인프라', '서버·클라우드·배포 관련 문서', true, 'ACTIVE', NOW()),
 ('보안', '보안 정책·접근 권한 관련 문서', true, 'ACTIVE', NOW()),
@@ -16,6 +17,26 @@ INSERT INTO categories (category_name, description, is_public, status, created_a
 INSERT INTO documents (category_id, title, content, is_public, status, view_count, created_at)
 SELECT c.id, d.title, d.content, true, 'ACTIVE', 0, NOW()
 FROM (VALUES
+  ('공통', '신입사원 온보딩 안내',
+   '입사를 환영합니다! 아래 내용을 꼭 확인해 주세요.
+1. 사원증 수령: 총무팀 방문 (1층 안내데스크)
+2. 노트북 및 장비 세팅: IT팀 내선 1234
+3. 사내 메신저(Slack) 가입 후 #공지채널 참여
+4. 첫 주 일정: 팀장 면담 → 부서 OJT → 업무 배정'),
+  ('공통', '사내 복지 및 제도 안내',
+   '임직원을 위한 복지 제도를 안내합니다.
+- 점심 식대 지원: 1일 1만원 (법인카드 사용)
+- 유연근무제: 코어타임 10:00~16:00 준수
+- 연차: 입사 1년 미만 월 1일 발생
+- 경조사 지원: 총무팀 신청서 제출
+- 교육비 지원: 연 50만원 한도 (팀장 승인 후 신청)'),
+  ('공통', '사내 커뮤니케이션 채널 안내',
+   '팀 간 원활한 소통을 위한 채널 안내입니다.
+- 공식 메신저: Slack (#전체공지, #개발팀, #인프라팀 등)
+- 이메일: 외부 커뮤니케이션 및 공식 문서 전달
+- 화상회의: Google Meet (캘린더 초대 링크 사용)
+- 이슈 트래킹: GitHub Issues
+- 긴급 공지: 문자 또는 전화'),
   ('개발', '개발 환경 세팅 가이드',
    '신입 개발자를 위한 로컬 개발 환경 세팅 가이드입니다.
 1. Node.js LTS 버전 설치 후 node -v로 확인
