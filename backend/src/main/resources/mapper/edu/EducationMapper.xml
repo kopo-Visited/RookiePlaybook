@@ -17,7 +17,7 @@
         LEFT JOIN education_progress ep
         ON ep.education_id = e.id AND ep.user_id = #{userId}
         LEFT JOIN education_stages es
-        ON es.education_id = e.id AND es.is_deleted = false
+        ON es.education_id = e.id
         LEFT JOIN stage_completions sc
         ON sc.stage_id = es.id AND sc.user_id = #{userId}
         WHERE e.id IN
@@ -47,7 +47,6 @@
                  LEFT JOIN video_progress vp
                            ON vp.material_id = em.id AND vp.user_id = #{userId}
         WHERE es.education_id = #{educationId}
-          AND es.is_deleted = false
         ORDER BY es.order_number ASC
     </select>
 
