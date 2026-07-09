@@ -15,6 +15,7 @@ export const ROUTES = {
   EDU: {
     LIST: '/edu',
     DETAIL: id => `/edu/${id}`,
+    VIDEO: (id, stageId) => `/edu/${id}/stages/${stageId}`,
   },
   INQUIRY: '/contact',
   ADMIN: {

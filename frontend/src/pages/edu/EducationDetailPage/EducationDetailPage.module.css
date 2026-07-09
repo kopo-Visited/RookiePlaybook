@@ -128,11 +128,17 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 14px 0;
+  padding: 14px 8px;
   border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s;
 }
 .stageItem:last-child {
   border-bottom: none;
+}
+.stageItem:hover {
+  background: #f7f9fc;
 }
 .stageOrder {
   width: 32px;

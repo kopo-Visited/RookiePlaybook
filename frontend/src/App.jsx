@@ -19,6 +19,7 @@ import InquiryPage from './pages/inquiry/InquiryPage/InquiryPage';
 import AdminInquiryPage from './pages/admin/AdminInquiryPage/AdminInquiryPage';
 import EducationListPage from './pages/edu/EducationListPage/EducationListPage';
 import EducationDetailPage from './pages/edu/EducationDetailPage/EducationDetailPage';
+import VideoPlayerPage from './pages/edu/VideoPlayerPage/VideoPlayerPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
@@ -50,6 +51,7 @@ function App() {
             <Route path={ROUTES.QNA.ALL} element={<QnaAllPage />} />
             <Route path={ROUTES.EDU.LIST} element={<EducationListPage />} />
             <Route path="/edu/:id" element={<EducationDetailPage />} />
+            <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
             <Route path={ROUTES.INQUIRY} element={<InquiryPage />} />
           </Route>
         </Route>
