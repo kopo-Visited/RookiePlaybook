@@ -9,6 +9,7 @@ import { getDocuments } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
+const PAGE_SIZE = 8;
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -119,6 +120,7 @@ function DocListPage() {
   const [category, setCategory] = useState('전체');
   const [sort, setSort] = useState('최신순');
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [page, setPage] = useState(1);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = apiRes?.data ?? [];
@@ -157,9 +159,24 @@ function DocListPage() {
     [summaryCards]
   );
 
+  const totalPages = Math.max(1, Math.ceil(displayedDocs.length / PAGE_SIZE));
+  const pagedDocs = displayedDocs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   function handleCategorySelect(option) {
     setCategory(option);
+    setPage(1);
     categoryDD.setOpen(false);
+  }
+
+  function handleSortSelect(opt) {
+    setSort(opt);
+    setPage(1);
+    sortDD.setOpen(false);
+  }
+
+  function handleSearch(value) {
+    setSearch(value);
+    setPage(1);
   }
 
   return (
@@ -181,7 +198,7 @@ function DocListPage() {
                 className={styles.input}
                 placeholder="검색어를 입력하세요"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => handleSearch(e.target.value)}
               />
               <span className={styles.inputIcon}>
                 <IconSearch />
@@ -234,10 +251,7 @@ function DocListPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
-                    onClick={() => {
-                      setSort(opt);
-                      sortDD.setOpen(false);
-                    }}
+                    onClick={() => handleSortSelect(opt)}
                   >
                     {opt}
                   </li>
@@ -290,7 +304,7 @@ function DocListPage() {
                 </tr>
               </thead>
               <tbody>
-                {displayedDocs.map(doc => (
+                {pagedDocs.map(doc => (
                   <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
                     <td>
                       <div className={styles.titleCell}>
@@ -328,14 +342,27 @@ function DocListPage() {
             <p className={styles.empty}>조건에 맞는 문서가 없습니다.</p>
           )}
 
-          <div className={styles.pagination}>
-            <button className={styles.pageArrow}>‹</button>
-            <button className={`${styles.pageNum} ${styles.pageNumActive}`}>1</button>
-            <button className={styles.pageNum}>2</button>
-            <button className={styles.pageNum}>3</button>
-            <button className={styles.pageNum}>4</button>
-            <button className={styles.pageArrow}>›</button>
-          </div>
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                className={styles.pageArrow}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >‹</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <button
+                  key={n}
+                  className={`${styles.pageNum} ${page === n ? styles.pageNumActive : ''}`}
+                  onClick={() => setPage(n)}
+                >{n}</button>
+              ))}
+              <button
+                className={styles.pageArrow}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >›</button>
+            </div>
+          )}
         </section>
 
         <aside className={styles.sideStack}>
