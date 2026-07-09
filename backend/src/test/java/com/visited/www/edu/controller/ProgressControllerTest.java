@@ -1,5 +1,6 @@
 package com.visited.www.edu.controller;
 
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.service.ProgressService;
@@ -18,8 +19,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -97,6 +100,59 @@ class ProgressControllerTest {
                         .with(authentication(userAuth(userId)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"stageId\": 999}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    // ==================== EDU-FR-003: 영상 시청 위치 저장 ====================
+
+    @Test
+    @DisplayName("POST /api/progress/video - 영상 시청 위치 저장 성공")
+    void saveVideoProgress_success() throws Exception {
+        // given
+        Long userId = 1L;
+
+        // when & then (void 서비스 메서드라 별도 stub 불필요)
+        mockMvc.perform(post("/api/progress/video")
+                        .with(authentication(userAuth(userId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"materialId\": 1, \"watchedPosition\": 120}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").exists())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /api/progress/video - watchedPosition 누락 시 400 반환")
+    void saveVideoProgress_validation() throws Exception {
+        // given
+        Long userId = 1L;
+
+        // when & then
+        mockMvc.perform(post("/api/progress/video")
+                        .with(authentication(userAuth(userId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"materialId\": 1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /api/progress/video - 존재하지 않는 자료면 404 반환")
+    void saveVideoProgress_notFound() throws Exception {
+        // given
+        Long userId = 1L;
+        willThrow(new MaterialNotFoundException())
+                .given(progressService).saveVideoProgress(eq(userId), eq(999L), anyInt());
+
+        // when & then
+        mockMvc.perform(post("/api/progress/video")
+                        .with(authentication(userAuth(userId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"materialId\": 999, \"watchedPosition\": 10}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andDo(print());

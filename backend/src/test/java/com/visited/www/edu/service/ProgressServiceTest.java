@@ -1,14 +1,19 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.entity.Education;
+import com.visited.www.edu.entity.EducationMaterial;
 import com.visited.www.edu.entity.EducationProgress;
 import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.StageCompletion;
+import com.visited.www.edu.entity.VideoProgress;
+import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
+import com.visited.www.edu.repository.VideoProgressRepository;
 import com.visited.www.entity.User;
 import com.visited.www.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +48,12 @@ class ProgressServiceTest {
 
     @Mock
     private EducationProgressRepository educationProgressRepository;
+
+    @Mock
+    private EducationMaterialRepository educationMaterialRepository;
+
+    @Mock
+    private VideoProgressRepository videoProgressRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -157,5 +168,61 @@ class ProgressServiceTest {
         // when & then
         assertThatThrownBy(() -> progressService.completeStage(userId, stageId))
                 .isInstanceOf(StageNotFoundException.class);
+    }
+
+    // ==================== EDU-FR-003: 영상 시청 위치 저장 ====================
+
+    @Test
+    @DisplayName("영상 시청 위치 저장 - 기존 기록이 없으면 새로 생성한다")
+    void saveVideoProgress_create() {
+        // given
+        Long userId = 1L;
+        Long materialId = 1L;
+
+        given(educationMaterialRepository.findById(materialId))
+                .willReturn(Optional.of(mock(EducationMaterial.class)));
+        given(videoProgressRepository.findByUserIdAndMaterialId(userId, materialId))
+                .willReturn(Optional.empty());
+        given(userRepository.getReferenceById(userId)).willReturn(mock(User.class));
+
+        // when
+        progressService.saveVideoProgress(userId, materialId, 120);
+
+        // then
+        verify(videoProgressRepository, times(1)).save(any(VideoProgress.class));
+    }
+
+    @Test
+    @DisplayName("영상 시청 위치 저장 - 기존 기록이 있으면 위치만 갱신한다 (신규 저장 없음)")
+    void saveVideoProgress_update() {
+        // given
+        Long userId = 1L;
+        Long materialId = 1L;
+
+        VideoProgress existing = VideoProgress.create(mock(User.class), mock(EducationMaterial.class), 30);
+        given(educationMaterialRepository.findById(materialId))
+                .willReturn(Optional.of(mock(EducationMaterial.class)));
+        given(videoProgressRepository.findByUserIdAndMaterialId(userId, materialId))
+                .willReturn(Optional.of(existing));
+
+        // when
+        progressService.saveVideoProgress(userId, materialId, 200);
+
+        // then
+        assertThat(existing.getWatchedPosition()).isEqualTo(200);
+        verify(videoProgressRepository, never()).save(any(VideoProgress.class));
+    }
+
+    @Test
+    @DisplayName("영상 시청 위치 저장 - 존재하지 않는 materialId면 MaterialNotFoundException이 발생한다")
+    void saveVideoProgress_materialNotFound() {
+        // given
+        Long userId = 1L;
+        Long materialId = 999L;
+        given(educationMaterialRepository.findById(materialId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> progressService.saveVideoProgress(userId, materialId, 120))
+                .isInstanceOf(MaterialNotFoundException.class);
     }
 }

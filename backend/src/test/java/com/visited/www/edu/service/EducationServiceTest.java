@@ -1,14 +1,20 @@
 package com.visited.www.edu.service;
 
 import com.visited.www.edu.EducationNotFoundException;
+import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.entity.Education;
+import com.visited.www.edu.entity.EducationMaterial;
 import com.visited.www.edu.entity.EducationStage;
+import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.mapper.EducationMapper;
+import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationRepository;
+import com.visited.www.edu.repository.VideoProgressRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +47,12 @@ class EducationServiceTest {
 
     @Mock
     private EducationMapper educationMapper;
+
+    @Mock
+    private EducationMaterialRepository educationMaterialRepository;
+
+    @Mock
+    private VideoProgressRepository videoProgressRepository;
 
     // ==================== EDU-FR-001: 교육 과정 목록 조회 ====================
 
@@ -207,5 +219,69 @@ class EducationServiceTest {
         // then
         assertThat(result.progressRate()).isEqualTo(100);
         assertThat(result.isCompleted()).isTrue();  // 100 >= 80 (수료 기준)
+    }
+
+    // ==================== EDU-FR-003: 단계 자료 조회 ====================
+
+    @Test
+    @DisplayName("단계 자료 조회 - 자료 정보와 이어보기 위치를 함께 반환한다")
+    void getStageMaterial_success() {
+        // given
+        Long userId = 1L;
+        Long stageId = 1L;
+
+        EducationMaterial material = mock(EducationMaterial.class);
+        given(material.getId()).willReturn(1L);
+        given(material.getTitle()).willReturn("회사 소개 영상");
+        given(material.getVideoUrl()).willReturn("https://youtube.com/example");
+        given(material.getTotalDuration()).willReturn(600);
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.of(material));
+
+        VideoProgress videoProgress = mock(VideoProgress.class);
+        given(videoProgress.getWatchedPosition()).willReturn(120);
+        given(videoProgressRepository.findByUserIdAndMaterialId(userId, 1L))
+                .willReturn(Optional.of(videoProgress));
+
+        // when
+        StageMaterialResponseDto result = educationService.getStageMaterial(userId, stageId);
+
+        // then
+        assertThat(result.materialId()).isEqualTo(1L);
+        assertThat(result.title()).isEqualTo("회사 소개 영상");
+        assertThat(result.lastWatchedPosition()).isEqualTo(120);
+        assertThat(result.totalDuration()).isEqualTo(600);
+    }
+
+    @Test
+    @DisplayName("단계 자료 조회 - 시청 기록이 없으면 이어보기 위치는 0이다")
+    void getStageMaterial_noProgress() {
+        // given
+        Long userId = 1L;
+        Long stageId = 1L;
+
+        EducationMaterial material = mock(EducationMaterial.class);
+        given(material.getId()).willReturn(1L);
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.of(material));
+        given(videoProgressRepository.findByUserIdAndMaterialId(userId, 1L))
+                .willReturn(Optional.empty());
+
+        // when
+        StageMaterialResponseDto result = educationService.getStageMaterial(userId, stageId);
+
+        // then
+        assertThat(result.lastWatchedPosition()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("단계 자료 조회 - 존재하지 않는 stageId면 MaterialNotFoundException 발생")
+    void getStageMaterial_notFound() {
+        // given
+        Long userId = 1L;
+        Long stageId = 999L;
+        given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> educationService.getStageMaterial(userId, stageId))
+                .isInstanceOf(MaterialNotFoundException.class);
     }
 }
