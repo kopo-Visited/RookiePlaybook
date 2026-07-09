@@ -1,10 +1,14 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.EducationInUseException;
 import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.MaterialResponseDto;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
+import com.visited.www.edu.dto.request.EducationCreateRequestDto;
+import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
+import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
@@ -14,7 +18,9 @@ import com.visited.www.edu.entity.EducationMaterial;
 import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.mapper.EducationMapper;
 import com.visited.www.edu.repository.EducationMaterialRepository;
+import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationRepository;
+import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,6 +44,8 @@ public class EducationServiceImpl implements EducationService {
     private final EducationMapper educationMapper;
     private final EducationMaterialRepository educationMaterialRepository;
     private final VideoProgressRepository videoProgressRepository;
+    private final EducationStageRepository educationStageRepository;
+    private final EducationProgressRepository educationProgressRepository;
 
     // EDU-FR-001: 교육 과정 목록 조회
     @Override
@@ -119,6 +127,7 @@ public class EducationServiceImpl implements EducationService {
         return new EducationDetailResponseDto(
                 education.getId(),
                 education.getTitle(),
+                education.getDescription(),
                 education.getCompletionCriteria(),
                 progressRate,
                 isCompleted,
@@ -144,5 +153,39 @@ public class EducationServiceImpl implements EducationService {
                 lastWatchedPosition,
                 material.getTotalDuration()
         );
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 등록
+    @Override
+    @Transactional
+    public EducationCreateResponseDto createEducation(EducationCreateRequestDto request) {
+        Education education = educationRepository.save(Education.create(
+                request.getTitle(), request.getDescription(), request.getCompletionCriteria()));
+        return new EducationCreateResponseDto(education.getId(), education.getTitle());
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 수정
+    @Override
+    @Transactional
+    public void updateEducation(Long educationId, EducationUpdateRequestDto request) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(EducationNotFoundException::new);
+        education.update(request.getTitle(), request.getDescription(), request.getCompletionCriteria());
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 삭제 (단계/진도가 있으면 삭제 불가)
+    @Override
+    @Transactional
+    public void deleteEducation(Long educationId) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(EducationNotFoundException::new);
+
+        boolean inUse = educationStageRepository.countByEducationId(educationId) > 0
+                || educationProgressRepository.existsByEducationId(educationId);
+        if (inUse) {
+            throw new EducationInUseException();
+        }
+
+        educationRepository.delete(education);
     }
 }

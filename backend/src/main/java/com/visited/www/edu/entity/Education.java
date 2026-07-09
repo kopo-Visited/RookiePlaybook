@@ -24,6 +24,9 @@ public class Education {
     @Column(nullable = false, length = 100)
     private String title;
 
+    @Column(length = 500)
+    private String description;
+
     @Column(nullable = false)
     private Integer completionCriteria;
 
@@ -36,4 +39,20 @@ public class Education {
     @OneToMany(mappedBy = "education", fetch = FetchType.LAZY)
     @OrderBy("orderNumber ASC")
     private List<EducationStage> stages = new ArrayList<>();
+
+    private Education(String title, String description, Integer completionCriteria) {
+        this.title = title;
+        this.description = description;
+        this.completionCriteria = completionCriteria;
+    }
+
+    public static Education create(String title, String description, Integer completionCriteria) {
+        return new Education(title, description, completionCriteria);
+    }
+
+    public void update(String title, String description, Integer completionCriteria) {
+        this.title = title;
+        this.description = description;
+        this.completionCriteria = completionCriteria;
+    }
 }
