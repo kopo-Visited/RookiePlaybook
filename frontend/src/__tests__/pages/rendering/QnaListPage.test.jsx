@@ -43,7 +43,11 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 function mockQnasSuccess(items = mockQnas) {
-  server.use(http.get('/api/qnas', () => HttpResponse.json(items)));
+  server.use(
+    http.get('/api/questions/me', () =>
+      HttpResponse.json({ success: true, message: '', data: { content: items } })
+    )
+  );
 }
 
 function renderPage() {
@@ -135,7 +139,9 @@ describe('QnaListPage 렌더링', () => {
   it('API 실패 시 에러 메시지가 렌더링된다', async () => {
     // given
     server.use(
-      http.get('/api/qnas', () => HttpResponse.json({ message: 'error' }, { status: 500 }))
+      http.get('/api/questions/me', () =>
+        HttpResponse.json({ message: 'error' }, { status: 500 })
+      )
     );
 
     // when
