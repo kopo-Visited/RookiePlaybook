@@ -14,6 +14,12 @@ public record UserUpdateRequest(
 
         String position,
 
+        @NotBlank(message = "사번을 입력해주세요.")
+        String employeeNo,
+
+        @NotBlank(message = "전화번호를 입력해주세요.")
+        String phone,
+
         @NotNull(message = "사용자 상태를 선택해주세요.")
         UserStatus status
 ) {
