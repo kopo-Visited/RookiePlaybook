@@ -386,6 +386,26 @@ function UserFormFields({ form, onChange, departments, roles, isEdit }) {
         />
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label}>사번</label>
+        <input
+          className={styles.input}
+          value={form.employeeNo}
+          onChange={e => onChange({ ...form, employeeNo: e.target.value })}
+          placeholder="사번을 입력하세요"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>전화번호</label>
+        <input
+          className={styles.input}
+          value={form.phone}
+          onChange={e => onChange({ ...form, phone: e.target.value })}
+          placeholder="전화번호를 입력하세요"
+        />
+      </div>
+
       {!isEdit && (
         <div className={`${styles.field} ${styles.fieldWide}`}>
           <label className={styles.label}>초기 비밀번호</label>
@@ -409,6 +429,8 @@ function RegisterUserModal({ departments, roles, onClose, onSave }) {
     departmentId: '',
     roleId: '',
     position: '',
+    employeeNo: '',
+    phone: '',
     password: '',
     status: 'ACTIVE',
   });
@@ -470,7 +492,13 @@ function RegisterUserModal({ departments, roles, onClose, onSave }) {
 }
 
 function EditUserModal({ user, departments, roles, onClose, onSave }) {
-  const [form, setForm] = useState({ ...user, position: user.position || '', memo: '' });
+  const [form, setForm] = useState({
+    ...user,
+    position: user.position || '',
+    employeeNo: user.employeeNo || '',
+    phone: user.phone || '',
+    memo: '',
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 

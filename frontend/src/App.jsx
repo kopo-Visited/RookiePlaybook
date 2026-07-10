@@ -5,6 +5,7 @@ import Layout from './components/Layout/Layout';
 import AdminLayout from './components/AdminLayout/AdminLayout';
 import LoginPage from './pages/auth/LoginPage/LoginPage';
 import ChangePasswordPage from './pages/auth/ChangePasswordPage/ChangePasswordPage';
+import AccountUnlockRequestPage from './pages/auth/AccountUnlockRequestPage/AccountUnlockRequestPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
@@ -41,6 +42,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.ACCOUNT_UNLOCK} element={<AccountUnlockRequestPage />} />
 
         <Route element={<PrivateRoute />}>
           <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePasswordPage />} />
