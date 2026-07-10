@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './NoticeFormModal.module.css';
 import { createNotice, updateNotice } from '../../api/noticeApi';
+import { hasBlank } from '../../utils/validation';
 
 function IconX() {
   return (
@@ -35,7 +36,7 @@ function NoticeFormModal({ notice, onClose, onSuccess }) {
   }, [onClose]);
 
   async function handleSubmit() {
-    if (!title.trim() || !content.trim() || submitting) return;
+    if (hasBlank(title, content) || submitting) return;
     setSubmitting(true);
     setError('');
     try {
@@ -70,8 +71,9 @@ function NoticeFormModal({ notice, onClose, onSuccess }) {
             <label className={styles.fieldLabel}>제목</label>
             <input
               className={styles.input}
-              placeholder="공지 제목을 입력하세요"
+              placeholder="공지 제목을 입력하세요 (최대 200자)"
               value={title}
+              maxLength={200}
               onChange={e => setTitle(e.target.value)}
             />
           </div>
@@ -96,7 +98,7 @@ function NoticeFormModal({ notice, onClose, onSuccess }) {
           <button
             className={styles.btnPrimary}
             onClick={handleSubmit}
-            disabled={!title.trim() || !content.trim() || submitting}
+            disabled={hasBlank(title, content) || submitting}
           >
             {submitting ? '저장 중...' : '저장'}
           </button>

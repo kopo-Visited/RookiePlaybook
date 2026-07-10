@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './InquiryFormModal.module.css';
 import { createInquiry } from '../../api/inquiryApi';
 import { INQUIRY_TYPES } from '../../constants/inquiry';
+import { hasBlank } from '../../utils/validation';
 
 function IconX() {
   return (
@@ -36,7 +37,7 @@ function InquiryFormModal({ onClose, onSuccess }) {
   }, [onClose]);
 
   async function handleSubmit() {
-    if (!title.trim() || !content.trim() || submitting) return;
+    if (hasBlank(title, content) || submitting) return;
     setSubmitting(true);
     setError('');
     try {
@@ -106,7 +107,7 @@ function InquiryFormModal({ onClose, onSuccess }) {
           <button
             className={styles.btnPrimary}
             onClick={handleSubmit}
-            disabled={!title.trim() || !content.trim() || submitting}
+            disabled={hasBlank(title, content) || submitting}
           >
             {submitting ? '등록 중...' : '등록하기'}
           </button>
