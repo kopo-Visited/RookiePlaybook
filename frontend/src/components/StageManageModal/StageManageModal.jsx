@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './StageManageModal.module.css';
 import useFetch from '../../hooks/useFetch';
+import useToastStore from '../../stores/toastStore';
 import { getEducationDetail, createStage, updateStage, deleteStage } from '../../api/eduApi';
 import Spinner from '../Spinner/Spinner';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
@@ -80,7 +81,7 @@ function StageManageModal({ education, onClose }) {
       setRefreshKey(k => k + 1);
     } catch (err) {
       // 완료 이력/시청 진도가 있으면 백엔드가 409로 막으므로 그 사유를 보여준다
-      alert(err.response?.data?.message || '단계 삭제에 실패했습니다.');
+      useToastStore.getState().show(err.response?.data?.message || '단계 삭제에 실패했습니다.');
     }
   }
 

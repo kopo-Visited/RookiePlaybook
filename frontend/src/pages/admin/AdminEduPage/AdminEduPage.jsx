@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './AdminEduPage.module.css';
 import useFetch from '../../../hooks/useFetch';
+import useToastStore from '../../../stores/toastStore';
 import {
   getEducations,
   getEducationDetail,
@@ -59,7 +60,7 @@ function EducationSection() {
       setEditEducation(res?.data ?? null);
       setModalOpen(true);
     } catch {
-      alert('교육 과정 정보를 불러오지 못했습니다.');
+      useToastStore.getState().show('교육 과정 정보를 불러오지 못했습니다.');
     }
   }
 
@@ -70,7 +71,7 @@ function EducationSection() {
       setRefreshKey(k => k + 1);
     } catch (err) {
       // 단계·진도가 있으면 백엔드가 409로 막으므로 그 사유를 그대로 보여준다
-      alert(err.response?.data?.message || '교육 과정 삭제에 실패했습니다.');
+      useToastStore.getState().show(err.response?.data?.message || '교육 과정 삭제에 실패했습니다.');
     }
   }
 

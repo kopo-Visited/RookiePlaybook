@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
+import useToastStore from '../../../stores/toastStore';
 import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
 import Badge from '../../../components/Badge/Badge';
 import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
@@ -173,7 +174,7 @@ function AdminDocPage() {
       await deleteDocument(doc.id);
       setRefreshKey(k => k + 1);
     } catch {
-      alert('문서 삭제에 실패했습니다.');
+      useToastStore.getState().show('문서 삭제에 실패했습니다.');
     }
   }, []);
 
@@ -187,7 +188,7 @@ function AdminDocPage() {
       });
       setRefreshKey(k => k + 1);
     } catch {
-      alert('공개 상태 변경에 실패했습니다.');
+      useToastStore.getState().show('공개 상태 변경에 실패했습니다.');
     }
   }, []);
 
