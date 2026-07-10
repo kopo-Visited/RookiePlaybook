@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+
+    <!--
+        record 기반 요청 DTO는 Jackson이 리플렉션으로 정식 생성자를 호출해 필드를 채우는데,
+        SpotBugs는 이 패턴을 추적하지 못해 "필드에 값을 쓰는 코드가 없다"고 오탐한다.
+    -->
+    <Match>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+
+    <!--
+        List 필드를 그대로 노출하는 응답 DTO들. 전부 서비스 계층에서 .toList()(불변 리스트)로
+        만들어 응답 직렬화 후 버려지는 일회성 객체라 외부에서 내부 상태를 변조할 경로가 없다.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!--
+        JWT는 Authorization 헤더로 전달되고 쿠키 기반 세션을 쓰지 않는 stateless API라
+        CSRF 공격 벡터(브라우저가 자동으로 쿠키를 실어 보내는 것)가 성립하지 않는다.
+    -->
+    <Match>
+        <Or>
+            <Class name="com.visited.www.global.config.SecurityConfig"/>
+            <Class name="com.visited.www.global.config.NosecSecurityConfig"/>
+        </Or>
+        <Bug pattern="SPRING_CSRF_PROTECTION_DISABLED"/>
+    </Match>
+
+    <!--
+        고정된 ErrorCode 메시지를 JSON(Content-Type: application/json)으로만 응답하고
+        사용자 입력이 그대로 반영되지 않아 XSS로 이어질 경로가 없다.
+    -->
+    <Match>
+        <Or>
+            <Class name="com.visited.www.global.security.JwtAccessDeniedHandler"/>
+            <Class name="com.visited.www.global.security.JwtAuthenticationEntryPoint"/>
+        </Or>
+        <Bug pattern="XSS_SERVLET"/>
+    </Match>
+
+</FindBugsFilter>
