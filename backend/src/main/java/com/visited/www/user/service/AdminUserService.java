@@ -6,6 +6,12 @@ import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
 import com.visited.www.global.exception.BusinessException;
 import com.visited.www.global.exception.ErrorCode;
+import com.visited.www.user.exception.DepartmentNotFoundException;
+import com.visited.www.user.exception.DuplicateDepartmentCodeException;
+import com.visited.www.user.exception.DuplicateEmailException;
+import com.visited.www.user.exception.DuplicateEmployeeNoException;
+import com.visited.www.user.exception.RoleNotFoundException;
+import com.visited.www.user.exception.UserNotFoundException;
 import com.visited.www.user.dto.request.DepartmentCreateRequest;
 import com.visited.www.user.dto.request.DepartmentUpdateRequest;
 import com.visited.www.user.dto.request.PasswordChangeRequest;
@@ -54,18 +60,18 @@ public class AdminUserService {
 
     public UserResponse createUser(UserCreateRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new DuplicateEmailException(request.email());
         }
 
         if (userRepository.existsByEmployeeNo(request.employeeNo())) {
-            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+            throw new DuplicateEmployeeNoException(request.employeeNo());
         }
 
         Department department = departmentRepository.findById(request.departmentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
+                .orElseThrow(() -> new DepartmentNotFoundException(request.departmentId()));
 
         Role role = roleRepository.findById(request.roleId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 권한입니다."));
+                .orElseThrow(() -> new RoleNotFoundException(request.roleId()));
 
         User user = User.builder()
                 .name(request.name())
@@ -88,11 +94,11 @@ public class AdminUserService {
         User user = getUserEntity(userId);
 
         Department department = departmentRepository.findById(request.departmentId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
+                .orElseThrow(() -> new DepartmentNotFoundException(request.departmentId()));
 
         if (!request.employeeNo().equals(user.getEmployeeNo())
                 && userRepository.existsByEmployeeNo(request.employeeNo())) {
-            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+            throw new DuplicateEmployeeNoException(request.employeeNo());
         }
 
         user.updateInfo(
@@ -110,7 +116,7 @@ public class AdminUserService {
         User user = getUserEntity(userId);
 
         Role role = roleRepository.findById(request.roleId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 권한입니다."));
+                .orElseThrow(() -> new RoleNotFoundException(request.roleId()));
 
         user.updateRole(role);
 
@@ -158,7 +164,7 @@ public class AdminUserService {
 
     public DepartmentResponse createDepartment(DepartmentCreateRequest request) {
         if (departmentRepository.existsByCode(request.code())) {
-            throw new IllegalArgumentException("이미 사용 중인 부서 코드입니다.");
+            throw new DuplicateDepartmentCodeException(request.code());
         }
 
         Department department = Department.builder()
@@ -171,7 +177,7 @@ public class AdminUserService {
 
     public DepartmentResponse renameDepartment(Long departmentId, DepartmentUpdateRequest request) {
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
+                .orElseThrow(() -> new DepartmentNotFoundException(departmentId));
 
         department.rename(request.name());
 
@@ -180,6 +186,6 @@ public class AdminUserService {
 
     private User getUserEntity(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 }
