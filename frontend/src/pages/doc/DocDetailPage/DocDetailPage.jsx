@@ -5,6 +5,8 @@ import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { getDocument } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 import { ROUTES } from '../../../constants/routes';
+import Spinner from '../../../components/Spinner/Spinner';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -39,8 +41,8 @@ function DocDetailPage() {
         목록으로
       </button>
 
-      {loading && <p className={styles.stateMsg}>문서를 불러오는 중...</p>}
-      {error && <p className={styles.stateMsg}>문서를 불러오지 못했습니다.</p>}
+      {loading && <Spinner />}
+      {!loading && error && <ErrorMessage message="문서를 불러오지 못했습니다." />}
 
       {doc && (
         <>
