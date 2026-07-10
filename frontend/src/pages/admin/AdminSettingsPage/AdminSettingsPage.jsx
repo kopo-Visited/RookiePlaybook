@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './AdminSettingsPage.module.css';
 import useFetch from '../../../hooks/useFetch';
+import useToastStore from '../../../stores/toastStore';
 import { getDepartments } from '../../../api/adminUserApi';
 import { getAdminNotices, deleteNotice } from '../../../api/noticeApi';
 import {
@@ -129,7 +130,7 @@ function NoticeSection() {
       await deleteNotice(notice.noticeId);
       setRefreshKey(k => k + 1);
     } catch {
-      alert('공지사항 삭제에 실패했습니다.');
+      useToastStore.getState().show('공지사항 삭제에 실패했습니다.');
     }
   }
 
@@ -222,7 +223,7 @@ function UnlockRequestSection() {
       await resolveAccountUnlockRequest(request.requestId);
       setRefreshKey(k => k + 1);
     } catch {
-      alert('잠금해제 처리에 실패했습니다.');
+      useToastStore.getState().show('잠금해제 처리에 실패했습니다.');
     } finally {
       setResolvingId(null);
     }
