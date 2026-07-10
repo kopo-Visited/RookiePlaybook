@@ -189,6 +189,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  /* 진도율 % 뒤 열(완료여부·수료 기준)과 붙지 않도록 여백 */
+  padding-right: var(--spacing-md);
 }
 .progressBar {
   flex: 1;
@@ -207,6 +209,11 @@
   color: #49566d;
   min-width: 32px;
   text-align: right;
+}
+
+/* 수료 기준 값을 좌측 기본 위치에서 살짝 오른쪽으로 이동 */
+.criteriaCol {
+  padding-left: var(--spacing-lg);
 }
 
 /* ── 완료여부 배지 (EducationListPage 상태 칩 값 그대로 재사용) ── */
