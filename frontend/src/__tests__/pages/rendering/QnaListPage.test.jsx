@@ -139,9 +139,7 @@ describe('QnaListPage 렌더링', () => {
   it('API 실패 시 에러 메시지가 렌더링된다', async () => {
     // given
     server.use(
-      http.get('/api/questions/me', () =>
-        HttpResponse.json({ message: 'error' }, { status: 500 })
-      )
+      http.get('/api/questions/me', () => HttpResponse.json({ message: 'error' }, { status: 500 }))
     );
 
     // when
