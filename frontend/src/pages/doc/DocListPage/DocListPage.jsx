@@ -45,13 +45,13 @@ const faqItems = [
   },
 ];
 
-const CARD_COLORS = [
-  COLOR_KEYS.BLUE,
-  COLOR_KEYS.GREEN,
-  COLOR_KEYS.PINK,
-  COLOR_KEYS.ORANGE,
-  COLOR_KEYS.PURPLE,
-];
+const CATEGORY_COLOR_MAP = {
+  개발: COLOR_KEYS.BLUE,
+  인프라: COLOR_KEYS.GREEN,
+  보안: COLOR_KEYS.PINK,
+  네트워크: COLOR_KEYS.ORANGE,
+  공통: COLOR_KEYS.PURPLE,
+};
 const CATEGORY_ICON = { 개발: 'Dev', 인프라: 'Infra', 보안: 'Sec', 네트워크: 'Net', 공통: 'All' };
 
 function IconSearch() {
@@ -147,18 +147,12 @@ function DocListPage() {
     docs.forEach(d => {
       countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1;
     });
-    return Object.entries(countMap)
-      .sort(([a], [b]) => {
-        if (a === '공통') return 1;
-        if (b === '공통') return -1;
-        return 0;
-      })
-      .map(([name, count], i) => ({
-        id: name,
-        categoryName: name,
-        colorKey: CARD_COLORS[i % CARD_COLORS.length],
-        count,
-      }));
+    return Object.entries(countMap).map(([name, count]) => ({
+      id: name,
+      categoryName: name,
+      colorKey: CATEGORY_COLOR_MAP[name] ?? COLOR_KEYS.BLUE,
+      count,
+    }));
   }, [docs]);
 
   const categoryColorMap = useMemo(
@@ -357,11 +351,6 @@ function DocListPage() {
                     <td>
                       <div className={styles.titleCell}>
                         <span className={styles.titleText}>{doc.title}</span>
-                        {doc.tags?.map(tag => (
-                          <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
-                            {tag}
-                          </Badge>
-                        ))}
                       </div>
                     </td>
                     <td>
