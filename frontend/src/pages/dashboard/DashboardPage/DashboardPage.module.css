@@ -97,12 +97,30 @@
 }
 
 /* ── 아이콘 공통 색상 클래스 ── */
-.blue   { background: #eaf4ff; color: #2288ff; }
-.green  { background: #e6f8f2; color: #12b886; }
-.pink   { background: #fff0f6; color: #ff4d94; }
-.orange { background: #fff5e6; color: #ffad33; }
-.purple { background: #f3eeff; color: #845ef7; }
-.gray   { background: #eef3f9; color: #637087; }
+.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+.orange {
+  background: #fff5e6;
+  color: #ffad33;
+}
+.purple {
+  background: #f3eeff;
+  color: #845ef7;
+}
+.gray {
+  background: #eef3f9;
+  color: #637087;
+}
 
 /* ── 통계 카드 ── */
 .statsRow {
@@ -521,7 +539,7 @@
 }
 .shortcutGridWide {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
 }
 .shortcutItem {

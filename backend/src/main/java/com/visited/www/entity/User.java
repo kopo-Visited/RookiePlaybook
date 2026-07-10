@@ -48,6 +48,13 @@ public class User {
     @Column(length = 50)
     private String position;
 
+    // 사번
+    @Column(name = "employee_no", length = 50)
+    private String employeeNo;
+
+    @Column(length = 30)
+    private String phone;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserStatus status;
@@ -55,6 +62,10 @@ public class User {
     // 초기/관리자 재설정 비밀번호 상태라 사용자가 반드시 비밀번호를 바꿔야 하는지 여부
     @Column(name = "password_change_required", nullable = false, columnDefinition = "boolean default false")
     private boolean passwordChangeRequired;
+
+    // 연속 로그인 실패 횟수. 5회 도달 시 계정이 LOCKED 상태가 된다
+    @Column(name = "failed_login_count", nullable = false, columnDefinition = "integer default 0")
+    private int failedLoginCount;
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
@@ -84,6 +95,11 @@ public class User {
         this.status = status;
     }
 
+    public void updateContact(String employeeNo, String phone) {
+        this.employeeNo = employeeNo;
+        this.phone = phone;
+    }
+
     public void updateRole(Role role) {
         this.role = role;
     }
@@ -99,5 +115,22 @@ public class User {
 
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
+        this.failedLoginCount = 0;
+    }
+
+    public void increaseFailedLoginCount() {
+        this.failedLoginCount++;
+    }
+
+    public void lock() {
+        this.status = UserStatus.LOCKED;
+    }
+
+    // 잠금 해제 시 초기 비밀번호로 되돌리고 재설정을 강제한다
+    public void unlockWithPasswordReset(String encodedInitialPassword) {
+        this.status = UserStatus.ACTIVE;
+        this.failedLoginCount = 0;
+        this.password = encodedInitialPassword;
+        this.passwordChangeRequired = true;
     }
 }

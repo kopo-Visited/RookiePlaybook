@@ -56,6 +56,10 @@ public class Document {
         this.isPublic = isPublic;
     }
 
+    public void increaseViewCount() {
+        this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
+    }
+
     public void softDelete() {
         this.status = "DELETED";
     }

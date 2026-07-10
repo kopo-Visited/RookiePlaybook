@@ -15,7 +15,13 @@ function formatDate(dateStr) {
 function IconArrowLeft() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M19 12H5M5 12l7 7M5 12l7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -43,9 +49,13 @@ function DocDetailPage() {
               <div className={styles.titleWrap}>
                 <h1 className={styles.title}>{doc.title}</h1>
                 <div className={styles.meta}>
-                  <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>{doc.categoryName}</Badge>
+                  <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>
+                    {doc.categoryName}
+                  </Badge>
                   {doc.tags?.map(tag => (
-                    <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>{tag}</Badge>
+                    <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -58,9 +68,7 @@ function DocDetailPage() {
 
             <hr className={styles.divider} />
 
-            <div className={styles.content}>
-              {doc.content}
-            </div>
+            <div className={styles.content}>{doc.content}</div>
           </div>
         </>
       )}

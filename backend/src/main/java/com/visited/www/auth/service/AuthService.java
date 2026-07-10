@@ -20,17 +20,37 @@ public class AuthService {
 
     private static final String LOGIN_FAILED_MESSAGE = "이메일 또는 비밀번호가 일치하지 않습니다.";
 
+    // 존재하지 않는 이메일일 때도 동일한 시간이 걸리도록 더미 해시와 비교해
+    // 응답 시간 차이로 계정 존재 여부가 노출되는 것을 막는다 (bcrypt 공식 예시 해시)
+    private static final String DUMMY_PASSWORD_HASH =
+            "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final LoginAttemptService loginAttemptService;
 
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPassword()))
-                .orElseThrow(() -> new BusinessException(LOGIN_FAILED_MESSAGE, ErrorCode.UNAUTHORIZED));
+        User user = userRepository.findByEmail(request.email()).orElse(null);
+        if (user == null) {
+            passwordEncoder.matches(request.password(), DUMMY_PASSWORD_HASH);
+            throw new BusinessException(LOGIN_FAILED_MESSAGE, ErrorCode.UNAUTHORIZED);
+        }
+
+        if (user.getStatus() == UserStatus.LOCKED) {
+            throw new BusinessException(ErrorCode.ACCOUNT_LOCKED);
+        }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BusinessException("비활성화된 계정입니다. 관리자에게 문의해주세요.", ErrorCode.FORBIDDEN);
+        }
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            boolean locked = loginAttemptService.registerFailure(user.getId());
+            if (locked) {
+                throw new BusinessException(ErrorCode.ACCOUNT_LOCKED);
+            }
+            throw new BusinessException(LOGIN_FAILED_MESSAGE, ErrorCode.UNAUTHORIZED);
         }
 
         user.updateLastLoginAt();

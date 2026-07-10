@@ -75,6 +75,7 @@ function buildRoleBreakdown(users) {
 const STATUS_LABELS = {
   ACTIVE: '활성',
   INACTIVE: '비활성',
+  LOCKED: '잠김',
   DELETED: '삭제됨',
 };
 
@@ -234,23 +235,21 @@ function DonutChart({ data, size = 160 }) {
   const outerR = size / 2 - 6;
   const innerR = outerR - size * 0.18;
   const gapDeg = 2;
-  let angle = 0;
+
+  let acc = 0;
+  const segments = data.map(({ key, value, color }) => {
+    const sweep = (value / total) * 360;
+    const start = acc + gapDeg / 2;
+    const end = acc + sweep - gapDeg / 2;
+    acc += sweep;
+    return { key, color, d: describeDonutSegment(center, center, outerR, innerR, start, end) };
+  });
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
-      {data.map(({ key, value, color }) => {
-        const sweep = (value / total) * 360;
-        const start = angle + gapDeg / 2;
-        const end = angle + sweep - gapDeg / 2;
-        angle += sweep;
-        return (
-          <path
-            key={key}
-            d={describeDonutSegment(center, center, outerR, innerR, start, end)}
-            fill={color}
-          />
-        );
-      })}
+      {segments.map(({ key, color, d }) => (
+        <path key={key} d={d} fill={color} />
+      ))}
     </svg>
   );
 }
@@ -385,6 +384,26 @@ function UserFormFields({ form, onChange, departments, roles, isEdit }) {
         />
       </div>
 
+      <div className={styles.field}>
+        <label className={styles.label}>사번</label>
+        <input
+          className={styles.input}
+          value={form.employeeNo}
+          onChange={e => onChange({ ...form, employeeNo: e.target.value })}
+          placeholder="사번을 입력하세요"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>전화번호</label>
+        <input
+          className={styles.input}
+          value={form.phone}
+          onChange={e => onChange({ ...form, phone: e.target.value })}
+          placeholder="전화번호를 입력하세요"
+        />
+      </div>
+
       {!isEdit && (
         <div className={`${styles.field} ${styles.fieldWide}`}>
           <label className={styles.label}>초기 비밀번호</label>
@@ -408,6 +427,8 @@ function RegisterUserModal({ departments, roles, onClose, onSave }) {
     departmentId: '',
     roleId: '',
     position: '',
+    employeeNo: '',
+    phone: '',
     password: '',
     status: 'ACTIVE',
   });
@@ -469,7 +490,13 @@ function RegisterUserModal({ departments, roles, onClose, onSave }) {
 }
 
 function EditUserModal({ user, departments, roles, onClose, onSave }) {
-  const [form, setForm] = useState({ ...user, position: user.position || '', memo: '' });
+  const [form, setForm] = useState({
+    ...user,
+    position: user.position || '',
+    employeeNo: user.employeeNo || '',
+    phone: user.phone || '',
+    memo: '',
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -507,20 +534,6 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>비밀번호 초기화</label>
-          <p className={styles.helperText}>
-            사용자의 비밀번호를 초기화하고, 임시 비밀번호를 이메일로 발송합니다.
-          </p>
-          <button
-            type="button"
-            className={styles.dangerButton}
-            onClick={() => setForm({ ...form, passwordResetRequested: true })}
-          >
-            {form.passwordResetRequested ? '초기화 요청됨' : '비밀번호 초기화'}
-          </button>
-        </div>
-
-        <div className={styles.field}>
           <label className={styles.label}>관리자 참고사항</label>
           <textarea
             className={styles.textarea}
@@ -551,7 +564,6 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
 }
 
 function AdminUsersPage() {
-
   const {
     users,
     departments,

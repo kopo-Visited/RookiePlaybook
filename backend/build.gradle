@@ -34,8 +34,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
+	// CI에서는 RDS에 접근할 수 없어 h2 프로파일로 백엔드를 띄워 프론트엔드 E2E 테스트를 돌린다.
+	// H2 콘솔(spring-boot-h2console)은 보안상 제거하고 드라이버만 유지한다.
 	runtimeOnly 'com.h2database:h2'
-	implementation 'org.springframework.boot:spring-boot-h2console'
 	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat-runtime'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -52,7 +53,6 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-	implementation 'org.springframework.boot:spring-boot-h2console'
 }
 
 dependencyManagement {

@@ -40,10 +40,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    @Transactional
     public DocumentResponse getDocument(Long id) {
         Document document = documentRepository.findByIdAndStatusAndIsPublicTrue(id, ACTIVE_STATUS)
                 .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다. id=" + id));
 
+        document.increaseViewCount();
         return DocumentResponse.from(document);
     }
 

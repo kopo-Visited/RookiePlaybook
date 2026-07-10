@@ -1,5 +1,7 @@
 package com.visited.www.global.security;
 
+import com.visited.www.entity.UserStatus;
+import com.visited.www.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String TOKEN_PREFIX = "Bearer ";
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -34,14 +37,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null && jwtProvider.isValid(token)) {
             Claims claims = jwtProvider.parseClaims(token);
+            Long userId = Long.valueOf(claims.getSubject());
             String roleCode = claims.get("roleCode", String.class);
 
-            var authentication = new UsernamePasswordAuthenticationToken(
-                    Long.valueOf(claims.getSubject()),
-                    null,
-                    List.of(new SimpleGrantedAuthority(roleCode))
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 토큰 발급 이후 계정이 잠기거나(LOCKED) 비활성화돼도 만료 전까지 계속
+            // 인증되는 것을 막기 위해 매 요청마다 현재 계정 상태를 확인한다.
+            boolean isActive = userRepository.findById(userId)
+                    .map(user -> user.getStatus() == UserStatus.ACTIVE)
+                    .orElse(false);
+
+            if (isActive) {
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        userId,
+                        null,
+                        List.of(new SimpleGrantedAuthority(roleCode))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);

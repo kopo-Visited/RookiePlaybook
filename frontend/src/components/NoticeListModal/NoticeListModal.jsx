@@ -8,7 +8,12 @@ import styles from './NoticeListModal.module.css';
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -47,9 +52,7 @@ function NoticeListModal({ onClose }) {
 
         <div className={styles.body}>
           {loading && <Spinner />}
-          {!loading && notices.length === 0 && (
-            <EmptyState message="등록된 공지사항이 없습니다." />
-          )}
+          {!loading && notices.length === 0 && <EmptyState message="등록된 공지사항이 없습니다." />}
           {!loading && notices.length > 0 && (
             <ul className={styles.list}>
               {notices.map(n => (

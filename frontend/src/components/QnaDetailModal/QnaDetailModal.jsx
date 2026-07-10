@@ -12,10 +12,10 @@ const STATUS_LABEL = {
 };
 
 const STATUS_STYLE = {
-  RECEIVED:    { color: '#FF4D94', background: '#FFF0F6' },
+  RECEIVED: { color: '#FF4D94', background: '#FFF0F6' },
   IN_PROGRESS: { color: '#2288FF', background: '#EAF4FF' },
-  ANSWERED:    { color: '#12B886', background: '#E6F8F2' },
-  ON_HOLD:     { color: '#FFAD33', background: '#FFF5E6' },
+  ANSWERED: { color: '#12B886', background: '#E6F8F2' },
+  ON_HOLD: { color: '#FFAD33', background: '#FFF5E6' },
 };
 
 function formatDateTime(iso) {
@@ -28,7 +28,12 @@ function formatDateTime(iso) {
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -58,7 +63,7 @@ function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = f
   }, [onClose]);
 
   const editable = !publicView && detail?.status === 'RECEIVED';
-  const s = detail ? STATUS_STYLE[detail.status] ?? {} : {};
+  const s = detail ? (STATUS_STYLE[detail.status] ?? {}) : {};
 
   async function handleDelete() {
     if (deleting) return;
@@ -89,7 +94,10 @@ function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = f
         {!loading && detail && (
           <>
             <div className={styles.qHead}>
-              <span className={styles.statusBadge} style={{ color: s.color, background: s.background }}>
+              <span
+                className={styles.statusBadge}
+                style={{ color: s.color, background: s.background }}
+              >
                 {STATUS_LABEL[detail.status]}
               </span>
               <Badge
@@ -128,7 +136,11 @@ function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = f
               confirmDel ? (
                 <>
                   <span className={styles.confirmText}>정말 삭제할까요?</span>
-                  <button className={styles.btnOutline} onClick={() => setConfirmDel(false)} disabled={deleting}>
+                  <button
+                    className={styles.btnOutline}
+                    onClick={() => setConfirmDel(false)}
+                    disabled={deleting}
+                  >
                     취소
                   </button>
                   <button className={styles.btnDanger} onClick={handleDelete} disabled={deleting}>

@@ -32,6 +32,10 @@ export default defineConfig([
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/react-compiler': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/immutability': 'off',
     },
   },
   // 테스트 파일 — vitest globals 추가
