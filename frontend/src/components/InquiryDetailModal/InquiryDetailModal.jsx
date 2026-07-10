@@ -19,7 +19,12 @@ function formatDateTime(iso) {
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -80,10 +85,15 @@ function InquiryDetailModal({ inquiryId, onClose, onChanged, isAdmin = false }) 
         {!loading && detail && (
           <>
             <div className={styles.qHead}>
-              <span className={styles.statusBadge} style={{ color: s.color, background: s.background }}>
+              <span
+                className={styles.statusBadge}
+                style={{ color: s.color, background: s.background }}
+              >
                 {STATUS_LABEL[detail.status]}
               </span>
-              <span className={styles.typeLabel}>{INQUIRY_TYPE_LABEL[detail.type] ?? detail.type}</span>
+              <span className={styles.typeLabel}>
+                {INQUIRY_TYPE_LABEL[detail.type] ?? detail.type}
+              </span>
               {isAdmin && <span className={styles.writer}>{detail.writerName}</span>}
             </div>
             <h3 className={styles.qTitle}>{detail.title}</h3>

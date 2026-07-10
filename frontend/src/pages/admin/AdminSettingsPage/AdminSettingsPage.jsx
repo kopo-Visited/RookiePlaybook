@@ -4,7 +4,10 @@ import styles from './AdminSettingsPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import { getDepartments } from '../../../api/adminUserApi';
 import { getAdminNotices, deleteNotice } from '../../../api/noticeApi';
-import { getAccountUnlockRequests, resolveAccountUnlockRequest } from '../../../api/accountUnlockApi';
+import {
+  getAccountUnlockRequests,
+  resolveAccountUnlockRequest,
+} from '../../../api/accountUnlockApi';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
@@ -212,11 +215,7 @@ function UnlockRequestSection() {
   const items = data ?? [];
 
   async function handleResolve(request) {
-    if (
-      !window.confirm(
-        `${request.name}님의 계정 비밀번호를 초기화하고 잠금을 해제하시겠습니까?`
-      )
-    )
+    if (!window.confirm(`${request.name}님의 계정 비밀번호를 초기화하고 잠금을 해제하시겠습니까?`))
       return;
     setResolvingId(request.requestId);
     try {

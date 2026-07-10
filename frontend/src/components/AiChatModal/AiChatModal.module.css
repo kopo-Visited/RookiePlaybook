@@ -5,7 +5,7 @@
   bottom: 32px;
   right: 32px;
   background: #fff;
-  border: 1px solid #E8EDF5;
+  border: 1px solid #e8edf5;
   box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
   border-radius: 20px;
   display: flex;
@@ -16,7 +16,7 @@
 
 .header {
   height: 64px;
-  background: #2288FF;
+  background: #2288ff;
   border-radius: 20px 20px 0 0;
   display: flex;
   align-items: center;
@@ -40,11 +40,13 @@
   line-height: 1;
   padding: 4px;
 }
-.closeBtn:hover { color: #fff; }
+.closeBtn:hover {
+  color: #fff;
+}
 
 .chatArea {
   flex: 1;
-  background: #F7F9FC;
+  background: #f7f9fc;
   padding: 16px 20px;
   overflow-y: auto;
   display: flex;
@@ -54,18 +56,18 @@
 
 .placeholder {
   background: #fff;
-  border: 1px solid #E8EDF5;
+  border: 1px solid #e8edf5;
   border-radius: 16px;
   padding: 13px 17px;
   font-size: 13px;
-  color: #2D374D;
+  color: #2d374d;
   line-height: 22px;
 }
 
 .userBubble {
   align-self: flex-end;
   max-width: 78%;
-  background: #2288FF;
+  background: #2288ff;
   color: #fff;
   border-radius: 16px;
   padding: 12px 16px;
@@ -78,23 +80,23 @@
   align-self: flex-start;
   max-width: 90%;
   background: #fff;
-  border: 1px solid #E8EDF5;
+  border: 1px solid #e8edf5;
   border-radius: 16px;
   padding: 14px 17px;
   font-size: 13px;
-  color: #2D374D;
+  color: #2d374d;
   line-height: 22px;
   word-break: break-word;
 }
 
 .typing {
-  color: #9AA5B8;
+  color: #9aa5b8;
   font-size: 12px;
 }
 
 .inputArea {
   height: 56px;
-  border-top: 1px solid #E8EDF5;
+  border-top: 1px solid #e8edf5;
   display: flex;
   align-items: center;
   padding: 0 12px 0 16px;
@@ -108,17 +110,21 @@
   border: none;
   outline: none;
   font-size: 12px;
-  color: #2D374D;
+  color: #2d374d;
   font-family: 'Noto Sans KR', sans-serif;
   background: transparent;
 }
-.input::placeholder { color: #9AA5B8; }
-.input:disabled { opacity: 0.6; }
+.input::placeholder {
+  color: #9aa5b8;
+}
+.input:disabled {
+  opacity: 0.6;
+}
 
 .sendBtn {
   height: 44px;
   padding: 0 14px;
-  background: #2288FF;
+  background: #2288ff;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -133,4 +139,6 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-.sendBtn:not(:disabled):hover { opacity: 0.85; }
+.sendBtn:not(:disabled):hover {
+  opacity: 0.85;
+}

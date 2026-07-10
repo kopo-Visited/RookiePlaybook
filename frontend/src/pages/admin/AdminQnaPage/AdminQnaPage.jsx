@@ -14,17 +14,17 @@ const QNA_STATUS_LABEL = {
 };
 
 const QNA_STATUS_CLASS = {
-  RECEIVED:    'stReceived',
+  RECEIVED: 'stReceived',
   IN_PROGRESS: 'stInProgress',
-  ANSWERED:    'stAnswered',
-  ON_HOLD:     'stOnHold',
+  ANSWERED: 'stAnswered',
+  ON_HOLD: 'stOnHold',
 };
 
 const STAT_CARDS = [
-  { key: 'RECEIVED',    label: '접수' },
+  { key: 'RECEIVED', label: '접수' },
   { key: 'IN_PROGRESS', label: '처리중' },
-  { key: 'ANSWERED',    label: '답변완료' },
-  { key: 'ON_HOLD',     label: '보류' },
+  { key: 'ANSWERED', label: '답변완료' },
+  { key: 'ON_HOLD', label: '보류' },
 ];
 
 const PAGE_SIZE = 10;
@@ -204,16 +204,18 @@ function AdminQnaPage() {
       <header className={styles.topbar}>
         <div className={styles.titleBlock}>
           <h1 className={styles.pageTitle}>답변 관리</h1>
-          <p className={styles.pageSubtitle}>
-            신입사원의 질문을 확인하고 답변을 등록·관리하세요.
-          </p>
+          <p className={styles.pageSubtitle}>신입사원의 질문을 확인하고 답변을 등록·관리하세요.</p>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.searchBox}>
             <span className={styles.searchIcon}>
               <IconSearch />
             </span>
-            <input type="text" className={styles.searchInput} placeholder="질문 제목, 작성자 검색" />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="질문 제목, 작성자 검색"
+            />
           </div>
           <div className={styles.profile}>
             <div className={styles.avatar}>{avatarChar}</div>
@@ -227,7 +229,12 @@ function AdminQnaPage() {
 
       <div className={styles.statsGrid}>
         {STAT_CARDS.map(card => (
-          <StatCard key={card.key} statusKey={card.key} label={card.label} count={counts[card.key]} />
+          <StatCard
+            key={card.key}
+            statusKey={card.key}
+            label={card.label}
+            count={counts[card.key]}
+          />
         ))}
       </div>
 
@@ -310,33 +317,33 @@ function AdminQnaPage() {
             )}
             {!loading &&
               paged.map(row => (
-              <tr key={row.id} className={styles.tableRow} onClick={() => setDetailId(row.id)}>
-                <td className={styles.checkCol} onClick={e => e.stopPropagation()}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(row.id)}
-                    onChange={() => toggleRow(row.id)}
-                  />
-                </td>
-                <td>
-                  <span className={styles.qTitle}>{row.title}</span>
-                </td>
-                <td className={styles.textCell}>{row.author}</td>
-                <td className={styles.textCell}>{row.dept}</td>
-                <td>
-                  <Badge
-                    colorKey={DEPT_COLOR[row.category] ?? COLOR_KEYS.PURPLE}
-                    size={BADGE_SIZES.SM}
-                  >
-                    {row.category}
-                  </Badge>
-                </td>
-                <td>
-                  <StatusBadge status={row.status} />
-                </td>
-                <td className={styles.textCell}>{row.createdAt}</td>
-              </tr>
-            ))}
+                <tr key={row.id} className={styles.tableRow} onClick={() => setDetailId(row.id)}>
+                  <td className={styles.checkCol} onClick={e => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(row.id)}
+                      onChange={() => toggleRow(row.id)}
+                    />
+                  </td>
+                  <td>
+                    <span className={styles.qTitle}>{row.title}</span>
+                  </td>
+                  <td className={styles.textCell}>{row.author}</td>
+                  <td className={styles.textCell}>{row.dept}</td>
+                  <td>
+                    <Badge
+                      colorKey={DEPT_COLOR[row.category] ?? COLOR_KEYS.PURPLE}
+                      size={BADGE_SIZES.SM}
+                    >
+                      {row.category}
+                    </Badge>
+                  </td>
+                  <td>
+                    <StatusBadge status={row.status} />
+                  </td>
+                  <td className={styles.textCell}>{row.createdAt}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
 

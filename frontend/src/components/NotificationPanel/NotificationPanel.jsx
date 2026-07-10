@@ -8,10 +8,10 @@ const NOTIF_STATUS_LABEL = {
 };
 
 const NOTIF_STATUS_CLASS = {
-  RECEIVED:    'stReceived',
+  RECEIVED: 'stReceived',
   IN_PROGRESS: 'stInProgress',
-  ANSWERED:    'stAnswered',
-  ON_HOLD:     'stOnHold',
+  ANSWERED: 'stAnswered',
+  ON_HOLD: 'stOnHold',
 };
 
 function NotificationPanel({ notifications, onItemClick, onMarkAll, onClearAll }) {
