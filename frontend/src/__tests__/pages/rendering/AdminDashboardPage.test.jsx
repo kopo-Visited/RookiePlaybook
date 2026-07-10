@@ -35,7 +35,12 @@ const mockStats = {
     { id: 1, title: 'VPN 접속 가이드', categoryName: '인프라', createdAt: '2026-07-01T00:00:00' },
   ],
   recentQuestions: [
-    { id: 1, title: 'VPN 연결 오류 문의', departmentName: '개발팀', createdAt: '2026-07-01T00:00:00' },
+    {
+      id: 1,
+      title: 'VPN 연결 오류 문의',
+      departmentName: '개발팀',
+      createdAt: '2026-07-01T00:00:00',
+    },
   ],
 };
 

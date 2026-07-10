@@ -59,9 +59,7 @@ function mockDefaultHandlers() {
     http.get('/api/departments', () =>
       HttpResponse.json({ success: true, message: '', data: mockDepartments })
     ),
-    http.get('/api/roles', () =>
-      HttpResponse.json({ success: true, message: '', data: mockRoles })
-    )
+    http.get('/api/roles', () => HttpResponse.json({ success: true, message: '', data: mockRoles }))
   );
 }
 
