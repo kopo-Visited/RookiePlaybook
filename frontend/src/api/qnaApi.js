@@ -27,4 +27,5 @@ export const answerQna = (id, data) =>
   axiosInstance.put(`/api/admin/questions/${id}/answer`, data);
 export const updateQnaStatus = (id, data) =>
   axiosInstance.patch(`/api/admin/questions/${id}/status`, data);
-export const convertQnaToFaq = id => axiosInstance.post(`/api/admin/questions/${id}/faq`);
+export const convertQnaToFaq = (id, data) =>
+  axiosInstance.post(`/api/admin/questions/${id}/faq`, data);

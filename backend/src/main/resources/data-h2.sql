@@ -68,6 +68,18 @@ VALUES
 ALTER TABLE notifications ALTER COLUMN id RESTART WITH 4;
 
 -- ============================================================
+-- DOC(문서/FAQ) 카테고리 — QNA→FAQ 전환 시 필요 (QNA 카테고리와 동일 명칭)
+-- ============================================================
+INSERT INTO categories (id, category_name, description, is_public, status, created_at)
+VALUES
+    (1, '공통',     '전 부서 공통 · 사내 제도',   true, 'ACTIVE', CURRENT_TIMESTAMP),
+    (2, '개발',     '개발 환경, 빌드, 코드',       true, 'ACTIVE', CURRENT_TIMESTAMP),
+    (3, '인프라',   '서버, 배포, 장비',            true, 'ACTIVE', CURRENT_TIMESTAMP),
+    (4, '보안',     '계정, 비밀번호, 접근 권한',   true, 'ACTIVE', CURRENT_TIMESTAMP),
+    (5, '네트워크', 'VPN, 사내망, 네트워크 장애',  true, 'ACTIVE', CURRENT_TIMESTAMP);
+ALTER TABLE categories ALTER COLUMN id RESTART WITH 6;
+
+-- ============================================================
 -- 교육(edu) 도메인 시드 데이터
 -- ============================================================
 

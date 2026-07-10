@@ -86,6 +86,7 @@ function AdminQnaDetail({ questionId, onBack }) {
   if (!detail) return null;
 
   const answered = detail.status === 'ANSWERED';
+  const converted = detail.convertedFaqId != null;
   const writer = detail.writer ?? {};
   const avatarChar = (writer.name ?? '?')[0];
 
@@ -180,10 +181,16 @@ function AdminQnaDetail({ questionId, onBack }) {
             <button
               className={styles.btnOutline}
               onClick={() => setFaqOpen(true)}
-              disabled={!answered}
-              title={answered ? '' : '답변완료 상태만 FAQ로 전환할 수 있어요'}
+              disabled={!answered || converted}
+              title={
+                converted
+                  ? '이미 FAQ로 전환된 질문입니다'
+                  : answered
+                    ? ''
+                    : '답변완료 상태만 FAQ로 전환할 수 있어요'
+              }
             >
-              FAQ로 전환
+              {converted ? 'FAQ 전환됨' : 'FAQ로 전환'}
             </button>
             <button
               className={styles.btnHold}
@@ -267,9 +274,14 @@ function AdminQnaDetail({ questionId, onBack }) {
 
       {faqOpen && (
         <AdminQnaFaqModal
+          questionId={questionId}
           question={{ title: detail.title, category: detail.category?.name, content: detail.content }}
           answer={answer}
           onClose={() => setFaqOpen(false)}
+          onSuccess={() => {
+            setNotice('FAQ로 전환되었습니다.');
+            load();
+          }}
         />
       )}
     </div>

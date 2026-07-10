@@ -31,10 +31,10 @@
   gap: 6px;
 }
 .title {
-  font-size: 20px;
-  font-weight: 900;
+  font-size: 18px;
+  font-weight: 700;
   color: #172033;
-  line-height: 28px;
+  line-height: 26px;
 }
 .subtitle {
   font-size: 11px;
@@ -242,6 +242,15 @@
   margin: 12px 0 0;
   color: var(--color-red);
   font-size: 13px;
+}
+.aiNotice {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: #eaf4ff;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-body);
+  font-size: 13px;
+  line-height: 1.5;
 }
 .modalActions {
   display: flex;
