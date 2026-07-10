@@ -1,6 +1,7 @@
 package com.visited.www.doc.service;
 
 import com.visited.www.doc.dto.request.DocumentCreateRequest;
+import com.visited.www.doc.dto.request.DocumentUpdateRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
 import com.visited.www.doc.entity.Category;
 import com.visited.www.doc.entity.Document;
@@ -31,10 +32,20 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<DocumentResponse> getAllDocuments() {
+        return documentRepository.findByStatusOrderByCreatedAtDesc(ACTIVE_STATUS)
+                .stream()
+                .map(DocumentResponse::from)
+                .toList();
+    }
+
+    @Override
+    @Transactional
     public DocumentResponse getDocument(Long id) {
         Document document = documentRepository.findByIdAndStatusAndIsPublicTrue(id, ACTIVE_STATUS)
                 .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다. id=" + id));
 
+        document.increaseViewCount();
         return DocumentResponse.from(document);
     }
 
@@ -69,5 +80,29 @@ public class DocumentServiceImpl implements DocumentService {
 
         Document saved = documentRepository.save(document);
         return DocumentResponse.from(saved);
+    }
+
+    @Override
+    @Transactional
+    public DocumentResponse updateDocument(Long id, DocumentUpdateRequest request) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다. id=" + id));
+
+        Category category = categoryRepository.findByCategoryName(request.getCategoryName())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다: " + request.getCategoryName()));
+
+        document.update(category, request.getTitle(), request.getContent(),
+                request.getIsPublic() != null ? request.getIsPublic() : document.getIsPublic());
+
+        return DocumentResponse.from(document);
+    }
+
+    @Override
+    @Transactional
+    public void deleteDocument(Long id) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("문서를 찾을 수 없습니다. id=" + id));
+
+        document.softDelete();
     }
 }

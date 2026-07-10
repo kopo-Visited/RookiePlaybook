@@ -4,6 +4,8 @@ import { ROUTES } from './constants/routes';
 import Layout from './components/Layout/Layout';
 import AdminLayout from './components/AdminLayout/AdminLayout';
 import LoginPage from './pages/auth/LoginPage/LoginPage';
+import ChangePasswordPage from './pages/auth/ChangePasswordPage/ChangePasswordPage';
+import AccountUnlockRequestPage from './pages/auth/AccountUnlockRequestPage/AccountUnlockRequestPage';
 import DashboardPage from './pages/dashboard/DashboardPage/DashboardPage';
 import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
@@ -11,7 +13,16 @@ import DocDetailPage from './pages/doc/DocDetailPage/DocDetailPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
+import AdminQnaPage from './pages/admin/AdminQnaPage/AdminQnaPage';
 import QnaListPage from './pages/qna/QnaListPage/QnaListPage';
+import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
+import InquiryPage from './pages/inquiry/InquiryPage/InquiryPage';
+import AdminInquiryPage from './pages/admin/AdminInquiryPage/AdminInquiryPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage/AdminSettingsPage';
+import AdminEduPage from './pages/admin/AdminEduPage/AdminEduPage';
+import EducationListPage from './pages/edu/EducationListPage/EducationListPage';
+import EducationDetailPage from './pages/edu/EducationDetailPage/EducationDetailPage';
+import VideoPlayerPage from './pages/edu/VideoPlayerPage/VideoPlayerPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
@@ -31,15 +42,21 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.ACCOUNT_UNLOCK} element={<AccountUnlockRequestPage />} />
 
         <Route element={<PrivateRoute />}>
+          <Route path={ROUTES.CHANGE_PASSWORD} element={<ChangePasswordPage />} />
           <Route element={<Layout />}>
             <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
             <Route path={ROUTES.DOC.LIST} element={<DocListPage />} />
             <Route path={ROUTES.DOC.DEPT} element={<DocFilterResultPage />} />
             <Route path="/doc/:id" element={<DocDetailPage />} />
             <Route path={ROUTES.QNA.LIST} element={<QnaListPage />} />
-            <Route path={ROUTES.EDU.LIST} element={<div>EduListPage</div>} />
+            <Route path={ROUTES.QNA.ALL} element={<QnaAllPage />} />
+            <Route path={ROUTES.EDU.LIST} element={<EducationListPage />} />
+            <Route path="/edu/:id" element={<EducationDetailPage />} />
+            <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
+            <Route path={ROUTES.INQUIRY} element={<InquiryPage />} />
           </Route>
         </Route>
 
@@ -48,10 +65,10 @@ function App() {
             <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
             <Route path={ROUTES.ADMIN.USERS} element={<AdminUsersPage />} />
             <Route path={ROUTES.ADMIN.DOC} element={<AdminDocPage />} />
-            <Route path={ROUTES.ADMIN.QNA} element={<div>AdminQnaPage</div>} />
-            <Route path={ROUTES.ADMIN.EDU} element={<div>AdminEduPage</div>} />
-            <Route path={ROUTES.ADMIN.INQUIRY} element={<div>AdminInquiryPage</div>} />
-            <Route path={ROUTES.ADMIN.SETTINGS} element={<div>AdminSettingsPage</div>} />
+            <Route path={ROUTES.ADMIN.QNA} element={<AdminQnaPage />} />
+            <Route path={ROUTES.ADMIN.EDU} element={<AdminEduPage />} />
+            <Route path={ROUTES.ADMIN.INQUIRY} element={<AdminInquiryPage />} />
+            <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettingsPage />} />
           </Route>
         </Route>
 

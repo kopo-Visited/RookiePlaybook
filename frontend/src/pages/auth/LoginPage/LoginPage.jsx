@@ -1,8 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import Button from '../../../components/Button/Button';
 import useLogin from '../../../hooks/auth/useLogin';
+import useFetch from '../../../hooks/useFetch';
+import { getNotices } from '../../../api/noticeApi';
 import { BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
+import { ROUTES } from '../../../constants/routes';
 import heroImg from '../../../assets/login_screen.png';
 
 const FEATURES = [
@@ -26,32 +30,11 @@ const FEATURES = [
   },
 ];
 
-const NOTICES = [
-  { id: 1, title: '5월 온보딩 교육 일정 안내', date: '2024.05.17' },
-  { id: 2, title: '정보보안 교육 이수 안내', date: '2024.05.10' },
-  { id: 3, title: '시스템 점검 안내 (5/26)', date: '2024.05.28' },
-];
-
-const QUICK_LINKS = [
-  {
-    key: 'guide',
-    title: '이용 가이드',
-    desc: '서비스 사용 방법 안내',
-    icon: <IconHelpCircle />,
-  },
-  {
-    key: 'faq',
-    title: '자주 묻는 질문',
-    desc: '자주 묻는 질문과 답변',
-    icon: <IconChat />,
-  },
-  {
-    key: 'contact',
-    title: '문의하기',
-    desc: '기타 문의 및 요청',
-    icon: <IconHeadset />,
-  },
-];
+function formatNoticeDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
 function IconBook() {
   return (
@@ -128,55 +111,6 @@ function IconAlertCircle() {
   );
 }
 
-function IconHelpCircle() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="M9.5 9a2.5 2.5 0 114.2 1.8c-.6.6-1.7 1-1.7 2.2"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <circle cx="12" cy="16.3" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function IconChat() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M4 12a8 8 0 1114.6 4.5L20 20l-4-1.1A8 8 0 014 12z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function IconHeadset() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M4 13v-1a8 8 0 0116 0v1"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      <rect x="2.5" y="13" width="4" height="6" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <rect x="17.5" y="13" width="4" height="6" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <path
-        d="M20 19a4 4 0 01-4 3h-1"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function IconEye({ hidden }) {
   if (hidden) {
     return (
@@ -210,6 +144,8 @@ function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login, loading, error } = useLogin();
+  const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
+  const notices = noticeRes?.data ?? [];
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -248,51 +184,21 @@ function LoginPage() {
           <section className={styles.previewCard}>
             <div className={styles.previewCardHead}>
               <span className={styles.previewCardTitle}>공지사항</span>
-              <span className={styles.moreLink}>더보기 ›</span>
             </div>
             <ul className={styles.noticeList}>
-              {NOTICES.map(({ id, title, date }) => (
-                <li key={id} className={styles.noticeItem}>
+              {notices.length === 0 && (
+                <li className={styles.noticeItem}>
+                  <span className={styles.noticeTitle}>등록된 공지사항이 없습니다.</span>
+                </li>
+              )}
+              {notices.map(({ noticeId, title, createdAt }) => (
+                <li key={noticeId} className={styles.noticeItem}>
                   <span className={styles.noticeDot} />
                   <span className={styles.noticeTitle}>{title}</span>
-                  <span className={styles.noticeDate}>{date}</span>
+                  <span className={styles.noticeDate}>{formatNoticeDate(createdAt)}</span>
                 </li>
               ))}
             </ul>
-          </section>
-
-          <section className={styles.previewCard}>
-            <div className={styles.previewCardHead}>
-              <span className={styles.previewCardTitle}>빠른 도움말</span>
-              <span className={styles.moreLink}>더보기 ›</span>
-            </div>
-            <ul className={styles.quickLinkList}>
-              {QUICK_LINKS.map(({ key, title, desc, icon }) => (
-                <li key={key} className={styles.quickLinkItem}>
-                  <span className={styles.quickLinkIcon}>{icon}</span>
-                  <span className={styles.quickLinkBody}>
-                    <span className={styles.quickLinkTitle}>{title}</span>
-                    <span className={styles.quickLinkDesc}>{desc}</span>
-                  </span>
-                  <span className={styles.quickLinkChevron}>›</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className={styles.previewCard}>
-            <div className={styles.previewCardHead}>
-              <span className={styles.previewCardTitle}>온보딩 미리보기</span>
-            </div>
-            <div className={styles.onboardingPreview}>
-              <span className={styles.onboardingPreviewTitle}>신입 입문 과정</span>
-              <p className={styles.onboardingPreviewDesc}>회사 및 조직, 주요 업무 프로세스 이해</p>
-              <div className={styles.progressTrack}>
-                <div className={styles.progressFill} />
-              </div>
-              <span className={styles.progressLabel}>이수율 24%</span>
-              <span className={styles.previewButton}>과정 자세히 보기</span>
-            </div>
           </section>
         </div>
 
@@ -372,7 +278,6 @@ function LoginPage() {
                 {error}
               </p>
             )}
-
             <Button
               type="submit"
               variant={BUTTON_VARIANTS.PRIMARY}
@@ -382,6 +287,10 @@ function LoginPage() {
             >
               {loading ? '로그인 중...' : '로그인'}
             </Button>
+
+            <Link to={ROUTES.ACCOUNT_UNLOCK} className={styles.link}>
+              비밀번호 초기화 요청
+            </Link>
           </form>
 
           <div className={styles.adminNotice}>
@@ -392,11 +301,6 @@ function LoginPage() {
               계정은 관리자에 의해 생성되며, 초기 비밀번호는 관리자가 안내해 드립니다. 문제가 있을
               경우 관리자에게 문의하세요.
             </p>
-          </div>
-
-          <div className={styles.linkRow}>
-            <span className={styles.link}>비밀번호 재설정 요청</span>
-            <span className={styles.link}>관리자에게 문의하기</span>
           </div>
         </div>
       </section>

@@ -1,16 +1,18 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import styles from './AdminDocModal.module.css';
-import { createDocument } from '../../../api/docApi';
+import { createDocument, updateDocument } from '../../../api/docApi';
 
 const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
 
-function AdminDocModal({ onClose, onCreated }) {
+function AdminDocModal({ onClose, onCreated, editDoc }) {
+  const isEdit = !!editDoc;
+
   const [form, setForm] = useState({
-    title: '',
-    category: '',
-    visibility: '공개',
-    content: '',
+    title: editDoc?.title ?? '',
+    category: editDoc?.categoryName ?? '',
+    visibility: editDoc?.isPublic === false ? '비공개' : '공개',
+    content: editDoc?.content ?? '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -18,23 +20,37 @@ function AdminDocModal({ onClose, onCreated }) {
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
   const handleSubmit = async () => {
-    if (!form.title.trim()) { setError('문서 제목을 입력하세요.'); return; }
-    if (!form.category) { setError('카테고리를 선택하세요.'); return; }
-    if (!form.content.trim()) { setError('문서 내용을 입력하세요.'); return; }
+    if (!form.title.trim()) {
+      setError('문서 제목을 입력하세요.');
+      return;
+    }
+    if (!form.category) {
+      setError('카테고리를 선택하세요.');
+      return;
+    }
+    if (!form.content.trim()) {
+      setError('문서 내용을 입력하세요.');
+      return;
+    }
 
     setSubmitting(true);
     setError('');
     try {
-      await createDocument({
+      const payload = {
         categoryName: form.category,
         title: form.title.trim(),
         content: form.content.trim(),
         isPublic: form.visibility === '공개',
-      });
+      };
+      if (isEdit) {
+        await updateDocument(editDoc.id, payload);
+      } else {
+        await createDocument(payload);
+      }
       onCreated?.();
       onClose();
     } catch {
-      setError('문서 등록에 실패했습니다. 다시 시도해 주세요.');
+      setError(isEdit ? '문서 수정에 실패했습니다.' : '문서 등록에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -45,8 +61,10 @@ function AdminDocModal({ onClose, onCreated }) {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <div>
-            <h2 className={styles.modalTitle}>문서 등록</h2>
-            <p className={styles.modalSubtitle}>신입사원이 참고할 지식 문서를 추가합니다.</p>
+            <h2 className={styles.modalTitle}>{isEdit ? '문서 수정' : '문서 등록'}</h2>
+            <p className={styles.modalSubtitle}>
+              {isEdit ? '문서 내용을 수정합니다.' : '신입사원이 참고할 지식 문서를 추가합니다.'}
+            </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             ×
@@ -115,7 +133,7 @@ function AdminDocModal({ onClose, onCreated }) {
             취소
           </button>
           <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
-            {submitting ? '등록 중...' : '등록하기'}
+            {submitting ? (isEdit ? '수정 중...' : '등록 중...') : isEdit ? '수정하기' : '등록하기'}
           </button>
         </div>
       </div>

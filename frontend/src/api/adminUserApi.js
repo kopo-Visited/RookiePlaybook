@@ -28,6 +28,24 @@ export const getRoles = async () => {
 };
 
 /**
+ * 부서 추가
+ * POST /api/admin/departments
+ */
+export const createDepartment = async ({ code, name }) => {
+  const response = await axiosInstance.post('/api/admin/departments', { code, name });
+  return response.data;
+};
+
+/**
+ * 부서 이름 변경
+ * PUT /api/admin/departments/{departmentId}
+ */
+export const renameDepartment = async (departmentId, name) => {
+  const response = await axiosInstance.put(`/api/admin/departments/${departmentId}`, { name });
+  return response.data;
+};
+
+/**
  * 관리자 사용자 등록
  * POST /api/admin/users
  */

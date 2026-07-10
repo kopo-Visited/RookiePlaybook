@@ -14,6 +14,8 @@ public record UserResponse(
         String roleName,
         String roleCode,
         String position,
+        String employeeNo,
+        String phone,
         String status,
         LocalDateTime lastLoginAt,
         LocalDateTime createdAt
@@ -30,6 +32,8 @@ public record UserResponse(
                 user.getRole().getName(),
                 user.getRole().getCode(),
                 user.getPosition(),
+                user.getEmployeeNo(),
+                user.getPhone(),
                 user.getStatus().name(),
                 user.getLastLoginAt(),
                 user.getCreatedAt()

@@ -1,0 +1,141 @@
+.panel {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 420px;
+  max-height: 440px;
+  overflow-y: auto;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  box-shadow: 0px 20px 60px rgba(33, 45, 70, 0.16);
+  border-radius: var(--radius-xl);
+  z-index: 60;
+  cursor: default;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+.title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+}
+.markAll {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-primary);
+}
+.markAll:disabled {
+  color: #a9c7ee;
+  cursor: default;
+}
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.clearAll {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-red);
+}
+.clearAll:disabled {
+  color: #e6b8bf;
+  cursor: default;
+}
+
+.list {
+  list-style: none;
+}
+.empty {
+  padding: 40px var(--spacing-lg);
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.item:last-child {
+  border-bottom: none;
+}
+.itemUnread {
+  background: #e2f3fc;
+}
+.item:hover {
+  background: #f4f9ff;
+}
+.itemUnread:hover {
+  background: #d6ecfa;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+.itemTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.itemTime {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+/* ── status color classes (인라인 style 대체) ── */
+.stReceived {
+  color: var(--color-pink);
+  background: var(--color-pink-bg);
+}
+.stInProgress {
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.stAnswered {
+  color: var(--color-green);
+  background: var(--color-green-bg);
+}
+.stOnHold {
+  color: var(--color-orange);
+  background: var(--color-orange-bg);
+}

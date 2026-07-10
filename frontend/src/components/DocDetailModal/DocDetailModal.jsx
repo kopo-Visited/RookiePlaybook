@@ -23,7 +23,7 @@ function IconX() {
   );
 }
 
-function DocDetailModal({ doc, onClose }) {
+function DocDetailModal({ doc, onClose, onBookmark, isBookmarked }) {
   const navigate = useNavigate();
   useEffect(() => {
     function onKey(e) {
@@ -55,7 +55,9 @@ function DocDetailModal({ doc, onClose }) {
         </div>
 
         <div className={styles.detailMeta}>
-          <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>{doc.categoryName}</Badge>
+          <Badge colorKey={COLOR_KEYS.GREEN} size={BADGE_SIZES.SM}>
+            {doc.categoryName}
+          </Badge>
           {doc.tags?.map(tag => (
             <Badge key={tag} colorKey={COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
               {tag}
@@ -65,12 +67,21 @@ function DocDetailModal({ doc, onClose }) {
 
         <div className={styles.infoBox}>
           <p className={styles.infoTitle}>문서 내용</p>
-          <p className={styles.infoText} style={{ whiteSpace: 'pre-wrap' }}>{doc.content}</p>
+          <p className={styles.infoText} style={{ whiteSpace: 'pre-wrap' }}>
+            {doc.content}
+          </p>
         </div>
 
         <div className={styles.modalActions}>
-          <button className={styles.btnOutline}>북마크 저장</button>
-          <button className={styles.btnPrimary} onClick={() => navigate(`/doc/${doc.id}`)}>문서 열기</button>
+          <button
+            className={isBookmarked ? styles.btnOutlineActive : styles.btnOutline}
+            onClick={() => onBookmark?.(doc)}
+          >
+            {isBookmarked ? '북마크 해제' : '북마크 저장'}
+          </button>
+          <button className={styles.btnPrimary} onClick={() => navigate(`/doc/${doc.id}`)}>
+            문서 열기
+          </button>
         </div>
       </div>
     </div>

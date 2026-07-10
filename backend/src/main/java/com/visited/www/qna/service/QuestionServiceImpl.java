@@ -5,9 +5,17 @@ import com.visited.www.qna.dto.request.QuestionUpdateRequestDto;
 import com.visited.www.qna.dto.response.QuestionCreateResponseDto;
 import com.visited.www.qna.dto.response.QuestionDetailResponseDto;
 import com.visited.www.qna.dto.response.QuestionListResponseDto;
+import com.visited.www.qna.dto.response.PublicQuestionListResponseDto;
+import com.visited.www.qna.dto.response.PublicQuestionDetailResponseDto;
 import com.visited.www.qna.entity.Answer;
 import com.visited.www.qna.entity.Question;
 import com.visited.www.qna.entity.QuestionCategory;
+import com.visited.www.entity.User;
+import com.visited.www.user.repository.UserRepository;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import com.visited.www.qna.enums.QuestionStatus;
 import com.visited.www.qna.exception.InactiveCategoryException;
 import com.visited.www.qna.exception.QuestionAccessDeniedException;
@@ -34,6 +42,9 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
     private final AnswerRepository answerRepository;
     private final QuestionCategoryRepository questionCategoryRepository;
+    private final UserRepository userRepository;
+    private final AiCategoryClassifier aiCategoryClassifier;
+    private final AutoFaqPromoter autoFaqPromoter;
 
     @Override
     @Transactional
@@ -49,7 +60,16 @@ public class QuestionServiceImpl implements QuestionService {
 
         Question saved = questionRepository.save(question);
         log.info("질문 등록. questionId={}, userId={}", saved.getId(), userId);
-        return QuestionCreateResponseDto.from(saved);
+
+        // 유사 질문이 여러 사용자에게 반복되면 자동 FAQ 승격 (best-effort)
+        autoFaqPromoter.tryPromote(saved);
+
+        // AI가 내용 기반으로 카테고리를 한 번 더 확인(제안만, 실패 시 null)
+        List<String> categoryNames = questionCategoryRepository.findAll().stream()
+                .map(QuestionCategory::getName).toList();
+        String aiSuggested = aiCategoryClassifier.suggest(
+                request.getTitle(), request.getContent(), categoryNames);
+        return QuestionCreateResponseDto.of(saved, category.getName(), aiSuggested);
     }
 
     @Override
@@ -74,6 +94,30 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = findMyQuestion(userId, questionId);
         Answer answer = answerRepository.findByQuestionId(questionId).orElse(null);
         return QuestionDetailResponseDto.of(question, answer);
+    }
+
+    @Override
+    public PageResponse<PublicQuestionListResponseDto> getAllQuestions(Pageable pageable) {
+        Page<Question> page = questionRepository.findAll(pageable);
+        List<Long> userIds = page.getContent().stream()
+                .map(Question::getUserId).distinct().toList();
+        Map<Long, User> users = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+        return PageResponse.of(page, question -> {
+            User writer = users.get(question.getUserId());
+            return PublicQuestionListResponseDto.from(
+                    question, writer == null ? null : writer.getName());
+        });
+    }
+
+    @Override
+    public PublicQuestionDetailResponseDto getPublicQuestion(Long questionId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new QuestionNotFoundException(questionId));
+        Answer answer = answerRepository.findByQuestionId(questionId).orElse(null);
+        String writerName = userRepository.findById(question.getUserId())
+                .map(User::getName).orElse(null);
+        return PublicQuestionDetailResponseDto.of(question, answer, writerName);
     }
 
     @Override

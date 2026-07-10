@@ -204,6 +204,23 @@
   line-height: 1.2;
 }
 
+.logoutBtn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #65738b;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.logoutBtn:hover {
+  background: #f7f9fe;
+}
+
 .main {
   flex: 1;
   padding: 24px 40px 48px;

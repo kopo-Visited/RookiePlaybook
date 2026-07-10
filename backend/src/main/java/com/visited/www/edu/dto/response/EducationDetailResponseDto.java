@@ -5,6 +5,7 @@ import java.util.List;
 public record EducationDetailResponseDto(
         Long educationId,
         String title,
+        String description,
         Integer completionCriteria,
         Integer progressRate,
         Boolean isCompleted,

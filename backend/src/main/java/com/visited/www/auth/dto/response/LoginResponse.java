@@ -7,6 +7,7 @@ public record LoginResponse(
         String email,
         String departmentName,
         String roleName,
-        String roleCode
+        String roleCode,
+        boolean passwordChangeRequired
 ) {
 }

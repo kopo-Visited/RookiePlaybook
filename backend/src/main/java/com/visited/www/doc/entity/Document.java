@@ -49,6 +49,21 @@ public class Document {
     @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
     private List<DocumentTag> documentTags = new ArrayList<>();
 
+    public void update(Category category, String title, String content, Boolean isPublic) {
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.isPublic = isPublic;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
+    }
+
+    public void softDelete() {
+        this.status = "DELETED";
+    }
+
     @PrePersist
     protected void onCreate() {
         this.isPublic = this.isPublic == null ? true : this.isPublic;

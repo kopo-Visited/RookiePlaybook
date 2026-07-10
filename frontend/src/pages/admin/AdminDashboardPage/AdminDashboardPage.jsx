@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
@@ -61,12 +60,24 @@ function formatDelta(ratePercent) {
 
 function buildStatCardValues(stats) {
   if (!stats) return {};
-  const { totalUsers, userGrowthRatePercent, totalDocuments, documentGrowthRatePercent, unansweredQuestions } =
-    stats;
+  const {
+    totalUsers,
+    userGrowthRatePercent,
+    totalDocuments,
+    documentGrowthRatePercent,
+    unansweredQuestions,
+  } = stats;
   return {
     users: { value: `${totalUsers.toLocaleString()}명`, ...formatDelta(userGrowthRatePercent) },
-    docs: { value: `${totalDocuments.toLocaleString()}개`, ...formatDelta(documentGrowthRatePercent) },
-    unanswered: { value: `${unansweredQuestions.toLocaleString()}건`, deltaDirection: 'flat', delta: '' },
+    docs: {
+      value: `${totalDocuments.toLocaleString()}개`,
+      ...formatDelta(documentGrowthRatePercent),
+    },
+    unanswered: {
+      value: `${unansweredQuestions.toLocaleString()}건`,
+      deltaDirection: 'flat',
+      delta: '',
+    },
   };
 }
 
@@ -288,27 +299,31 @@ function DonutChart({ data, size = 200 }) {
   const outerR = size / 2 - 6;
   const innerR = outerR - size * 0.18;
   const gapDeg = 2;
-  let angle = 0;
+
+  let acc = 0;
+  const segments = data.map(({ key, value, color, label }) => {
+    const sweep = (value / total) * 360;
+    const start = acc + gapDeg / 2;
+    const end = acc + sweep - gapDeg / 2;
+    acc += sweep;
+    return {
+      key,
+      color,
+      label,
+      value,
+      d: describeDonutSegment(center, center, outerR, innerR, start, end),
+    };
+  });
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
-      {data.map(({ key, value, color, label }) => {
-        const sweep = (value / total) * 360;
-        const start = angle + gapDeg / 2;
-        const end = angle + sweep - gapDeg / 2;
-        angle += sweep;
-        return (
-          <path
-            key={key}
-            d={describeDonutSegment(center, center, outerR, innerR, start, end)}
-            fill={color}
-          >
-            <title>
-              {label} {value.toLocaleString()}
-            </title>
-          </path>
-        );
-      })}
+      {segments.map(({ key, color, label, value, d }) => (
+        <path key={key} d={d} fill={color}>
+          <title>
+            {label} {value.toLocaleString()}
+          </title>
+        </path>
+      ))}
     </svg>
   );
 }
@@ -427,10 +442,6 @@ function ListPanel({ title, items, renderIcon, onMoreClick }) {
 
 function AdminDashboardPage() {
   const navigate = useNavigate();
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '윤정연';
-  const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
-  const avatarChar = displayName[0];
 
   const { stats, loading: statsLoading } = useDashboardStats();
   const statCardValues = buildStatCardValues(stats);
@@ -450,13 +461,6 @@ function AdminDashboardPage() {
             <IconSearch />
           </span>
         </div>
-        <div className={styles.userInfo}>
-          <div className={styles.avatar}>{avatarChar}</div>
-          <div className={styles.userText}>
-            <span className={styles.userName}>{displayName}님</span>
-            <span className={styles.userDept}>{displayDept}</span>
-          </div>
-        </div>
       </header>
 
       <div className={styles.pageHeader}>
@@ -469,7 +473,11 @@ function AdminDashboardPage() {
           const computed =
             ready === false
               ? { value: '준비 중', delta: '', deltaDirection: 'flat' }
-              : (statCardValues[key] ?? { value: statsLoading ? '—' : '0', delta: '', deltaDirection: 'flat' });
+              : (statCardValues[key] ?? {
+                  value: statsLoading ? '—' : '0',
+                  delta: '',
+                  deltaDirection: 'flat',
+                });
           return <StatCard key={key} {...card} {...computed} onNavigate={navigate} />;
         })}
       </div>
@@ -493,18 +501,20 @@ function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentUsersRows.map(({ id, name, dept, position, email, joinedAt, statusLabel }) => (
-                  <tr key={id}>
-                    <td>{name}</td>
-                    <td>{dept}</td>
-                    <td>{position}</td>
-                    <td>{email}</td>
-                    <td>{joinedAt}</td>
-                    <td>
-                      <span className={styles.statusBadge}>{statusLabel}</span>
-                    </td>
-                  </tr>
-                ))}
+                {recentUsersRows.map(
+                  ({ id, name, dept, position, email, joinedAt, statusLabel }) => (
+                    <tr key={id}>
+                      <td>{name}</td>
+                      <td>{dept}</td>
+                      <td>{position}</td>
+                      <td>{email}</td>
+                      <td>{joinedAt}</td>
+                      <td>
+                        <span className={styles.statusBadge}>{statusLabel}</span>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>

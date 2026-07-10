@@ -10,6 +10,7 @@ import lombok.Setter;
 public class StageWithProgressDto {
     private Long stageId;
     private String title;
+    private String description;
     private Integer orderNumber;
     private Boolean isCompleted;
     private Long materialId;

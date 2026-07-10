@@ -1,20 +1,35 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.EducationInUseException;
 import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.MaterialResponseDto;
+import com.visited.www.edu.StageInUseException;
+import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
 import com.visited.www.edu.dto.mapper.StageWithProgressDto;
+import com.visited.www.edu.dto.request.EducationCreateRequestDto;
+import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
+import com.visited.www.edu.dto.request.StageCreateRequestDto;
+import com.visited.www.edu.dto.request.StageUpdateRequestDto;
+import com.visited.www.edu.dto.response.AdminProgressResponseDto;
+import com.visited.www.edu.dto.response.EducationCreateResponseDto;
+import com.visited.www.edu.dto.response.IncompleteResponseDto;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
+import com.visited.www.edu.dto.response.StageCreateResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.dto.response.StageResponseDto;
 import com.visited.www.edu.entity.Education;
 import com.visited.www.edu.entity.EducationMaterial;
+import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.mapper.EducationMapper;
 import com.visited.www.edu.repository.EducationMaterialRepository;
+import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationRepository;
+import com.visited.www.edu.repository.EducationStageRepository;
+import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,6 +53,9 @@ public class EducationServiceImpl implements EducationService {
     private final EducationMapper educationMapper;
     private final EducationMaterialRepository educationMaterialRepository;
     private final VideoProgressRepository videoProgressRepository;
+    private final EducationStageRepository educationStageRepository;
+    private final EducationProgressRepository educationProgressRepository;
+    private final StageCompletionRepository stageCompletionRepository;
 
     // EDU-FR-001: 교육 과정 목록 조회
     @Override
@@ -109,6 +127,7 @@ public class EducationServiceImpl implements EducationService {
                     return new StageResponseDto(
                             stage.getStageId(),
                             stage.getTitle(),
+                            stage.getDescription(),
                             stage.getOrderNumber(),
                             stage.getIsCompleted(),
                             materialDto
@@ -119,6 +138,7 @@ public class EducationServiceImpl implements EducationService {
         return new EducationDetailResponseDto(
                 education.getId(),
                 education.getTitle(),
+                education.getDescription(),
                 education.getCompletionCriteria(),
                 progressRate,
                 isCompleted,
@@ -144,5 +164,137 @@ public class EducationServiceImpl implements EducationService {
                 lastWatchedPosition,
                 material.getTotalDuration()
         );
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 등록
+    @Override
+    @Transactional
+    public EducationCreateResponseDto createEducation(EducationCreateRequestDto request) {
+        Education education = educationRepository.save(Education.create(
+                request.getTitle(), request.getDescription(), request.getCompletionCriteria()));
+        return new EducationCreateResponseDto(education.getId(), education.getTitle());
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 수정
+    @Override
+    @Transactional
+    public void updateEducation(Long educationId, EducationUpdateRequestDto request) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(EducationNotFoundException::new);
+        education.update(request.getTitle(), request.getDescription(), request.getCompletionCriteria());
+    }
+
+    // EDU-FR-007: 관리자 교육 과정 삭제 (단계/진도가 있으면 삭제 불가)
+    @Override
+    @Transactional
+    public void deleteEducation(Long educationId) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(EducationNotFoundException::new);
+
+        boolean inUse = educationStageRepository.countByEducationId(educationId) > 0
+                || educationProgressRepository.existsByEducationId(educationId);
+        if (inUse) {
+            throw new EducationInUseException();
+        }
+
+        educationRepository.delete(education);
+    }
+
+    // EDU-FR-008: 관리자 단계 등록 (자료 함께 생성)
+    @Override
+    @Transactional
+    public StageCreateResponseDto createStage(StageCreateRequestDto request) {
+        Education education = educationRepository.findById(request.getEducationId())
+                .orElseThrow(EducationNotFoundException::new);
+
+        EducationStage stage = educationStageRepository.save(EducationStage.create(
+                education, request.getTitle(), request.getDescription(), request.getOrderNumber()));
+
+        educationMaterialRepository.save(EducationMaterial.create(
+                stage, request.getVideoTitle(), request.getVideoUrl()));
+
+        return new StageCreateResponseDto(stage.getId(), stage.getTitle());
+    }
+
+    // EDU-FR-008: 관리자 단계 수정 (자료 함께 수정, 없으면 생성)
+    @Override
+    @Transactional
+    public void updateStage(Long stageId, StageUpdateRequestDto request) {
+        EducationStage stage = educationStageRepository.findById(stageId)
+                .orElseThrow(StageNotFoundException::new);
+        stage.update(request.getTitle(), request.getDescription(), request.getOrderNumber());
+
+        educationMaterialRepository.findByStageId(stageId)
+                .ifPresentOrElse(
+                        material -> material.update(request.getVideoTitle(), request.getVideoUrl()),
+                        () -> educationMaterialRepository.save(EducationMaterial.create(
+                                stage, request.getVideoTitle(), request.getVideoUrl()))
+                );
+    }
+
+    // EDU-FR-008: 관리자 단계 삭제 (완료/시청 진도가 있으면 삭제 불가)
+    @Override
+    @Transactional
+    public void deleteStage(Long stageId) {
+        EducationStage stage = educationStageRepository.findById(stageId)
+                .orElseThrow(StageNotFoundException::new);
+
+        EducationMaterial material = educationMaterialRepository.findByStageId(stageId).orElse(null);
+        boolean inUse = stageCompletionRepository.existsByStageId(stageId)
+                || (material != null && videoProgressRepository.existsByMaterialId(material.getId()));
+        if (inUse) {
+            throw new StageInUseException();
+        }
+
+        if (material != null) {
+            educationMaterialRepository.delete(material);
+        }
+        educationStageRepository.delete(stage);
+    }
+
+    // EDU-FR-009: 관리자 진도 현황 조회 (부서/과정/완료여부 필터 + 페이징)
+    @Override
+    public Page<AdminProgressResponseDto> getAdminProgress(
+            Long departmentId, Long educationId, Boolean isCompleted, Pageable pageable) {
+
+        List<AdminProgressResponseDto> content = educationMapper
+                .findAdminProgress(departmentId, educationId, isCompleted,
+                        pageable.getPageSize(), pageable.getOffset())
+                .stream()
+                .map(row -> new AdminProgressResponseDto(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getDepartmentName(),
+                        row.getEducationTitle(),
+                        row.getProgressRate(),
+                        Boolean.TRUE.equals(row.getIsCompleted()),
+                        row.getLastStudiedAt()
+                ))
+                .toList();
+
+        long total = educationMapper.countAdminProgress(departmentId, educationId, isCompleted);
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    // EDU-FR-010: 미완료자 조회 (과정 필터 + 페이징)
+    @Override
+    public Page<IncompleteResponseDto> getIncompleteProgress(Long educationId, Pageable pageable) {
+        List<IncompleteResponseDto> content = educationMapper
+                .findIncompleteProgress(educationId, pageable.getPageSize(), pageable.getOffset())
+                .stream()
+                .map(row -> new IncompleteResponseDto(
+                        row.getUserId(),
+                        row.getUserName(),
+                        row.getDepartmentName(),
+                        row.getEducationTitle(),
+                        row.getProgressRate(),
+                        row.getCompletionCriteria()
+                ))
+                .toList();
+
+        long total = educationMapper.countIncompleteProgress(educationId);
+
+        return new PageImpl<>(content, pageable, total);
     }
 }

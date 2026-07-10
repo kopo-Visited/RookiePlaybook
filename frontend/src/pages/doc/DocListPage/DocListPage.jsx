@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './DocListPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
-import AiChatModal from '../../../components/AiChatModal/AiChatModal';
+import Toast from '../../../components/Toast/Toast';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { getDocuments } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
+const PAGE_SIZE = 10;
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -44,43 +45,14 @@ const faqItems = [
   },
 ];
 
-const bookmarkItems = [
-  { id: 1, colorKey: COLOR_KEYS.BLUE, title: '개발 환경 세팅 가이드', meta: '개발 · 2026.07.06' },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.ORANGE,
-    title: 'VPN 접속 방법 및 오류 해결',
-    meta: '네트워크 · 2026.06.12',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    title: '계정 보안과 권한 신청 절차',
-    meta: '보안 · 2026.06.20',
-  },
+const CARD_COLORS = [
+  COLOR_KEYS.BLUE,
+  COLOR_KEYS.GREEN,
+  COLOR_KEYS.PINK,
+  COLOR_KEYS.ORANGE,
+  COLOR_KEYS.PURPLE,
 ];
-
-const CARD_COLORS = [COLOR_KEYS.BLUE, COLOR_KEYS.GREEN, COLOR_KEYS.PINK, COLOR_KEYS.ORANGE, COLOR_KEYS.PURPLE];
-const CATEGORY_ICON = { '개발': 'Dev', '인프라': 'Infra', '보안': 'Sec', '네트워크': 'Net', '공통': 'All' };
-
-const onboardingCourses = [
-  {
-    id: 'dev',
-    team: '개발팀',
-    steps: [
-      { badge: 'D1', title: '환경 세팅', desc: 'Node, Java, Python 사내 표준 버전' },
-      { badge: 'W1', title: '첫 PR 날리기', desc: '브랜치 전략, 커밋, 코드 리뷰' },
-    ],
-  },
-  {
-    id: 'infra',
-    team: '인프라팀',
-    steps: [
-      { badge: 'D1', title: '서버 문 두드리기', desc: 'SSH 키 등록과 안전 접속' },
-      { badge: 'W1', title: '로그와 배포 확인', desc: '배포 체크리스트와 알림 해석' },
-    ],
-  },
-];
+const CATEGORY_ICON = { 개발: 'Dev', 인프라: 'Infra', 보안: 'Sec', 네트워크: 'Net', 공통: 'All' };
 
 function IconSearch() {
   return (
@@ -138,7 +110,10 @@ function DocListPage() {
   const [category, setCategory] = useState('전체');
   const [sort, setSort] = useState('최신순');
   const [selectedDoc, setSelectedDoc] = useState(null);
-  const [aiOpen, setAiOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [bookmarkView, setBookmarkView] = useState(false);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = apiRes?.data ?? [];
@@ -153,17 +128,25 @@ function DocListPage() {
 
   const displayedDocs = useMemo(() => {
     let list = docs;
-    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
-    if (category !== '전체') list = list.filter(d => d.categoryName === category);
-    if (sort === '오래된순') list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    if (bookmarkView) {
+      const ids = new Set(bookmarks.map(b => b.id));
+      list = list.filter(d => ids.has(d.id));
+    } else {
+      if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
+      if (category !== '전체') list = list.filter(d => d.categoryName === category);
+    }
+    if (sort === '오래된순')
+      list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     else if (sort === '조회순') list = [...list].sort((a, b) => b.viewCount - a.viewCount);
     else list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return list;
-  }, [docs, search, category, sort]);
+  }, [docs, search, category, sort, bookmarkView, bookmarks]);
 
   const summaryCards = useMemo(() => {
     const countMap = {};
-    docs.forEach(d => { countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1; });
+    docs.forEach(d => {
+      countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1;
+    });
     return Object.entries(countMap)
       .sort(([a], [b]) => {
         if (a === '공통') return 1;
@@ -178,15 +161,64 @@ function DocListPage() {
       }));
   }, [docs]);
 
-  const categoryColorMap = useMemo(() =>
-    Object.fromEntries(summaryCards.map(c => [c.categoryName, c.colorKey])),
+  const categoryColorMap = useMemo(
+    () => Object.fromEntries(summaryCards.map(c => [c.categoryName, c.colorKey])),
     [summaryCards]
   );
 
+  const totalPages = Math.max(1, Math.ceil(displayedDocs.length / PAGE_SIZE));
+  const pagedDocs = displayedDocs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   function handleCategorySelect(option) {
     setCategory(option);
+    setPage(1);
+    setBookmarkView(false);
     categoryDD.setOpen(false);
   }
+
+  function handleSortSelect(opt) {
+    setSort(opt);
+    setPage(1);
+    sortDD.setOpen(false);
+  }
+
+  function handleSearch(value) {
+    setSearch(value);
+    setPage(1);
+  }
+
+  function handleBookmarkViewToggle() {
+    setBookmarkView(v => !v);
+    setPage(1);
+  }
+
+  const showToast = useCallback(msg => {
+    setToast(msg);
+  }, []);
+
+  const handleBookmark = useCallback(
+    doc => {
+      const already = bookmarks.some(b => b.id === doc.id);
+      if (already) {
+        setBookmarks(prev => prev.filter(b => b.id !== doc.id));
+        showToast('북마크에서 제거되었습니다.');
+      } else {
+        const colorKey = categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE;
+        const date = doc.createdAt
+          ? new Date(doc.createdAt)
+              .toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+              .replace(/\. /g, '.')
+              .replace('.', '')
+          : '';
+        setBookmarks(prev => [
+          { id: doc.id, colorKey, title: doc.title, meta: `${doc.categoryName} · ${date}` },
+          ...prev,
+        ]);
+        showToast('북마크에 저장되었습니다.');
+      }
+    },
+    [bookmarks, categoryColorMap, showToast]
+  );
 
   return (
     <div className={styles.page}>
@@ -197,7 +229,6 @@ function DocListPage() {
         </p>
       </div>
 
-      {/* 필터 카드 */}
       <section className={styles.filterCard}>
         <div className={styles.filterRow}>
           <div className={`${styles.filterField} ${styles.filterFieldWide}`}>
@@ -207,7 +238,7 @@ function DocListPage() {
                 className={styles.input}
                 placeholder="검색어를 입력하세요"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => handleSearch(e.target.value)}
               />
               <span className={styles.inputIcon}>
                 <IconSearch />
@@ -215,7 +246,6 @@ function DocListPage() {
             </div>
           </div>
 
-          {/* 카테고리 */}
           <div className={styles.filterField} ref={categoryDD.ref}>
             <label className={styles.filterLabel}>카테고리</label>
             <div
@@ -223,7 +253,9 @@ function DocListPage() {
               onClick={() => categoryDD.setOpen(o => !o)}
             >
               <span>{category}</span>
-              <span className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}>
+              <span
+                className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
+              >
                 <IconChevronDown />
               </span>
             </div>
@@ -242,7 +274,6 @@ function DocListPage() {
             )}
           </div>
 
-          {/* 정렬 */}
           <div className={styles.filterField} ref={sortDD.ref}>
             <label className={styles.filterLabel}>정렬</label>
             <div
@@ -260,10 +291,7 @@ function DocListPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
-                    onClick={() => {
-                      setSort(opt);
-                      sortDD.setOpen(false);
-                    }}
+                    onClick={() => handleSortSelect(opt)}
                   >
                     {opt}
                   </li>
@@ -271,7 +299,6 @@ function DocListPage() {
               </ul>
             )}
           </div>
-
         </div>
 
         <div className={styles.summaryRow}>
@@ -279,9 +306,13 @@ function DocListPage() {
             <div
               key={id}
               className={`${styles.summaryCard} ${category === categoryName ? styles.summaryCardActive : ''}`}
-              onClick={() => handleCategorySelect(category === categoryName ? '전체' : categoryName)}
+              onClick={() =>
+                handleCategorySelect(category === categoryName ? '전체' : categoryName)
+              }
             >
-              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{CATEGORY_ICON[categoryName] ?? categoryName}</div>
+              <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>
+                {CATEGORY_ICON[categoryName] ?? categoryName}
+              </div>
               <div className={styles.summaryText}>
                 <span className={styles.summaryCount}>{count}</span>
                 <span className={styles.summaryLabel}>{categoryName}</span>
@@ -291,15 +322,20 @@ function DocListPage() {
         </div>
       </section>
 
-      {/* 콘텐츠 그리드 */}
       <div className={styles.contentGrid}>
         <section className={styles.docSection}>
           <div className={styles.sectionHead}>
             <div className={styles.sectionHeadLeft}>
-              <span className={styles.sectionTitle}>카테고리별 핵심 문서</span>
+              <span className={styles.sectionTitle}>
+                {bookmarkView ? '내 북마크' : '카테고리별 핵심 문서'}
+              </span>
               <Badge colorKey={COLOR_KEYS.BLUE}>총 {displayedDocs.length}건</Badge>
             </div>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            {bookmarkView && (
+              <button className={styles.linkBtn} onClick={handleBookmarkViewToggle}>
+                ← 전체 문서
+              </button>
+            )}
           </div>
 
           {loading && <p className={styles.empty}>문서를 불러오는 중...</p>}
@@ -316,7 +352,7 @@ function DocListPage() {
                 </tr>
               </thead>
               <tbody>
-                {displayedDocs.map(doc => (
+                {pagedDocs.map(doc => (
                   <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
                     <td>
                       <div className={styles.titleCell}>
@@ -329,13 +365,17 @@ function DocListPage() {
                       </div>
                     </td>
                     <td>
-                      <Badge colorKey={categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
+                      <Badge
+                        colorKey={categoryColorMap[doc.categoryName] ?? COLOR_KEYS.BLUE}
+                        size={BADGE_SIZES.SM}
+                      >
                         {doc.categoryName}
                       </Badge>
                     </td>
                     <td>
                       <span className={styles.secondary}>
-                        {doc.content?.slice(0, 40)}{doc.content?.length > 40 ? '...' : ''}
+                        {doc.content?.slice(0, 40)}
+                        {doc.content?.length > 40 ? '...' : ''}
                       </span>
                     </td>
                     <td>
@@ -351,24 +391,47 @@ function DocListPage() {
           )}
 
           {!loading && !error && displayedDocs.length === 0 && (
-            <p className={styles.empty}>조건에 맞는 문서가 없습니다.</p>
+            <p className={styles.empty}>
+              {bookmarkView ? '저장된 북마크가 없습니다.' : '조건에 맞는 문서가 없습니다.'}
+            </p>
           )}
 
-          <div className={styles.pagination}>
-            <button className={styles.pageArrow}>‹</button>
-            <button className={`${styles.pageNum} ${styles.pageNumActive}`}>1</button>
-            <button className={styles.pageNum}>2</button>
-            <button className={styles.pageNum}>3</button>
-            <button className={styles.pageNum}>4</button>
-            <button className={styles.pageArrow}>›</button>
-          </div>
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                className={styles.pageArrow}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                ‹
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <button
+                  key={n}
+                  className={`${styles.pageNum} ${page === n ? styles.pageNumActive : ''}`}
+                  onClick={() => setPage(n)}
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                className={styles.pageArrow}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                ›
+              </button>
+            </div>
+          )}
         </section>
 
         <aside className={styles.sideStack}>
           <section className={styles.sideCard}>
             <div className={styles.sectionHead}>
               <span className={styles.sectionTitle}>최근 FAQ</span>
-              <button className={styles.linkBtn}>전체보기 ›</button>
+              <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.ALL)}>
+                전체보기 ›
+              </button>
             </div>
             <ul className={styles.faqList}>
               {faqItems.map(({ id, colorKey, question, tags }) => (
@@ -381,20 +444,22 @@ function DocListPage() {
                 </li>
               ))}
             </ul>
-            <div className={styles.faqActions} style={{ position: 'relative' }}>
-              {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
-              <button className={styles.btnPrimary} onClick={() => setAiOpen(o => !o)}>AI에게 물어보기</button>
-              <button className={styles.btnOutline}>질문하기</button>
-            </div>
           </section>
 
           <section className={styles.sideCard}>
             <div className={styles.sectionHead}>
               <span className={styles.sectionTitle}>내 북마크</span>
-              <button className={styles.linkBtn}>전체보기 ›</button>
+              {bookmarks.length > 0 && (
+                <button className={styles.linkBtn} onClick={handleBookmarkViewToggle}>
+                  {bookmarkView ? '← 전체' : '전체보기 ›'}
+                </button>
+              )}
             </div>
             <ul className={styles.bookmarkList}>
-              {bookmarkItems.map(({ id, colorKey, title, meta }) => (
+              {bookmarks.length === 0 && (
+                <li className={styles.bookmarkEmpty}>저장된 북마크가 없습니다.</li>
+              )}
+              {bookmarks.slice(0, 3).map(({ id, colorKey, title, meta }) => (
                 <li key={id} className={styles.bookmarkItem}>
                   <div className={`${styles.bookmarkIcon} ${styles[colorKey]}`}>
                     <IconHeart />
@@ -405,37 +470,25 @@ function DocListPage() {
                   </div>
                 </li>
               ))}
+              {bookmarks.length > 3 && (
+                <li className={styles.bookmarkMore} onClick={handleBookmarkViewToggle}>
+                  +{bookmarks.length - 3}개 더보기
+                </li>
+              )}
             </ul>
           </section>
         </aside>
       </div>
 
-      <section className={styles.onboardingSection}>
-        <div className={styles.sectionHead}>
-          <span className={styles.sectionTitle}>부서별 온보딩 핵심 흐름</span>
-          <button className={styles.linkBtn}>교육 전체보기 ›</button>
-        </div>
-        <div className={styles.onboardingGrid}>
-          {onboardingCourses.map(({ id, team, steps }) => (
-            <div key={id} className={styles.onboardingCard}>
-              <span className={styles.onboardingTeam}>{team}</span>
-              <div className={styles.onboardingSteps}>
-                {steps.map(({ badge, title, desc }) => (
-                  <div key={badge} className={styles.onboardingStep}>
-                    <div className={`${styles.stepBadge} ${styles.blue}`}>{badge}</div>
-                    <div className={styles.stepBody}>
-                      <span className={styles.stepTitle}>{title}</span>
-                      <span className={styles.stepDesc}>{desc}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
+      {selectedDoc && (
+        <DocDetailModal
+          doc={selectedDoc}
+          onClose={() => setSelectedDoc(null)}
+          onBookmark={handleBookmark}
+          isBookmarked={bookmarks.some(b => b.id === selectedDoc.id)}
+        />
+      )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }

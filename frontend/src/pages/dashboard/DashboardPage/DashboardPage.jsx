@@ -1,180 +1,26 @@
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './DashboardPage.module.css';
+import useAuthStore from '../../../stores/authStore';
+import useFetch from '../../../hooks/useFetch';
+import { getDocuments } from '../../../api/docApi';
+import { getQnas } from '../../../api/qnaApi';
+import { getMyProgress } from '../../../api/eduApi';
+import { getNotices } from '../../../api/noticeApi';
+import { ROUTES } from '../../../constants/routes';
+import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
+import NoticeListModal from '../../../components/NoticeListModal/NoticeListModal';
 
-/* ── 통계 카드 데이터 ── */
-const statCards = [
-  {
-    bg: '#EAF4FF',
-    iconColor: '#2288FF',
-    icon: '📄',
-    label: '전체 문서',
-    value: '1,248',
-    subIcon: '↑',
-    subText: '12건 이번 주 업데이트',
-    subColor: '#12B886',
-  },
-  {
-    bg: '#E6F8F2',
-    iconColor: '#12B886',
-    icon: '📚',
-    label: '진행 중 교육',
-    value: '3',
-    subIcon: '↑',
-    subText: '1개 이번 주 시작',
-    subColor: '#12B886',
-  },
-  {
-    bg: '#FFF0F6',
-    iconColor: '#FF4D94',
-    icon: '❓',
-    label: '미답변 질문',
-    value: '2',
-    subIcon: null,
-    subText: '내가 작성한 질문',
-    subColor: '#6B7588',
-  },
-  {
-    bg: '#FFF5E6',
-    iconColor: '#FFAD33',
-    icon: '⭐',
-    label: '북마크',
-    value: '18',
-    subIcon: null,
-    subText: '관심 문서 및 교육',
-    subColor: '#6B7588',
-  },
-];
-
-/* ── 진행 중 교육 ── */
-const eduItems = [
-  {
-    bg: '#EAF4FF',
-    iconColor: '#2288FF',
-    icon: '🏢',
-    title: '회사 소개',
-    required: true,
-    pct: 75,
-    chapter: '3/4',
-    total: 4,
-    dueDate: '2026.07.10',
-  },
-  {
-    bg: '#FFF0F6',
-    iconColor: '#FF4D94',
-    icon: '🔒',
-    title: '정보보안 교육',
-    required: true,
-    pct: 40,
-    chapter: '2/5',
-    total: 5,
-    dueDate: '2026.07.12',
-  },
-  {
-    bg: '#FFF5E6',
-    iconColor: '#FFAD33',
-    icon: '🛠',
-    title: '업무 툴 사용법',
-    required: false,
-    pct: 20,
-    chapter: '1/5',
-    total: 5,
-    dueDate: '2026.07.17',
-  },
-];
-
-/* ── 최근 문서 ── */
-const TYPE_STYLE = {
-  DOCU: { bg: '#EAF4FF', color: '#2288FF' },
-  PDF: { bg: '#FFE5EA', color: '#F03E5C' },
-  XLSX: { bg: '#DCF7EB', color: '#10A36C' },
-  PPTX: { bg: '#FFF0DB', color: '#F08C00' },
-  DOCX: { bg: '#E7F2FF', color: '#1C7ED6' },
+const STATUS_STYLE = {
+  RECEIVED: { label: '답변 대기', color: '#6F7B91' },
+  IN_PROGRESS: { label: '처리 중', color: '#2288FF' },
+  ANSWERED: { label: '답변 완료', color: '#20C997' },
+  ON_HOLD: { label: '보류', color: '#F08C00' },
 };
 
-const recentDocs = [
-  {
-    type: 'DOCU',
-    title: '인사 제도 안내서 (2024년 개정)',
-    category: '인사/제도',
-    dept: '인사팀',
-    date: '2026.07.06',
-  },
-  {
-    type: 'PDF',
-    title: '연차휴가 및 휴직 규정',
-    category: '인사/제도',
-    dept: '인사팀',
-    date: '2026.06.27',
-  },
-  {
-    type: 'XLSX',
-    title: '2024년 복리후생 안내',
-    category: '복리후생',
-    dept: '총무팀',
-    date: '2026.06.24',
-  },
-  {
-    type: 'PPTX',
-    title: '신입사원 온보딩 가이드',
-    category: '온보딩',
-    dept: 'HRD팀',
-    date: '2026.06.23',
-  },
-  {
-    type: 'DOCX',
-    title: '사내 정보보안 가이드라인',
-    category: '정보보안',
-    dept: '보안팀',
-    date: '2026.06.03',
-  },
-];
+const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
+const EDU_ICON_COLORS = ['#2288FF', '#FF4D94', '#FFAD33', '#12B886', '#845EF7'];
 
-/* ── 내 질문 현황 ── */
-const myQuestions = [
-  {
-    bg: '#FFF0F6',
-    title: '승진 기준이 어떻게 되나요?',
-    status: '답변 대기',
-    category: '인사/제도',
-    date: '2026.07.05',
-    done: false,
-  },
-  {
-    bg: '#FFF5E6',
-    title: '재택근무 신청 절차가 궁금합니다.',
-    status: '답변 대기',
-    category: '근무/복지',
-    date: '2026.06.27',
-    done: false,
-  },
-  {
-    bg: '#E7F8F3',
-    title: '연차 사용 시 주의사항이 있나요?',
-    status: '답변 완료',
-    category: '인사/제도',
-    date: '2026.06.24',
-    done: true,
-  },
-];
-
-/* ── 공지사항 ── */
-const notices = [
-  { title: '2026년 하계 휴가 일정 안내', date: '2026.07.06', isNew: true },
-  { title: '사내 시스템 점검 안내 (5/31)', date: '2026.05.27', isNew: false },
-  { title: '정보보안 교육 이수 필수 안내', date: '2026.05.24', isNew: false },
-  { title: '복지포인트 사용처 확대 안내', date: '2026.05.22', isNew: false },
-  { title: '사내 설문조사 참여 요청', date: '2026.05.20', isNew: false },
-];
-
-/* ── 추천 문서 ── */
-const recommendedDocs = [
-  { type: 'PDF', title: '입사자 체크리스트', views: '1.2K', bookmarks: 24 },
-  { type: 'DOCX', title: '근태관리 FAQ', views: '856', bookmarks: 18 },
-  { type: 'PPTX', title: '커뮤니케이션 가이드', views: '642', bookmarks: 15 },
-  { type: 'PDF', title: '회계 처리 프로세스', views: '532', bookmarks: 12 },
-  { type: 'XLSX', title: '비용 정산 양식 모음', views: '421', bookmarks: 9 },
-];
-
-/* ── 오늘의 일정 ── */
 const schedules = [
   { time: '09:00', title: '주간 팀 회의', place: '대회의실', dotColor: '#2288FF' },
   { time: '11:00', title: '신규 입사자 OT', place: 'HR 교육장', dotColor: '#7C8CFF' },
@@ -182,44 +28,269 @@ const schedules = [
   { time: '16:00', title: '성과 리뷰 미팅', place: '회의실 B', dotColor: '#9775FA' },
 ];
 
-/* ── 빠른 바로가기 ── */
 const shortcuts = [
-  { bg: '#EAF4FF', color: '#2288FF', icon: '🔍', label: '문서 검색' },
-  { bg: '#E6F8F2', color: '#12B886', icon: '📖', label: '교육 찾기' },
-  { bg: '#FFF0F6', color: '#FF4D94', icon: '💬', label: '질문하기' },
-  { bg: '#FFF5E6', color: '#FFAD33', icon: '⭐', label: '즐겨찾기' },
-  { bg: '#F1EDFF', color: '#8B6CFF', icon: '📊', label: '내 활동' },
-  { bg: '#EEF3F9', color: '#637087', icon: '⚙️', label: '설정' },
+  { colorKey: 'blue', icon: <IconSearch />, label: '문서 검색', route: ROUTES.DOC.LIST },
+  { colorKey: 'green', icon: <IconBook />, label: '교육 찾기', route: ROUTES.EDU.LIST },
+  { colorKey: 'pink', icon: <IconChat />, label: '질문하기', route: null, action: 'qna' },
+  { colorKey: 'purple', icon: <IconList />, label: 'FAQ 전체', route: ROUTES.QNA.ALL },
+  { colorKey: 'orange', icon: <IconDocText />, label: '최근 문서', route: ROUTES.DOC.LIST },
 ];
 
+function IconDocText() {
+  return (
+    <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 2h9l5 5v15a1 1 0 01-1 1H5a1 1 0 01-1-1V3a1 1 0 011-1z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 2v5h5M8 12h8M8 16h5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function IconAcademicCap() {
+  return (
+    <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 3L2 8l10 5 10-5-10-5z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6 11.5v5c0 2.21 2.69 4 6 4s6-1.79 6-4v-5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function IconChatBubble() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7 9h.01M12 9h.01M17 9h.01"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function IconStar() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function IconSearch() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconBook() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 19.5A2.5 2.5 0 016.5 17H20"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function IconChat() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function IconList() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+function todayLabel() {
+  const d = new Date();
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function DashboardPage() {
+  const navigate = useNavigate();
+  const user = useAuthStore(s => s.user);
+  const [qnaModalOpen, setQnaModalOpen] = useState(false);
+  const [qnaRefreshKey, setQnaRefreshKey] = useState(0);
+  const [noticeModalOpen, setNoticeModalOpen] = useState(false);
+
+  const { data: docRes } = useFetch(() => getDocuments().catch(() => null), []);
+  const { data: qnaRes } = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
+  const { data: eduRes } = useFetch(() => getMyProgress().catch(() => null), []);
+  const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
+
+  const docs = Array.isArray(docRes?.data) ? docRes.data : [];
+  const qnaRaw = qnaRes?.data;
+  const qnas = Array.isArray(qnaRaw?.content)
+    ? qnaRaw.content
+    : Array.isArray(qnaRaw)
+      ? qnaRaw
+      : [];
+  const eduList = Array.isArray(eduRes?.data) ? eduRes.data : [];
+  const notices = Array.isArray(noticeRes?.data) ? noticeRes.data : [];
+
+  const recentDocs = useMemo(
+    () => [...docs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5),
+    [docs]
+  );
+
+  const myQnas = useMemo(() => qnas.slice(0, 3), [qnas]);
+
+  const pendingCount = useMemo(
+    () => qnas.filter(q => q.status === 'RECEIVED' || q.status === 'IN_PROGRESS').length,
+    [qnas]
+  );
+
+  const inProgressEdu = useMemo(
+    () => eduList.filter(e => !e.isCompleted && e.progressRate > 0).slice(0, 3),
+    [eduList]
+  );
+
+  const statCards = [
+    {
+      colorKey: 'blue',
+      icon: <IconDocText />,
+      label: '전체 문서',
+      value: docs.length > 0 ? `${docs.length}` : '—',
+      subText: '지식문서 전체',
+      subColor: '#2288FF',
+    },
+    {
+      colorKey: 'green',
+      icon: <IconAcademicCap />,
+      label: '진행 중 교육',
+      value: inProgressEdu.length > 0 ? `${inProgressEdu.length}` : '—',
+      subText: '현재 수강 중',
+      subColor: '#12B886',
+    },
+    {
+      colorKey: 'pink',
+      icon: <IconChatBubble />,
+      label: '미답변 질문',
+      value: `${pendingCount}`,
+      subText: '내가 작성한 질문',
+      subColor: '#6B7588',
+    },
+    {
+      colorKey: 'orange',
+      icon: <IconStar />,
+      label: '등록 FAQ',
+      value: '—',
+      subText: '전체 FAQ 목록',
+      subColor: '#6B7588',
+    },
+  ];
+
+  function handleShortcut(s) {
+    if (s.action === 'qna') {
+      setQnaModalOpen(true);
+      return;
+    }
+    if (s.route) navigate(s.route);
+  }
+
   return (
     <div className={styles.page}>
-      {/* ── 헤더 ── */}
-      <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.pageTitle}>대시보드</h1>
-          <p className={styles.pageSubtitle}>진행중인 교육과 수료 현황을 관리해요</p>
+      {/* ── 환영 헤더 ── */}
+      <div className={styles.welcomeBanner}>
+        <div className={styles.welcomeLeft}>
+          <h1 className={styles.welcomeTitle}>
+            안녕하세요, <span className={styles.welcomeName}>{user?.name ?? '신입사원'}님</span> 👋
+          </h1>
+          <p className={styles.welcomeSub}>
+            오늘도 신입의 정석과 함께 성장해 보세요. 진행 중인 교육과 문서를 확인하세요.
+          </p>
         </div>
+        <div className={styles.welcomeDate}>{todayLabel()}</div>
       </div>
 
-      {/* ── 한눈에 보기 ── */}
+      {/* ── 통계 카드 ── */}
       <section className={styles.statsRow}>
         {statCards.map((card, i) => (
           <div key={i} className={styles.statCard}>
-            <div className={styles.statIcon} style={{ background: card.bg }}>
-              <span style={{ fontSize: 28 }}>{card.icon}</span>
-            </div>
+            <div className={`${styles.statIcon} ${styles[card.colorKey]}`}>{card.icon}</div>
             <div className={styles.statInfo}>
               <span className={styles.statLabel}>{card.label}</span>
               <span className={styles.statValue}>{card.value}</span>
               <span className={styles.statSub} style={{ color: card.subColor }}>
-                {card.subIcon && <span className={styles.statSubIcon}>{card.subIcon}</span>}
                 {card.subText}
               </span>
             </div>
           </div>
         ))}
+      </section>
+
+      {/* ── 빠른 바로가기 ── */}
+      <section className={styles.card}>
+        <div className={styles.sectionHead}>
+          <span className={styles.sectionTitle}>빠른 바로가기</span>
+        </div>
+        <div className={styles.shortcutGridWide}>
+          {shortcuts.map((s, i) => (
+            <button key={i} className={styles.shortcutItem} onClick={() => handleShortcut(s)}>
+              <div className={`${styles.shortcutIcon} ${styles[s.colorKey]}`}>{s.icon}</div>
+              <span className={styles.shortcutLabel}>{s.label}</span>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* ── 중단 3열 ── */}
@@ -228,39 +299,44 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>진행 중 교육</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.EDU.LIST)}>
+              전체보기 ›
+            </button>
           </div>
           <ul className={styles.eduList}>
-            {eduItems.map((edu, i) => (
-              <li key={i} className={styles.eduItem}>
-                <div className={styles.eduIcon} style={{ background: edu.bg }}>
-                  <span style={{ fontSize: 24 }}>{edu.icon}</span>
+            {inProgressEdu.length === 0 && (
+              <li className={styles.emptyText}>진행 중인 교육이 없습니다.</li>
+            )}
+            {inProgressEdu.map((edu, i) => (
+              <li key={edu.educationId ?? i} className={styles.eduItem}>
+                <div
+                  className={styles.eduIcon}
+                  style={{ background: EDU_COLORS[i % EDU_COLORS.length] }}
+                >
+                  <span
+                    style={{ fontSize: 24, color: EDU_ICON_COLORS[i % EDU_ICON_COLORS.length] }}
+                  >
+                    📖
+                  </span>
                 </div>
                 <div className={styles.eduBody}>
                   <div className={styles.eduTitleRow}>
                     <span className={styles.eduTitle}>{edu.title}</span>
                     <span
                       className={styles.badge}
-                      style={
-                        edu.required
-                          ? { background: '#DFF1FF', color: '#2288FF' }
-                          : { background: '#E2F8F0', color: '#099268' }
-                      }
+                      style={{ background: '#DFF1FF', color: '#2288FF' }}
                     >
-                      {edu.required ? '필수' : '선택'}
+                      진행중
                     </span>
                   </div>
                   <div className={styles.eduProgressRow}>
                     <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${edu.pct}%` }} />
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${edu.progressRate ?? 0}%` }}
+                      />
                     </div>
-                    <span className={styles.progressPct}>{edu.pct}%</span>
-                  </div>
-                  <div className={styles.eduMeta}>
-                    <span>
-                      {edu.chapter} 챕터 완료 · 예상 완료일 {edu.dueDate}
-                    </span>
-                    <span>남은 학습 {edu.total - parseInt(edu.chapter)}개 챕터</span>
+                    <span className={styles.progressPct}>{edu.progressRate ?? 0}%</span>
                   </div>
                 </div>
               </li>
@@ -272,26 +348,27 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>최근 문서</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.DOC.LIST)}>
+              전체보기 ›
+            </button>
           </div>
           <ul className={styles.docList}>
-            {recentDocs.map((doc, i) => {
-              const ts = TYPE_STYLE[doc.type] ?? TYPE_STYLE.DOCU;
-              return (
-                <li key={i} className={styles.docItem}>
-                  <span
-                    className={styles.docTypeBadge}
-                    style={{ background: ts.bg, color: ts.color }}
-                  >
-                    {doc.type}
-                  </span>
-                  <span className={styles.docTitle}>{doc.title}</span>
-                  <span className={styles.docMeta}>{doc.category}</span>
-                  <span className={styles.docMeta}>{doc.dept}</span>
-                  <span className={styles.docDate}>{doc.date}</span>
-                </li>
-              );
-            })}
+            {recentDocs.length === 0 && (
+              <li className={styles.emptyText}>등록된 문서가 없습니다.</li>
+            )}
+            {recentDocs.map((doc, i) => (
+              <li key={doc.id ?? i} className={styles.docItem}>
+                <span
+                  className={styles.docTypeBadge}
+                  style={{ background: '#EAF4FF', color: '#2288FF' }}
+                >
+                  DOC
+                </span>
+                <span className={styles.docTitle}>{doc.title}</span>
+                <span className={styles.docMeta}>{doc.categoryName}</span>
+                <span className={styles.docDate}>{formatDate(doc.createdAt)}</span>
+              </li>
+            ))}
           </ul>
         </section>
 
@@ -299,31 +376,40 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>내 질문 현황</span>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.LIST)}>
+              전체보기 ›
+            </button>
           </div>
           <ul className={styles.qnaList}>
-            {myQuestions.map((q, i) => (
-              <li key={i} className={styles.qnaItem}>
-                <div className={styles.qnaIcon} style={{ background: q.bg }}>
-                  <span style={{ fontSize: 18 }}>{q.done ? '✅' : '❓'}</span>
-                </div>
-                <div className={styles.qnaBody}>
-                  <span className={styles.qnaTitle}>{q.title}</span>
-                  <span className={styles.qnaMeta}>
-                    <span
-                      className={styles.qnaStatus}
-                      style={{ color: q.done ? '#20C997' : '#6F7B91' }}
-                    >
-                      {q.status}
+            {myQnas.length === 0 && <li className={styles.emptyText}>등록한 질문이 없습니다.</li>}
+            {myQnas.map((q, i) => {
+              const st = STATUS_STYLE[q.status] ?? STATUS_STYLE.RECEIVED;
+              const isDone = q.status === 'ANSWERED';
+              return (
+                <li key={q.questionId ?? i} className={styles.qnaItem}>
+                  <div
+                    className={styles.qnaIcon}
+                    style={{ background: isDone ? '#E7F8F3' : '#FFF0F6' }}
+                  >
+                    <span style={{ fontSize: 18 }}>{isDone ? '✅' : '❓'}</span>
+                  </div>
+                  <div className={styles.qnaBody}>
+                    <span className={styles.qnaTitle}>{q.title}</span>
+                    <span className={styles.qnaMeta}>
+                      <span className={styles.qnaStatus} style={{ color: st.color }}>
+                        {st.label}
+                      </span>
+                      {q.categoryName && <> · {q.categoryName}</>}
                     </span>
-                    {' · '}
-                    {q.category}
-                  </span>
-                </div>
-                <span className={styles.qnaDate}>{q.date}</span>
-              </li>
-            ))}
+                  </div>
+                  <span className={styles.qnaDate}>{formatDate(q.createdAt)}</span>
+                </li>
+              );
+            })}
           </ul>
-          <button className={styles.btnOutline}>질문하기</button>
+          <button className={styles.btnOutline} onClick={() => setQnaModalOpen(true)}>
+            + 질문하기
+          </button>
         </section>
       </div>
 
@@ -333,44 +419,49 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>공지사항</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            <button className={styles.linkBtn} onClick={() => setNoticeModalOpen(true)}>
+              전체보기 ›
+            </button>
           </div>
           <ul className={styles.noticeList}>
-            {notices.map((n, i) => (
-              <li key={i} className={styles.noticeItem}>
+            {notices.length === 0 && (
+              <li className={styles.emptyText}>등록된 공지사항이 없습니다.</li>
+            )}
+            {notices.map(n => (
+              <li key={n.noticeId} className={styles.noticeItem}>
                 <span className={styles.noticeTitle}>
                   {n.title}
                   {n.isNew && <span className={styles.newBadge}>N</span>}
                 </span>
-                <span className={styles.noticeDate}>{n.date}</span>
+                <span className={styles.noticeDate}>{formatDate(n.createdAt)}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* 추천 문서 */}
+        {/* 최근 FAQ */}
         <section className={styles.card}>
           <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>추천 문서</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
+            <span className={styles.sectionTitle}>자주 묻는 질문</span>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.ALL)}>
+              전체보기 ›
+            </button>
           </div>
-          <ul className={styles.docList}>
-            {recommendedDocs.map((doc, i) => {
-              const ts = TYPE_STYLE[doc.type] ?? TYPE_STYLE.DOCU;
-              return (
-                <li key={i} className={styles.docItem}>
-                  <span
-                    className={styles.docTypeBadge}
-                    style={{ background: ts.bg, color: ts.color }}
-                  >
-                    {doc.type}
-                  </span>
-                  <span className={styles.docTitle}>{doc.title}</span>
-                  <span className={styles.docStat}>👁 {doc.views}</span>
-                  <span className={styles.docStat}>🔖 {doc.bookmarks}</span>
-                </li>
-              );
-            })}
+          <ul className={styles.noticeList}>
+            {[
+              '연차는 언제부터 사용할 수 있나요?',
+              '재택근무 신청은 어떻게 하나요?',
+              '복지포인트 사용처가 어디인가요?',
+              '급여명세서는 어디서 확인하나요?',
+              '사내 메신저 계정은 어떻게 만드나요?',
+            ].map((q, i) => (
+              <li key={i} className={styles.noticeItem}>
+                <span className={styles.noticeTitle}>
+                  <span style={{ color: '#2288FF', fontWeight: 900, marginRight: 6 }}>Q.</span>
+                  {q}
+                </span>
+              </li>
+            ))}
           </ul>
         </section>
 
@@ -378,12 +469,9 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>오늘의 일정</span>
-            <button className={styles.linkBtn}>전체보기 ›</button>
           </div>
           <div className={styles.scheduleDate}>
-            <button className={styles.dateArrow}>‹</button>
-            <span className={styles.dateTxt}>2026년 7월 6일 (월)</span>
-            <button className={styles.dateArrow}>›</button>
+            <span className={styles.dateTxt}>{todayLabel()}</span>
           </div>
           <ul className={styles.scheduleList}>
             {schedules.map((s, i) => (
@@ -392,7 +480,6 @@ function DashboardPage() {
                   <span className={styles.scheduleTime}>{s.time}</span>
                   <div className={styles.scheduleLine}>
                     <span className={styles.scheduleDot} style={{ background: s.dotColor }} />
-                    {i < schedules.length - 1 && <span className={styles.scheduleConnector} />}
                   </div>
                 </div>
                 <div className={styles.scheduleRight}>
@@ -402,26 +489,20 @@ function DashboardPage() {
               </li>
             ))}
           </ul>
-          <button className={styles.btnOutline}>📅 캘린더 열기</button>
-        </section>
-
-        {/* 빠른 바로가기 */}
-        <section className={styles.card}>
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionTitle}>빠른 바로가기</span>
-          </div>
-          <div className={styles.shortcutGrid}>
-            {shortcuts.map((s, i) => (
-              <button key={i} className={styles.shortcutItem}>
-                <div className={styles.shortcutIcon} style={{ background: s.bg }}>
-                  <span style={{ fontSize: 24 }}>{s.icon}</span>
-                </div>
-                <span className={styles.shortcutLabel}>{s.label}</span>
-              </button>
-            ))}
-          </div>
         </section>
       </div>
+
+      {qnaModalOpen && (
+        <QnaQuestionModal
+          onClose={() => setQnaModalOpen(false)}
+          onSuccess={() => {
+            setQnaRefreshKey(k => k + 1);
+            setQnaModalOpen(false);
+          }}
+        />
+      )}
+
+      {noticeModalOpen && <NoticeListModal onClose={() => setNoticeModalOpen(false)} />}
     </div>
   );
 }

@@ -4,6 +4,11 @@ import com.visited.www.entity.Department;
 import com.visited.www.entity.Role;
 import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
+import com.visited.www.global.exception.BusinessException;
+import com.visited.www.global.exception.ErrorCode;
+import com.visited.www.user.dto.request.DepartmentCreateRequest;
+import com.visited.www.user.dto.request.DepartmentUpdateRequest;
+import com.visited.www.user.dto.request.PasswordChangeRequest;
 import com.visited.www.user.dto.request.UserCreateRequest;
 import com.visited.www.user.dto.request.UserRoleUpdateRequest;
 import com.visited.www.user.dto.request.UserStatusUpdateRequest;
@@ -25,6 +30,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class AdminUserService {
+
+    // 관리자가 등록하는 모든 신규 계정의 고정 초기 비밀번호. 최초 로그인 후 반드시 변경해야 한다.
+    private static final String INITIAL_PASSWORD = "0000";
 
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
@@ -49,6 +57,10 @@ public class AdminUserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
+        if (userRepository.existsByEmployeeNo(request.employeeNo())) {
+            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+        }
+
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
 
@@ -58,10 +70,12 @@ public class AdminUserService {
         User user = User.builder()
                 .name(request.name())
                 .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
+                .password(passwordEncoder.encode(INITIAL_PASSWORD))
                 .department(department)
                 .role(role)
                 .position(request.position())
+                .employeeNo(request.employeeNo())
+                .phone(request.phone())
                 .status(request.status() == null ? UserStatus.ACTIVE : request.status())
                 .build();
 
@@ -76,12 +90,18 @@ public class AdminUserService {
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
 
+        if (!request.employeeNo().equals(user.getEmployeeNo())
+                && userRepository.existsByEmployeeNo(request.employeeNo())) {
+            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+        }
+
         user.updateInfo(
                 request.name(),
                 department,
                 request.position(),
                 request.status()
         );
+        user.updateContact(request.employeeNo(), request.phone());
 
         return UserResponse.from(user);
     }
@@ -110,6 +130,16 @@ public class AdminUserService {
         return UserResponse.from(user);
     }
 
+    public void changePassword(Long userId, PasswordChangeRequest request) {
+        User user = getUserEntity(userId);
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        user.completePasswordChange(passwordEncoder.encode(request.newPassword()));
+    }
+
     @Transactional(readOnly = true)
     public List<DepartmentResponse> getDepartments() {
         return departmentRepository.findByActiveTrueOrderByIdAsc()
@@ -124,6 +154,28 @@ public class AdminUserService {
                 .stream()
                 .map(RoleResponse::from)
                 .toList();
+    }
+
+    public DepartmentResponse createDepartment(DepartmentCreateRequest request) {
+        if (departmentRepository.existsByCode(request.code())) {
+            throw new IllegalArgumentException("이미 사용 중인 부서 코드입니다.");
+        }
+
+        Department department = Department.builder()
+                .code(request.code())
+                .name(request.name())
+                .build();
+
+        return DepartmentResponse.from(departmentRepository.save(department));
+    }
+
+    public DepartmentResponse renameDepartment(Long departmentId, DepartmentUpdateRequest request) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
+
+        department.rename(request.name());
+
+        return DepartmentResponse.from(department);
     }
 
     private User getUserEntity(Long userId) {

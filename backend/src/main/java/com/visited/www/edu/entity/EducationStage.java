@@ -24,6 +24,9 @@ public class EducationStage {
     @Column(nullable = false, length = 100)
     private String title;
 
+    @Column(length = 500)
+    private String description;
+
     @Column(nullable = false)
     private Integer orderNumber;
 
@@ -35,4 +38,21 @@ public class EducationStage {
 
     @OneToOne(mappedBy = "stage", fetch = FetchType.LAZY)
     private EducationMaterial material;
+
+    private EducationStage(Education education, String title, String description, Integer orderNumber) {
+        this.education = education;
+        this.title = title;
+        this.description = description;
+        this.orderNumber = orderNumber;
+    }
+
+    public static EducationStage create(Education education, String title, String description, Integer orderNumber) {
+        return new EducationStage(education, title, description, orderNumber);
+    }
+
+    public void update(String title, String description, Integer orderNumber) {
+        this.title = title;
+        this.description = description;
+        this.orderNumber = orderNumber;
+    }
 }

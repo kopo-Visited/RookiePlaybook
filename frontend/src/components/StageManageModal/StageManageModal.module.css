@@ -1,0 +1,261 @@
+/* ── Overlay / Modal (FormModal 패턴 재사용) ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.28);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 560px;
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.modalTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 28px;
+}
+.subtitle {
+  font-size: 13px;
+  color: #6f7b91;
+  line-height: 16px;
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  background: #eef3f9;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #637087;
+  flex-shrink: 0;
+}
+
+.body {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── List ── */
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.listTitle {
+  font-size: 15px;
+  font-weight: 900;
+  color: #172033;
+}
+.btnPrimary {
+  height: 40px;
+  padding: 0 16px;
+  min-width: 76px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btnPrimary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stageList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stageItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef1f6;
+}
+.stageItem:last-child {
+  border-bottom: none;
+}
+.orderBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.stageBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.stageTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #172033;
+}
+.stageVideo {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #526078;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  background: #fff0f3;
+}
+
+/* ── Form (EducationFormModal 필드 패턴 재사용) ── */
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fieldNarrow {
+  max-width: 140px;
+}
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #5e6b82;
+  line-height: 14px;
+}
+.input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #d9e1eb;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--color-text-title);
+  outline: none;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+.input::placeholder {
+  color: #6f7b91;
+}
+.input:focus {
+  border-color: var(--color-primary);
+}
+.textarea {
+  width: 100%;
+  height: 100px;
+  border: 1px solid #d9e1eb;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--color-text-title);
+  outline: none;
+  background: #ffffff;
+  resize: none;
+  box-sizing: border-box;
+  line-height: 20px;
+}
+.textarea::placeholder {
+  color: #9aa5b8;
+}
+.textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.formError {
+  margin: 0;
+  color: var(--color-danger, #ef4444);
+  font-size: 13px;
+}
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 12px;
+  min-width: 52px;
+  background: #ffffff;
+  border: 1px solid #d9e1eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media (max-width: 680px) {
+  .modal {
+    width: calc(100vw - 32px);
+  }
+}

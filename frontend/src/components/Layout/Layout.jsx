@@ -1,9 +1,46 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
+import NotificationPanel from '../NotificationPanel/NotificationPanel';
+import AiChatModal from '../AiChatModal/AiChatModal';
+import { getNotifications, markNotificationRead, deleteAllNotifications } from '../../api/qnaApi';
+import { logout as logoutApi } from '../../api/authApi';
 import chatbotImg from '../../assets/chatbot.png';
 import logoImg from '../../assets/logo.png';
+
+// 알림 이벤트 타입 → 상태 뱃지(칩)용 상태값 매핑
+const NOTIF_TYPE_TO_STATUS = {
+  ANSWER_REGISTERED: 'ANSWERED',
+  STATUS_CHANGED: 'IN_PROGRESS',
+};
+
+function formatRelativeTime(iso) {
+  if (!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return '방금 전';
+  if (min < 60) return `${min}분 전`;
+  const hour = Math.floor(min / 60);
+  if (hour < 24) return `${hour}시간 전`;
+  const day = Math.floor(hour / 24);
+  if (day === 1) return '어제';
+  if (day < 7) return `${day}일 전`;
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// 백엔드 알림 응답 → NotificationPanel 표시용 형태로 변환
+function mapNotification(n) {
+  return {
+    id: n.notificationId,
+    status: NOTIF_TYPE_TO_STATUS[n.type] ?? n.type,
+    title: n.message,
+    time: formatRelativeTime(n.createdAt),
+    read: n.isRead,
+  };
+}
 
 function IconHome() {
   return (
@@ -94,14 +131,22 @@ function IconMail() {
   );
 }
 
-function IconSettings() {
+function IconLogout() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
       <path
-        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+        d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
         stroke="currentColor"
         strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 17l5-5-5-5M21 12H9"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -126,15 +171,73 @@ const NAV_ITEMS = [
   { to: ROUTES.DOC.LIST, label: '지식문서', icon: <IconDoc /> },
   { to: ROUTES.QNA.LIST, label: '질문·답변', icon: <IconChat /> },
   { to: ROUTES.EDU.LIST, label: '온보딩 교육', icon: <IconGraduate /> },
-  { to: '/contact', label: '문의하기', icon: <IconMail /> },
+  { to: ROUTES.INQUIRY, label: '문의하기', icon: <IconMail /> },
 ];
 
 function Layout() {
+  const navigate = useNavigate();
   const user = useAuthStore(state => state.user);
+  const clearAuth = useAuthStore(state => state.logout);
 
   const displayName = user?.name ?? '윤정연';
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '인사팀 · 사원';
   const avatarChar = displayName[0];
+
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  useEffect(() => {
+    let ignore = false;
+    getNotifications()
+      .then(res => {
+        if (ignore) return;
+        const list = res?.data?.content ?? [];
+        setNotifications(list.map(mapNotification));
+      })
+      .catch(() => {
+        if (!ignore) setNotifications([]);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  const markRead = id => {
+    setNotifications(list => list.map(n => (n.id === id ? { ...n, read: true } : n)));
+    markNotificationRead(id).catch(() => {});
+  };
+  const markAllRead = () => {
+    const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
+    setNotifications(list => list.map(n => ({ ...n, read: true })));
+    unreadIds.forEach(id => markNotificationRead(id).catch(() => {}));
+  };
+  const clearAll = () => {
+    setNotifications([]);
+    deleteAllNotifications().catch(() => {});
+  };
+
+  async function handleLogout() {
+    try {
+      await logoutApi();
+    } catch {
+      // JWT는 stateless라 서버 호출이 실패해도 클라이언트 로그아웃은 진행한다
+    } finally {
+      clearAuth();
+      navigate(ROUTES.LOGIN);
+    }
+  }
 
   return (
     <div className={styles.layout}>
@@ -160,42 +263,42 @@ function Layout() {
           ))}
         </nav>
 
-        <div className={styles.divider} />
-
-        <nav className={styles.nav}>
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-            }
-          >
-            <span className={styles.navIcon}>
-              <IconSettings />
-            </span>
-            <span>설정</span>
-          </NavLink>
-        </nav>
-
         <div className={styles.helpCard}>
           <img src={chatbotImg} alt="AI 챗봇" className={styles.helpImg} />
           <p className={styles.helpTitle}>AI 챗봇이 도와드릴까요?</p>
           <p className={styles.helpDesc}>
             궁금한 내용을 바로 질문하고 정보를 빠르게 안내 받아 보세요.
           </p>
-          <button className={styles.helpBtn}>
+          <button className={styles.helpBtn} onClick={() => setAiOpen(true)}>
             <span>💬</span>
             <span>AI에게 물어보기</span>
           </button>
         </div>
+        {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
       </aside>
 
       <div className={styles.mainWrapper}>
         <header className={styles.topbar}>
-          <div className={styles.notifBtn}>
-            <span className={styles.notifIcon}>
-              <IconBell />
-            </span>
-            <span className={styles.notifBadge}>3</span>
+          <div className={styles.notifWrap} ref={notifRef}>
+            <button
+              type="button"
+              className={styles.notifBtn}
+              onClick={() => setNotifOpen(o => !o)}
+              aria-label="알림"
+            >
+              <span className={styles.notifIcon}>
+                <IconBell />
+              </span>
+              {unreadCount > 0 && <span className={styles.notifBadge}>{unreadCount}</span>}
+            </button>
+            {notifOpen && (
+              <NotificationPanel
+                notifications={notifications}
+                onItemClick={markRead}
+                onMarkAll={markAllRead}
+                onClearAll={clearAll}
+              />
+            )}
           </div>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>{avatarChar}</div>
@@ -204,6 +307,14 @@ function Layout() {
               <span className={styles.userDept}>{displayDept}</span>
             </div>
           </div>
+          <button
+            type="button"
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            aria-label="로그아웃"
+          >
+            <IconLogout />
+          </button>
         </header>
 
         <main className={styles.main}>

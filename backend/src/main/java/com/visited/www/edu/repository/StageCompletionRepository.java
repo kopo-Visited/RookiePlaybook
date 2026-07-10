@@ -15,4 +15,7 @@ public interface StageCompletionRepository extends JpaRepository<StageCompletion
 
     // 특정 유저가 특정 과정에서 완료한 단계 수 (진도율 계산용)
     long countByUserIdAndStage_Education_Id(Long userId, Long educationId);
+
+    // 특정 단계에 완료 이력이 있는지 여부 (단계 삭제 시 사용중 판단용)
+    boolean existsByStageId(Long stageId);
 }

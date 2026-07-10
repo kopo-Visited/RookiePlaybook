@@ -25,6 +25,12 @@ public record UserCreateRequest(
 
         String position,
 
+        @NotBlank(message = "사번을 입력해주세요.")
+        String employeeNo,
+
+        @NotBlank(message = "전화번호를 입력해주세요.")
+        String phone,
+
         UserStatus status
 ) {
 }

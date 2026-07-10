@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import styles from './QnaQuestionModal.module.css';
-
-const DEPT_OPTIONS = ['개발', '인프라', '보안', '네트워크', '공통'];
+import { createQna, updateQna, getQuestionCategories } from '../../api/qnaApi';
 
 function IconX() {
   return (
@@ -30,14 +29,36 @@ function IconChevronDown() {
   );
 }
 
-function QnaQuestionModal({ onClose }) {
-  const [title, setTitle] = useState('');
-  const [dept, setDept] = useState('');
-  const [content, setContent] = useState('');
+function QnaQuestionModal({ onClose, onSuccess, mode = 'create', questionId, initial }) {
+  const isEdit = mode === 'edit';
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [categoryId, setCategoryId] = useState('');
+  const [content, setContent] = useState(initial?.content ?? '');
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
-  const [deptOpen, setDeptOpen] = useState(false);
-  const deptRef = useRef(null);
+  const [categories, setCategories] = useState([]);
+  const [catOpen, setCatOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [aiNotice, setAiNotice] = useState('');
+  const catRef = useRef(null);
+
+  const selectedCategory = categories.find(c => c.categoryId === categoryId);
+
+  useEffect(() => {
+    getQuestionCategories()
+      .then(res => {
+        const list = res?.data?.categories ?? [];
+        setCategories(list);
+        // 편집 모드: 카테고리명으로 categoryId 초기 선택
+        if (initial?.categoryName) {
+          const match = list.find(c => c.name === initial.categoryName);
+          if (match) setCategoryId(match.categoryId);
+        }
+      })
+      .catch(() => setCategories([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     function onKey(e) {
@@ -53,7 +74,7 @@ function QnaQuestionModal({ onClose }) {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (deptRef.current && !deptRef.current.contains(e.target)) setDeptOpen(false);
+      if (catRef.current && !catRef.current.contains(e.target)) setCatOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -80,9 +101,37 @@ function QnaQuestionModal({ onClose }) {
     setTags(prev => prev.filter(t => t !== tag));
   }
 
-  function handleSubmit() {
-    if (!title.trim() || !dept || !content.trim()) return;
-    onClose();
+  async function handleSubmit() {
+    if (!title.trim() || !categoryId || !content.trim() || submitting) return;
+    setSubmitting(true);
+    setError('');
+    const payload = { categoryId, title: title.trim(), content: content.trim() };
+    try {
+      if (isEdit) {
+        await updateQna(questionId, payload);
+        onSuccess?.();
+        onClose();
+        return;
+      }
+      const res = await createQna(payload);
+      onSuccess?.();
+      const d = res?.data;
+      // 제안만: AI가 다른 카테고리를 추천하면 안내하고 모달은 열어둔다(수정은 목록에서)
+      if (d?.aiSuggestedCategory && d?.categoryMatched === false) {
+        setAiNotice(
+          `AI는 '${d.aiSuggestedCategory}' 카테고리를 추천해요. 필요하면 목록에서 질문을 눌러 수정할 수 있어요.`
+        );
+        setSubmitting(false);
+        return;
+      }
+      onClose();
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          (isEdit ? '질문 수정에 실패했습니다.' : '질문 등록에 실패했습니다.')
+      );
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -90,8 +139,12 @@ function QnaQuestionModal({ onClose }) {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.modalTop}>
           <div className={styles.modalTitleWrap}>
-            <h2 className={styles.title}>질문 작성</h2>
-            <p className={styles.subtitle}>문서로 해결되지 않는 내용을 담당자에게 남겨요.</p>
+            <h2 className={styles.title}>{isEdit ? '질문 수정' : '질문 작성'}</h2>
+            <p className={styles.subtitle}>
+              {isEdit
+                ? '접수 상태의 질문만 수정할 수 있어요.'
+                : '문서로 해결되지 않는 내용을 담당자에게 남겨요.'}
+            </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             <IconX />
@@ -109,31 +162,31 @@ function QnaQuestionModal({ onClose }) {
             />
           </div>
 
-          <div className={styles.field} ref={deptRef}>
-            <label className={styles.fieldLabel}>부서</label>
+          <div className={styles.field} ref={catRef}>
+            <label className={styles.fieldLabel}>카테고리</label>
             <div
-              className={`${styles.select} ${deptOpen ? styles.selectOpen : ''}`}
-              onClick={() => setDeptOpen(o => !o)}
+              className={`${styles.select} ${catOpen ? styles.selectOpen : ''}`}
+              onClick={() => setCatOpen(o => !o)}
             >
-              <span className={dept ? styles.selectValue : styles.selectPlaceholder}>
-                {dept || '부서를 선택하세요'}
+              <span className={selectedCategory ? styles.selectValue : styles.selectPlaceholder}>
+                {selectedCategory ? selectedCategory.name : '카테고리를 선택하세요'}
               </span>
-              <span className={`${styles.selectArrow} ${deptOpen ? styles.selectArrowUp : ''}`}>
+              <span className={`${styles.selectArrow} ${catOpen ? styles.selectArrowUp : ''}`}>
                 <IconChevronDown />
               </span>
             </div>
-            {deptOpen && (
+            {catOpen && (
               <ul className={styles.dropdown}>
-                {DEPT_OPTIONS.map(opt => (
+                {categories.map(opt => (
                   <li
-                    key={opt}
-                    className={`${styles.dropdownItem} ${opt === dept ? styles.dropdownItemActive : ''}`}
+                    key={opt.categoryId}
+                    className={`${styles.dropdownItem} ${opt.categoryId === categoryId ? styles.dropdownItemActive : ''}`}
                     onClick={() => {
-                      setDept(opt);
-                      setDeptOpen(false);
+                      setCategoryId(opt.categoryId);
+                      setCatOpen(false);
                     }}
                   >
-                    {opt}
+                    {opt.name}
                   </li>
                 ))}
               </ul>
@@ -173,17 +226,34 @@ function QnaQuestionModal({ onClose }) {
           </div>
         </div>
 
+        {error && <p className={styles.formError}>{error}</p>}
+        {aiNotice && <p className={styles.aiNotice}>💡 {aiNotice}</p>}
+
         <div className={styles.modalActions}>
-          <button className={styles.btnOutline} onClick={onClose}>
-            취소
-          </button>
-          <button
-            className={styles.btnPrimary}
-            onClick={handleSubmit}
-            disabled={!title.trim() || !dept || !content.trim()}
-          >
-            등록하기
-          </button>
+          {aiNotice ? (
+            <button className={styles.btnPrimary} onClick={onClose}>
+              확인
+            </button>
+          ) : (
+            <>
+              <button className={styles.btnOutline} onClick={onClose} disabled={submitting}>
+                취소
+              </button>
+              <button
+                className={styles.btnPrimary}
+                onClick={handleSubmit}
+                disabled={!title.trim() || !categoryId || !content.trim() || submitting}
+              >
+                {submitting
+                  ? isEdit
+                    ? '수정 중...'
+                    : '등록 중...'
+                  : isEdit
+                    ? '수정하기'
+                    : '등록하기'}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

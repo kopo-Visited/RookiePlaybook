@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmployeeNo(String employeeNo);
+
     List<User> findByStatus(UserStatus status);
 
     long countByCreatedAtBefore(LocalDateTime dateTime);
