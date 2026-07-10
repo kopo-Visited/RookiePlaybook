@@ -1,0 +1,22 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  height: 100vh;
+  padding: 40px;
+  text-align: center;
+}
+
+.title {
+  color: var(--color-text-title);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.message {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
