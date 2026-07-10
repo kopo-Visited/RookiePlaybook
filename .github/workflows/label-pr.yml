@@ -44,7 +44,7 @@ jobs:
             });
 
             // Reviewers — 작성자 제외 나머지
-            if (context.eventName === 'pull_request' && pr.action === 'opened') {
+            if (context.payload.action === 'opened') {
               const reviewers = allMembers.filter(m => m !== author);
               await github.rest.pulls.requestReviewers({
                 owner: context.repo.owner,
