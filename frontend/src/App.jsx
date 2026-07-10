@@ -23,6 +23,7 @@ import AdminEduPage from './pages/admin/AdminEduPage/AdminEduPage';
 import EducationListPage from './pages/edu/EducationListPage/EducationListPage';
 import EducationDetailPage from './pages/edu/EducationDetailPage/EducationDetailPage';
 import VideoPlayerPage from './pages/edu/VideoPlayerPage/VideoPlayerPage';
+import NotFoundPage from './pages/error/NotFoundPage/NotFoundPage';
 
 function PrivateRoute() {
   const token = useAuthStore(state => state.token);
@@ -73,6 +74,7 @@ function App() {
         </Route>
 
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
