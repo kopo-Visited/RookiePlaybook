@@ -1,12 +1,27 @@
 import { useState } from 'react';
 import styles from './AdminEduPage.module.css';
 import useFetch from '../../../hooks/useFetch';
-import { getEducations, getEducationDetail, deleteEducation } from '../../../api/eduApi';
+import {
+  getEducations,
+  getEducationDetail,
+  deleteEducation,
+  getAdminProgress,
+} from '../../../api/eduApi';
+import { getDepartments } from '../../../api/adminUserApi';
+import { formatDate } from '../../../utils/formatDate';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import EducationFormModal from '../../../components/EducationFormModal/EducationFormModal';
 import StageManageModal from '../../../components/StageManageModal/StageManageModal';
+
+const PROGRESS_PAGE_SIZE = 20;
+
+const COMPLETION_OPTIONS = [
+  { value: 'ALL', label: '완료여부 전체' },
+  { value: 'true', label: '완료' },
+  { value: 'false', label: '미완료' },
+];
 
 const TABS = [
   { key: 'course', label: '교육 과정 관리' },
@@ -131,10 +146,177 @@ function EducationSection() {
   );
 }
 
+// 진도율 셀 (EducationListPage 진도 바 패턴 재사용)
+function ProgressBar({ rate }) {
+  const value = rate ?? 0;
+  return (
+    <div className={styles.progressCell}>
+      <div className={styles.progressBar}>
+        <div className={styles.progressFill} style={{ width: `${value}%` }} />
+      </div>
+      <span className={styles.progressPct}>{value}%</span>
+    </div>
+  );
+}
+
+// 페이지네이션 (EducationListPage 패턴 재사용, 1-based)
+function Pagination({ page, totalPages, onChange }) {
+  if (totalPages <= 1) return null;
+  return (
+    <div className={styles.pagination}>
+      <button
+        className={styles.pageArrow}
+        onClick={() => onChange(Math.max(1, page - 1))}
+        disabled={page === 1}
+      >
+        ‹
+      </button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+        <button
+          key={n}
+          className={`${styles.pageNum} ${page === n ? styles.pageNumActive : ''}`}
+          onClick={() => onChange(n)}
+        >
+          {n}
+        </button>
+      ))}
+      <button
+        className={styles.pageArrow}
+        onClick={() => onChange(Math.min(totalPages, page + 1))}
+        disabled={page === totalPages}
+      >
+        ›
+      </button>
+    </div>
+  );
+}
+
 function ProgressSection() {
+  const [departmentId, setDepartmentId] = useState('ALL');
+  const [educationId, setEducationId] = useState('ALL');
+  const [isCompleted, setIsCompleted] = useState('ALL');
+  const [page, setPage] = useState(1);
+
+  // 필터 옵션 (마운트 시 1회 로드)
+  const { data: deptData } = useFetch(() => getDepartments(), []);
+  const { data: eduData } = useFetch(() => getEducations({ page: 0, size: 100 }), []);
+  const departments = deptData ?? [];
+  const educations = eduData?.data?.content ?? [];
+
+  const { data, loading, error } = useFetch(() => {
+    const params = { page: page - 1, size: PROGRESS_PAGE_SIZE };
+    if (departmentId !== 'ALL') params.departmentId = departmentId;
+    if (educationId !== 'ALL') params.educationId = educationId;
+    if (isCompleted !== 'ALL') params.isCompleted = isCompleted;
+    return getAdminProgress(params);
+  }, [departmentId, educationId, isCompleted, page]);
+
+  const pageData = data?.data;
+  const rows = pageData?.content ?? [];
+  const totalPages = pageData?.totalPages ?? 1;
+
+  // 필터 변경 시 첫 페이지로 되돌린다
+  function changeFilter(setter, value) {
+    setter(value);
+    setPage(1);
+  }
+
+  function resetFilters() {
+    setDepartmentId('ALL');
+    setEducationId('ALL');
+    setIsCompleted('ALL');
+    setPage(1);
+  }
+
   return (
     <section className={styles.tableCard}>
-      <EmptyState message="진도 현황 기능은 준비 중입니다." />
+      <div className={styles.filterRow}>
+        <select
+          className={styles.filterSelect}
+          value={departmentId}
+          onChange={e => changeFilter(setDepartmentId, e.target.value)}
+        >
+          <option value="ALL">부서 전체</option>
+          {departments.map(dept => (
+            <option key={dept.departmentId} value={dept.departmentId}>
+              {dept.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className={styles.filterSelect}
+          value={educationId}
+          onChange={e => changeFilter(setEducationId, e.target.value)}
+        >
+          <option value="ALL">과정 전체</option>
+          {educations.map(edu => (
+            <option key={edu.educationId} value={edu.educationId}>
+              {edu.title}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className={styles.filterSelect}
+          value={isCompleted}
+          onChange={e => changeFilter(setIsCompleted, e.target.value)}
+        >
+          {COMPLETION_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+
+        <button type="button" className={styles.resetBtn} onClick={resetFilters}>
+          초기화
+        </button>
+      </div>
+
+      {loading && <Spinner />}
+      {!loading && error && <ErrorMessage />}
+      {!loading && !error && rows.length === 0 && (
+        <EmptyState message="조건에 맞는 진도 현황이 없습니다." />
+      )}
+      {!loading && !error && rows.length > 0 && (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>부서</th>
+              <th>과정</th>
+              <th>진도율</th>
+              <th>완료여부</th>
+              <th>최근 학습일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={`${row.userId}-${i}`}>
+                <td>
+                  <span className={styles.titleText}>{row.userName}</span>
+                </td>
+                <td className={styles.secondary}>{row.departmentName}</td>
+                <td>{row.educationTitle}</td>
+                <td>
+                  <ProgressBar rate={row.progressRate} />
+                </td>
+                <td>
+                  <span
+                    className={`${styles.statusBadge} ${row.isCompleted ? styles.statusBadgeDone : ''}`}
+                  >
+                    {row.isCompleted ? '완료' : '미완료'}
+                  </span>
+                </td>
+                <td className={styles.secondary}>{formatDate(row.lastStudiedAt) || '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
     </section>
   );
 }
