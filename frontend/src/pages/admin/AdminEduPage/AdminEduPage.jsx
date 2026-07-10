@@ -6,6 +6,7 @@ import {
   getEducationDetail,
   deleteEducation,
   getAdminProgress,
+  getIncomplete,
 } from '../../../api/eduApi';
 import { getDepartments } from '../../../api/adminUserApi';
 import { formatDate } from '../../../utils/formatDate';
@@ -23,9 +24,15 @@ const COMPLETION_OPTIONS = [
   { value: 'false', label: '미완료' },
 ];
 
+// 진도 현황 탭 내부 세그먼트 (FR-009 진도 현황 / FR-010 미완료자)
+const PROGRESS_MODES = [
+  { key: 'progress', label: '진도 현황' },
+  { key: 'incomplete', label: '미완료자' },
+];
+
 const TABS = [
   { key: 'course', label: '교육 과정 관리' },
-  { key: 'progress', label: '진도 현황' },
+  { key: 'progress', label: '학습 현황' },
 ];
 
 function EducationSection() {
@@ -191,17 +198,11 @@ function Pagination({ page, totalPages, onChange }) {
   );
 }
 
-function ProgressSection() {
+function ProgressView({ departments, educations }) {
   const [departmentId, setDepartmentId] = useState('ALL');
   const [educationId, setEducationId] = useState('ALL');
   const [isCompleted, setIsCompleted] = useState('ALL');
   const [page, setPage] = useState(1);
-
-  // 필터 옵션 (마운트 시 1회 로드)
-  const { data: deptData } = useFetch(() => getDepartments(), []);
-  const { data: eduData } = useFetch(() => getEducations({ page: 0, size: 100 }), []);
-  const departments = deptData ?? [];
-  const educations = eduData?.data?.content ?? [];
 
   const { data, loading, error } = useFetch(() => {
     const params = { page: page - 1, size: PROGRESS_PAGE_SIZE };
@@ -229,7 +230,7 @@ function ProgressSection() {
   }
 
   return (
-    <section className={styles.tableCard}>
+    <>
       <div className={styles.filterRow}>
         <select
           className={styles.filterSelect}
@@ -317,6 +318,125 @@ function ProgressSection() {
       )}
 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </>
+  );
+}
+
+function IncompleteView({ educations }) {
+  const [educationId, setEducationId] = useState('ALL');
+  const [page, setPage] = useState(1);
+
+  const { data, loading, error } = useFetch(() => {
+    const params = { page: page - 1, size: PROGRESS_PAGE_SIZE };
+    if (educationId !== 'ALL') params.educationId = educationId;
+    return getIncomplete(params);
+  }, [educationId, page]);
+
+  const pageData = data?.data;
+  const rows = pageData?.content ?? [];
+  const totalPages = pageData?.totalPages ?? 1;
+
+  function changeEducation(value) {
+    setEducationId(value);
+    setPage(1);
+  }
+
+  function resetFilters() {
+    setEducationId('ALL');
+    setPage(1);
+  }
+
+  return (
+    <>
+      <div className={styles.filterRow}>
+        <select
+          className={styles.filterSelect}
+          value={educationId}
+          onChange={e => changeEducation(e.target.value)}
+        >
+          <option value="ALL">과정 전체</option>
+          {educations.map(edu => (
+            <option key={edu.educationId} value={edu.educationId}>
+              {edu.title}
+            </option>
+          ))}
+        </select>
+
+        <button type="button" className={styles.resetBtn} onClick={resetFilters}>
+          초기화
+        </button>
+      </div>
+
+      {loading && <Spinner />}
+      {!loading && error && <ErrorMessage />}
+      {!loading && !error && rows.length === 0 && (
+        <EmptyState message="조건에 맞는 미완료자가 없습니다." />
+      )}
+      {!loading && !error && rows.length > 0 && (
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>부서</th>
+              <th>과정</th>
+              <th>진도율</th>
+              <th>수료 기준</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={`${row.userId}-${i}`}>
+                <td>
+                  <span className={styles.titleText}>{row.userName}</span>
+                </td>
+                <td className={styles.secondary}>{row.departmentName}</td>
+                <td>{row.educationTitle}</td>
+                <td>
+                  <ProgressBar rate={row.progressRate} />
+                </td>
+                <td className={`${styles.secondary} ${styles.criteriaCol}`}>
+                  {row.completionCriteria}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+    </>
+  );
+}
+
+function ProgressSection() {
+  const [mode, setMode] = useState('progress');
+
+  // 필터 옵션은 두 뷰가 공유하므로 세그먼트 전환과 무관하게 한 번만 조회한다
+  const { data: deptData } = useFetch(() => getDepartments(), []);
+  const { data: eduData } = useFetch(() => getEducations({ page: 0, size: 100 }), []);
+  const departments = deptData ?? [];
+  const educations = eduData?.data?.content ?? [];
+
+  return (
+    <section className={styles.tableCard}>
+      <div className={styles.tabRow}>
+        {PROGRESS_MODES.map(m => (
+          <button
+            key={m.key}
+            type="button"
+            className={`${styles.tabBtn} ${mode === m.key ? styles.tabBtnActive : ''}`}
+            onClick={() => setMode(m.key)}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
+      {mode === 'progress' ? (
+        <ProgressView departments={departments} educations={educations} />
+      ) : (
+        <IncompleteView educations={educations} />
+      )}
     </section>
   );
 }
