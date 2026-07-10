@@ -20,10 +20,10 @@ const QNA_STATUS_LABEL = {
 };
 
 const QNA_STATUS_STYLE = {
-  RECEIVED:    { color: '#FF4D94', background: '#FFF0F6' },
+  RECEIVED: { color: '#FF4D94', background: '#FFF0F6' },
   IN_PROGRESS: { color: '#2288FF', background: '#EAF4FF' },
-  ANSWERED:    { color: '#12B886', background: '#E6F8F2' },
-  ON_HOLD:     { color: '#FFAD33', background: '#FFF5E6' },
+  ANSWERED: { color: '#12B886', background: '#E6F8F2' },
+  ON_HOLD: { color: '#FFAD33', background: '#FFF5E6' },
 };
 
 function formatDate(iso) {

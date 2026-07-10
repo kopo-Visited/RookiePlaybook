@@ -17,7 +17,12 @@ const INITIAL_FORM = {
 
 const FIELDS = [
   { key: 'name', label: '이름', placeholder: '이름을 입력하세요' },
-  { key: 'email', label: '이메일', placeholder: '가입 시 사용한 이메일을 입력하세요', type: 'email' },
+  {
+    key: 'email',
+    label: '이메일',
+    placeholder: '가입 시 사용한 이메일을 입력하세요',
+    type: 'email',
+  },
   { key: 'employeeNo', label: '사번', placeholder: '사번을 입력하세요' },
   { key: 'departmentName', label: '부서', placeholder: '소속 부서를 입력하세요' },
   { key: 'phone', label: '전화번호', placeholder: "'-' 없이 숫자만 입력하세요" },

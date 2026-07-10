@@ -6,7 +6,12 @@ import { INQUIRY_TYPES } from '../../constants/inquiry';
 function IconX() {
   return (
     <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -50,7 +55,9 @@ function InquiryFormModal({ onClose, onSuccess }) {
         <div className={styles.modalTop}>
           <div className={styles.modalTitleWrap}>
             <h2 className={styles.title}>문의하기</h2>
-            <p className={styles.subtitle}>궁금한 점이나 요청 사항을 남겨주시면 관리자가 확인 후 답변드려요.</p>
+            <p className={styles.subtitle}>
+              궁금한 점이나 요청 사항을 남겨주시면 관리자가 확인 후 답변드려요.
+            </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             <IconX />

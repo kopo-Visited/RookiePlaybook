@@ -291,9 +291,7 @@ function AdminLayout() {
                       className={styles.notifItem}
                       onClick={goToUnlockRequests}
                     >
-                      <span className={styles.notifItemTitle}>
-                        {req.name}님 계정 잠금해제 요청
-                      </span>
+                      <span className={styles.notifItemTitle}>{req.name}님 계정 잠금해제 요청</span>
                       <span className={styles.notifItemTime}>
                         {formatRelativeTime(req.createdAt)}
                       </span>
