@@ -49,7 +49,7 @@ class QuestionControllerTest {
     void createQuestion_success() throws Exception {
         // given
         given(questionService.createQuestion(eq(100L), any()))
-                .willReturn(new QuestionCreateResponseDto(10L, QuestionStatus.RECEIVED));
+                .willReturn(new QuestionCreateResponseDto(10L, QuestionStatus.RECEIVED, null, true));
 
         // when & then
         mockMvc.perform(post("/api/questions")
