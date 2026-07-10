@@ -89,6 +89,7 @@ VALUES
     (1, '신입사원 온보딩 교육', '신입사원이 반드시 이수해야 하는 기본 온보딩 과정', 80, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (2, '백엔드 기초 교육', 'Spring Boot와 JPA 기반 백엔드 기초 과정', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (3, '보안 심화 교육', '웹 취약점과 보안 대응을 다루는 심화 과정', 60, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+ALTER TABLE educations ALTER COLUMN id RESTART WITH 4;
 
 -- 교육 단계
 INSERT INTO education_stages (id, education_id, title, description, order_number, created_at, updated_at)
@@ -99,6 +100,7 @@ VALUES
     (4, 2, 'Spring Boot 입문', 'Spring Boot 기본 개념과 구조', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (5, 2, 'JPA 기초', 'JPA 영속성 컨텍스트 이해', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (6, 3, '웹 취약점 이해', 'OWASP Top 10 개요', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+ALTER TABLE education_stages ALTER COLUMN id RESTART WITH 7;
 
 -- 교육 자료 (단계 1:1), total_duration 단위: 초
 INSERT INTO education_materials (id, stage_id, title, video_url, total_duration)
@@ -109,12 +111,14 @@ VALUES
     (4, 4, 'Spring Boot 시작하기', 'https://videos.example.com/springboot-intro.mp4', 1200),
     (5, 5, 'JPA 영속성 컨텍스트', 'https://videos.example.com/jpa-basic.mp4', 1500),
     (6, 6, 'OWASP Top 10', 'https://videos.example.com/owasp-top10.mp4', 1800);
+ALTER TABLE education_materials ALTER COLUMN id RESTART WITH 7;
 
 -- 과정 진도 (관리자 id=1, 일반 사용자 id=2)
 INSERT INTO education_progress (id, user_id, education_id, progress_rate, status, completed_at, created_at, updated_at)
 VALUES
     (1, 1, 1, 66, 'IN_PROGRESS', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (2, 2, 2, 100, 'COMPLETED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+ALTER TABLE education_progress ALTER COLUMN id RESTART WITH 3;
 
 -- 단계 완료 이력
 INSERT INTO stage_completions (id, user_id, stage_id, completed_at)
@@ -123,9 +127,11 @@ VALUES
     (2, 1, 2, CURRENT_TIMESTAMP),
     (3, 2, 4, CURRENT_TIMESTAMP),
     (4, 2, 5, CURRENT_TIMESTAMP);
+ALTER TABLE stage_completions ALTER COLUMN id RESTART WITH 5;
 
 -- 영상 시청 위치 (이어보기)
 INSERT INTO video_progress (id, user_id, material_id, watched_position)
 VALUES
     (1, 1, 3, 120),
     (2, 2, 4, 300);
+ALTER TABLE video_progress ALTER COLUMN id RESTART WITH 3;
