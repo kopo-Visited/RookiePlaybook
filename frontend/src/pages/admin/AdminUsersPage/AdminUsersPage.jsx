@@ -75,6 +75,7 @@ function buildRoleBreakdown(users) {
 const STATUS_LABELS = {
   ACTIVE: '활성',
   INACTIVE: '비활성',
+  LOCKED: '잠김',
   DELETED: '삭제됨',
 };
 
@@ -504,20 +505,6 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
             value={form.status}
             onChange={status => setForm({ ...form, status })}
           />
-        </div>
-
-        <div className={styles.field}>
-          <label className={styles.label}>비밀번호 초기화</label>
-          <p className={styles.helperText}>
-            사용자의 비밀번호를 초기화하고, 임시 비밀번호를 이메일로 발송합니다.
-          </p>
-          <button
-            type="button"
-            className={styles.dangerButton}
-            onClick={() => setForm({ ...form, passwordResetRequested: true })}
-          >
-            {form.passwordResetRequested ? '초기화 요청됨' : '비밀번호 초기화'}
-          </button>
         </div>
 
         <div className={styles.field}>
