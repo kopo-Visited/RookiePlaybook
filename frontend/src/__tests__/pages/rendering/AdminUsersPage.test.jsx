@@ -40,6 +40,11 @@ const mockDepartments = [
   { departmentId: 2, code: 'SEC', name: '보안팀' },
 ];
 
+const mockRoles = [
+  { roleId: 1, code: 'ROLE_USER', name: '일반 사용자' },
+  { roleId: 2, code: 'ROLE_ADMIN', name: '관리자' },
+];
+
 const server = setupServer();
 
 beforeAll(() => server.listen());
@@ -53,6 +58,9 @@ function mockDefaultHandlers() {
     ),
     http.get('/api/departments', () =>
       HttpResponse.json({ success: true, message: '', data: mockDepartments })
+    ),
+    http.get('/api/roles', () =>
+      HttpResponse.json({ success: true, message: '', data: mockRoles })
     )
   );
 }
