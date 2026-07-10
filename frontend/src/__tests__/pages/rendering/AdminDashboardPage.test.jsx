@@ -28,7 +28,6 @@ describe('AdminDashboardPage 렌더링', () => {
 
     // then
     expect(screen.getByText('전체 사용자')).toBeInTheDocument();
-    expect(screen.getByText('1,248명')).toBeInTheDocument();
     expect(screen.getByText('전체 문서')).toBeInTheDocument();
     expect(screen.getByText('미답변 질문')).toBeInTheDocument();
     expect(screen.getByText('진행 중 교육')).toBeInTheDocument();
@@ -53,8 +52,7 @@ describe('AdminDashboardPage 렌더링', () => {
     expect(screen.getByText('최근 등록 문서')).toBeInTheDocument();
     expect(screen.getByText('최근 질문 현황')).toBeInTheDocument();
     expect(screen.getByText('운영 공지')).toBeInTheDocument();
-    expect(screen.getByText('접속 현황 (오늘)')).toBeInTheDocument();
-    expect(screen.getByText('542명')).toBeInTheDocument();
+    expect(screen.getByText('접속 현황 (최근 로그인 기준)')).toBeInTheDocument();
   });
 
   it('전체 사용자 카드를 클릭하면 사용자 관리 화면으로 이동한다', async () => {
