@@ -24,7 +24,10 @@ function AiChatModal({ onClose }) {
       const res = await askAi(question);
       setMessages(prev => [...prev, { role: 'ai', text: res.data.answer }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'ai', text: '답변을 가져오는 중 오류가 발생했습니다.' }]);
+      setMessages(prev => [
+        ...prev,
+        { role: 'ai', text: '답변을 가져오는 중 오류가 발생했습니다.' },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -41,7 +44,9 @@ function AiChatModal({ onClose }) {
     <div className={styles.modal}>
       <div className={styles.header}>
         <span className={styles.headerTitle}>AI 온보딩 도우미</span>
-        <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        <button className={styles.closeBtn} onClick={onClose}>
+          ✕
+        </button>
       </div>
 
       <div className={styles.chatArea}>
@@ -51,10 +56,7 @@ function AiChatModal({ onClose }) {
           </div>
         )}
         {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={msg.role === 'user' ? styles.userBubble : styles.aiBubble}
-          >
+          <div key={i} className={msg.role === 'user' ? styles.userBubble : styles.aiBubble}>
             {msg.text}
           </div>
         ))}
@@ -75,11 +77,7 @@ function AiChatModal({ onClose }) {
           onKeyDown={handleKeyDown}
           disabled={loading}
         />
-        <button
-          className={styles.sendBtn}
-          onClick={handleSend}
-          disabled={loading || !input.trim()}
-        >
+        <button className={styles.sendBtn} onClick={handleSend} disabled={loading || !input.trim()}>
           전송
         </button>
       </div>

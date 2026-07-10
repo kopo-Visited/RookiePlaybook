@@ -28,7 +28,9 @@ const useLogin = () => {
       const { accessToken, ...user } = response.data;
       setAuth(user, accessToken);
       const destination = user.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DOC.LIST;
-      navigate(user.passwordChangeRequired ? ROUTES.CHANGE_PASSWORD : destination, { replace: true });
+      navigate(user.passwordChangeRequired ? ROUTES.CHANGE_PASSWORD : destination, {
+        replace: true,
+      });
     } catch (err) {
       setError(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
     } finally {
