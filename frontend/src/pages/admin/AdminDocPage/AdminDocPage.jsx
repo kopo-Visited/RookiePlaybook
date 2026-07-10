@@ -6,7 +6,6 @@ import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../.
 import Badge from '../../../components/Badge/Badge';
 import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
 
-
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
 
@@ -27,9 +26,7 @@ function IconSearch() {
 function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
   return (
     <div className={styles.statCard}>
-      <div className={`${styles.statIcon} ${styles[colorKey]}`}>
-        {iconText}
-      </div>
+      <div className={`${styles.statIcon} ${styles[colorKey]}`}>{iconText}</div>
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
@@ -52,8 +49,15 @@ function StatusBadge({ status }) {
 function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
   return (
     <div className={styles.actionRow}>
-      <button className={styles.actionBtn} onClick={() => onEdit(row)}>수정</button>
-      <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => onDelete(row)}>삭제</button>
+      <button className={styles.actionBtn} onClick={() => onEdit(row)}>
+        수정
+      </button>
+      <button
+        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+        onClick={() => onDelete(row)}
+      >
+        삭제
+      </button>
       <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
         {row.isPublic ? '비공개' : '공개'}
       </button>
@@ -82,38 +86,88 @@ function AdminDocPage() {
   const { data: faqRes } = useFetch(() => getFaqs(), []);
   const totalFaqs = faqRes?.data?.length ?? 0;
 
-  const publicDocs  = useMemo(() => docs.filter(d => d.isPublic).length,  [docs]);
+  const publicDocs = useMemo(() => docs.filter(d => d.isPublic).length, [docs]);
   const privateDocs = useMemo(() => docs.filter(d => !d.isPublic).length, [docs]);
 
-  const statCards = useMemo(() => [
-    { key: 'total',   label: '전체 문서',  value: `${docs.length}건`, sub: '전체 등록 문서',    subColor: '#12B886', colorKey: 'blue',   iconText: 'Doc' },
-    { key: 'public',  label: '공개 문서',  value: `${publicDocs}건`,  sub: '사용자에게 노출',   subColor: '#12B886', colorKey: 'green',  iconText: 'Pub' },
-    { key: 'private', label: '비공개 문서', value: `${privateDocs}건`, sub: '비공개 처리 문서', subColor: '#637087', colorKey: 'orange', iconText: 'Prv' },
-    { key: 'review',  label: '검토 필요',  value: '0건',               sub: '6개월 이상 미검토', subColor: '#FF4D94', colorKey: 'pink',   iconText: 'Rev' },
-    { key: 'faq',     label: '등록 FAQ',   value: `${totalFaqs}건`,   sub: '전체 FAQ 목록',    subColor: '#12B886', colorKey: 'purple', iconText: 'FAQ' },
-  ], [docs, publicDocs, privateDocs, totalFaqs]);
+  const statCards = useMemo(
+    () => [
+      {
+        key: 'total',
+        label: '전체 문서',
+        value: `${docs.length}건`,
+        sub: '전체 등록 문서',
+        subColor: '#12B886',
+        colorKey: 'blue',
+        iconText: 'Doc',
+      },
+      {
+        key: 'public',
+        label: '공개 문서',
+        value: `${publicDocs}건`,
+        sub: '사용자에게 노출',
+        subColor: '#12B886',
+        colorKey: 'green',
+        iconText: 'Pub',
+      },
+      {
+        key: 'private',
+        label: '비공개 문서',
+        value: `${privateDocs}건`,
+        sub: '비공개 처리 문서',
+        subColor: '#637087',
+        colorKey: 'orange',
+        iconText: 'Prv',
+      },
+      {
+        key: 'review',
+        label: '검토 필요',
+        value: '0건',
+        sub: '6개월 이상 미검토',
+        subColor: '#FF4D94',
+        colorKey: 'pink',
+        iconText: 'Rev',
+      },
+      {
+        key: 'faq',
+        label: '등록 FAQ',
+        value: `${totalFaqs}건`,
+        sub: '전체 FAQ 목록',
+        subColor: '#12B886',
+        colorKey: 'purple',
+        iconText: 'FAQ',
+      },
+    ],
+    [docs, publicDocs, privateDocs, totalFaqs]
+  );
 
-  const filtered = useMemo(() => docs.filter(row => {
-    const matchSearch = !search || row.title.includes(search) || row.categoryName.includes(search);
-    const matchCategory = !categoryFilter || row.categoryName === categoryFilter;
-    const publicStatus = row.isPublic ? '공개' : '비공개';
-    const matchStatus = !statusFilter || publicStatus === statusFilter;
-    return matchSearch && matchCategory && matchStatus;
-  }), [docs, search, categoryFilter, statusFilter]);
+  const filtered = useMemo(
+    () =>
+      docs.filter(row => {
+        const matchSearch =
+          !search || row.title.includes(search) || row.categoryName.includes(search);
+        const matchCategory = !categoryFilter || row.categoryName === categoryFilter;
+        const publicStatus = row.isPublic ? '공개' : '비공개';
+        const matchStatus = !statusFilter || publicStatus === statusFilter;
+        return matchSearch && matchCategory && matchStatus;
+      }),
+    [docs, search, categoryFilter, statusFilter]
+  );
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pagedDocs  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pagedDocs = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [search, categoryFilter, statusFilter]);
+  useEffect(() => {
+    setPage(1);
+  }, [search, categoryFilter, statusFilter]);
 
   const handleCreated = useCallback(() => setRefreshKey(k => k + 1), []);
 
-  const handleEdit = useCallback((doc) => {
+  const handleEdit = useCallback(doc => {
     setEditDoc(doc);
     setModalOpen(true);
   }, []);
 
-  const handleDelete = useCallback(async (doc) => {
+  const handleDelete = useCallback(async doc => {
     if (!window.confirm(`"${doc.title}" 문서를 삭제하시겠습니까?`)) return;
     try {
       await deleteDocument(doc.id);
@@ -123,7 +177,7 @@ function AdminDocPage() {
     }
   }, []);
 
-  const handleTogglePublic = useCallback(async (doc) => {
+  const handleTogglePublic = useCallback(async doc => {
     try {
       await updateDocument(doc.id, {
         categoryName: doc.categoryName,
@@ -137,8 +191,8 @@ function AdminDocPage() {
     }
   }, []);
 
-  const categoryOptions = useMemo(() =>
-    [...new Set(docs.map(d => d.categoryName).filter(Boolean))].sort(),
+  const categoryOptions = useMemo(
+    () => [...new Set(docs.map(d => d.categoryName).filter(Boolean))].sort(),
     [docs]
   );
 
@@ -148,9 +202,7 @@ function AdminDocPage() {
       const key = d.categoryName ?? '기타';
       counts.set(key, (counts.get(key) ?? 0) + 1);
     });
-    const sorted = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
     const max = sorted[0]?.[1] ?? 1;
     return sorted.map(([label, count]) => ({ label, count, ratio: count / max }));
   }, [docs]);
@@ -168,7 +220,9 @@ function AdminDocPage() {
         id: d.id,
         title: d.title,
         dept: d.categoryName,
-        daysAgo: Math.floor((now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+        daysAgo: Math.floor(
+          (now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        ),
       }));
   }, [docs]);
 
@@ -216,7 +270,13 @@ function AdminDocPage() {
           </div>
           <div className={styles.headerBtns}>
             <button className={styles.btnOutline}>+ FAQ 등록</button>
-            <button className={styles.btnPrimary} onClick={() => { setEditDoc(null); setModalOpen(true); }}>
+            <button
+              className={styles.btnPrimary}
+              onClick={() => {
+                setEditDoc(null);
+                setModalOpen(true);
+              }}
+            >
               + 문서 등록
             </button>
           </div>
@@ -239,7 +299,9 @@ function AdminDocPage() {
           >
             <option value="">카테고리 전체</option>
             {categoryOptions.map(c => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
           <select
@@ -269,50 +331,91 @@ function AdminDocPage() {
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={6} className={styles.textCell} style={{ textAlign: 'center', padding: '40px' }}>불러오는 중...</td></tr>
+              <tr>
+                <td
+                  colSpan={6}
+                  className={styles.textCell}
+                  style={{ textAlign: 'center', padding: '40px' }}
+                >
+                  불러오는 중...
+                </td>
+              </tr>
             )}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={6} className={styles.textCell} style={{ textAlign: 'center', padding: '40px' }}>문서가 없습니다.</td></tr>
+              <tr>
+                <td
+                  colSpan={6}
+                  className={styles.textCell}
+                  style={{ textAlign: 'center', padding: '40px' }}
+                >
+                  문서가 없습니다.
+                </td>
+              </tr>
             )}
-            {!loading && pagedDocs.map(row => {
-              const publicStatus = row.isPublic ? '공개' : '비공개';
-              return (
-                <tr key={row.id}>
-                  <td>
-                    <span className={styles.docTitle}>{row.title}</span>
-                  </td>
-                  <td>
-                    <div>
-                      <Badge colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE} size={BADGE_SIZES.SM}>
-                        {row.categoryName}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td>
-                    <div><StatusBadge status={publicStatus} /></div>
-                  </td>
-                  <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
-                  <td className={styles.textCell}>{row.viewCount}</td>
-                  <td>
-                    <ActionButtons row={row} onEdit={handleEdit} onDelete={handleDelete} onTogglePublic={handleTogglePublic} />
-                  </td>
-                </tr>
-              );
-            })}
+            {!loading &&
+              pagedDocs.map(row => {
+                const publicStatus = row.isPublic ? '공개' : '비공개';
+                return (
+                  <tr key={row.id}>
+                    <td>
+                      <span className={styles.docTitle}>{row.title}</span>
+                    </td>
+                    <td>
+                      <div>
+                        <Badge
+                          colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE}
+                          size={BADGE_SIZES.SM}
+                        >
+                          {row.categoryName}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <StatusBadge status={publicStatus} />
+                      </div>
+                    </td>
+                    <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
+                    <td className={styles.textCell}>{row.viewCount}</td>
+                    <td>
+                      <ActionButtons
+                        row={row}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onTogglePublic={handleTogglePublic}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
 
         {totalPages > 1 && (
           <div className={styles.pagination}>
-            <button className={styles.pageArrow} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>‹</button>
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              ‹
+            </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
               <button
                 key={n}
                 className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
                 onClick={() => setPage(n)}
-              >{n}</button>
+              >
+                {n}
+              </button>
             ))}
-            <button className={styles.pageArrow} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>›</button>
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              ›
+            </button>
           </div>
         )}
       </div>
@@ -352,7 +455,9 @@ function AdminDocPage() {
           </div>
           <div className={styles.staleList}>
             {staleDocs.length === 0 && (
-              <p className={styles.emptyText}>{STALE_THRESHOLD_DAYS}일 이상 미갱신 문서가 없습니다.</p>
+              <p className={styles.emptyText}>
+                {STALE_THRESHOLD_DAYS}일 이상 미갱신 문서가 없습니다.
+              </p>
             )}
             {staleDocs.map(doc => (
               <div key={doc.id} className={styles.staleItem}>
@@ -370,7 +475,10 @@ function AdminDocPage() {
       </div>
       {modalOpen && (
         <AdminDocModal
-          onClose={() => { setModalOpen(false); setEditDoc(null); }}
+          onClose={() => {
+            setModalOpen(false);
+            setEditDoc(null);
+          }}
           onCreated={handleCreated}
           editDoc={editDoc}
         />

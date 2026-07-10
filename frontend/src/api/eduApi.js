@@ -14,7 +14,6 @@ export const createStage = data => axiosInstance.post('/api/admin/stages', data)
 export const updateStage = (stageId, data) =>
   axiosInstance.put(`/api/admin/stages/${stageId}`, data);
 export const deleteStage = stageId => axiosInstance.delete(`/api/admin/stages/${stageId}`);
-export const getAdminProgress = params =>
-  axiosInstance.get('/api/admin/educations/progress', { params });
+export const getAdminProgress = params => axiosInstance.get('/api/admin/progress', { params });
 export const getIncomplete = params =>
-  axiosInstance.get('/api/admin/educations/incomplete', { params });
+  axiosInstance.get('/api/admin/progress/incomplete', { params });

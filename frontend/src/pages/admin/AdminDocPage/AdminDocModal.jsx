@@ -20,9 +20,18 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
   const handleSubmit = async () => {
-    if (!form.title.trim()) { setError('문서 제목을 입력하세요.'); return; }
-    if (!form.category) { setError('카테고리를 선택하세요.'); return; }
-    if (!form.content.trim()) { setError('문서 내용을 입력하세요.'); return; }
+    if (!form.title.trim()) {
+      setError('문서 제목을 입력하세요.');
+      return;
+    }
+    if (!form.category) {
+      setError('카테고리를 선택하세요.');
+      return;
+    }
+    if (!form.content.trim()) {
+      setError('문서 내용을 입력하세요.');
+      return;
+    }
 
     setSubmitting(true);
     setError('');
@@ -57,7 +66,9 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
               {isEdit ? '문서 내용을 수정합니다.' : '신입사원이 참고할 지식 문서를 추가합니다.'}
             </p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>×</button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className={styles.formGrid}>
@@ -81,7 +92,9 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
             >
               <option value="">카테고리 선택</option>
               {CATEGORIES.map(c => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -94,7 +107,9 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
               onChange={e => handleChange('visibility', e.target.value)}
             >
               {VISIBILITIES.map(v => (
-                <option key={v} value={v}>{v}</option>
+                <option key={v} value={v}>
+                  {v}
+                </option>
               ))}
             </select>
           </div>
@@ -118,7 +133,7 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
             취소
           </button>
           <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
-            {submitting ? (isEdit ? '수정 중...' : '등록 중...') : (isEdit ? '수정하기' : '등록하기')}
+            {submitting ? (isEdit ? '수정 중...' : '등록 중...') : isEdit ? '수정하기' : '등록하기'}
           </button>
         </div>
       </div>

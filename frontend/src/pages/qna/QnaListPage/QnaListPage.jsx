@@ -22,18 +22,18 @@ const QNA_STATUS_LABEL = {
 };
 
 const QNA_STATUS_STYLE = {
-  RECEIVED:    { color: '#FF4D94', background: '#FFF0F6' },
+  RECEIVED: { color: '#FF4D94', background: '#FFF0F6' },
   IN_PROGRESS: { color: '#2288FF', background: '#EAF4FF' },
-  ANSWERED:    { color: '#12B886', background: '#E6F8F2' },
-  ON_HOLD:     { color: '#FFAD33', background: '#FFF5E6' },
+  ANSWERED: { color: '#12B886', background: '#E6F8F2' },
+  ON_HOLD: { color: '#FFAD33', background: '#FFF5E6' },
 };
 
 const ALL_STATUSES = [
-  { key: null,          label: '전체' },
-  { key: 'RECEIVED',    label: '접수' },
+  { key: null, label: '전체' },
+  { key: 'RECEIVED', label: '접수' },
   { key: 'IN_PROGRESS', label: '처리중' },
-  { key: 'ANSWERED',    label: '답변완료' },
-  { key: 'ON_HOLD',     label: '보류' },
+  { key: 'ANSWERED', label: '답변완료' },
+  { key: 'ON_HOLD', label: '보류' },
 ];
 
 function IconChevronDown() {

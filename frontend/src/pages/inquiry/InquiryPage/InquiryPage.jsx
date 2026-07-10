@@ -38,7 +38,10 @@ function InquiryPage() {
   const [detailId, setDetailId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const { data, loading, error } = useFetch(() => getMyInquiries().then(r => r.data ?? r), [refreshKey]);
+  const { data, loading, error } = useFetch(
+    () => getMyInquiries().then(r => r.data ?? r),
+    [refreshKey]
+  );
   const items = data ?? [];
 
   return (

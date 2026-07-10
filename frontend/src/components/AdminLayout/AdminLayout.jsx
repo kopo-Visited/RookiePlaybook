@@ -1,8 +1,25 @@
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import styles from './AdminLayout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
 import { logout as logoutApi } from '../../api/authApi';
+import { getAccountUnlockRequests } from '../../api/accountUnlockApi';
+
+function formatRelativeTime(iso) {
+  if (!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 1) return '방금 전';
+  if (min < 60) return `${min}분 전`;
+  const hour = Math.floor(min / 60);
+  if (hour < 24) return `${hour}시간 전`;
+  const day = Math.floor(hour / 24);
+  if (day === 1) return '어제';
+  if (day < 7) return `${day}일 전`;
+  const d = new Date(iso);
+  return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
 function IconHome() {
   return (
@@ -108,6 +125,20 @@ function IconFileTray() {
   );
 }
 
+function IconBell() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function IconLogout() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -160,6 +191,39 @@ function AdminLayout() {
   const displayDept = user ? `${user.departmentName} · ${user.roleName}` : '';
   const avatarChar = displayName[0];
 
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    let ignore = false;
+    getAccountUnlockRequests()
+      .then(res => {
+        if (ignore) return;
+        const list = res?.data ?? [];
+        setPendingRequests(list.filter(r => r.status === 'PENDING'));
+      })
+      .catch(() => {
+        if (!ignore) setPendingRequests([]);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, []);
+
+  function goToUnlockRequests() {
+    setNotifOpen(false);
+    navigate(ROUTES.ADMIN.SETTINGS, { state: { tab: 'unlock' } });
+  }
+
   async function handleLogout() {
     try {
       await logoutApi();
@@ -198,6 +262,50 @@ function AdminLayout() {
 
       <div className={styles.mainWrapper}>
         <header className={styles.topbar}>
+          <div className={styles.notifWrap} ref={notifRef}>
+            <button
+              type="button"
+              className={styles.notifBtn}
+              onClick={() => setNotifOpen(o => !o)}
+              aria-label="알림"
+            >
+              <span className={styles.notifIcon}>
+                <IconBell />
+              </span>
+              {pendingRequests.length > 0 && (
+                <span className={styles.notifBadge}>{pendingRequests.length}</span>
+              )}
+            </button>
+            {notifOpen && (
+              <div className={styles.notifPanel}>
+                <div className={styles.notifPanelHeader}>
+                  <span className={styles.notifPanelTitle}>계정 잠금해제 요청</span>
+                </div>
+                <ul className={styles.notifList}>
+                  {pendingRequests.length === 0 && (
+                    <li className={styles.notifEmpty}>대기 중인 요청이 없습니다.</li>
+                  )}
+                  {pendingRequests.slice(0, 5).map(req => (
+                    <li
+                      key={req.requestId}
+                      className={styles.notifItem}
+                      onClick={goToUnlockRequests}
+                    >
+                      <span className={styles.notifItemTitle}>{req.name}님 계정 잠금해제 요청</span>
+                      <span className={styles.notifItemTime}>
+                        {formatRelativeTime(req.createdAt)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {pendingRequests.length > 0 && (
+                  <button className={styles.notifPanelMore} onClick={goToUnlockRequests}>
+                    전체보기 ›
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>{avatarChar}</div>
             <div className={styles.userText}>

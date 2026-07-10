@@ -1,6 +1,7 @@
 export const ROUTES = {
   LOGIN: '/login',
   CHANGE_PASSWORD: '/change-password',
+  ACCOUNT_UNLOCK: '/account-unlock-request',
   DASHBOARD: '/dashboard',
   DOC: {
     LIST: '/doc',
