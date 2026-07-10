@@ -2,8 +2,10 @@ package com.visited.www.ai.service;
 
 import com.visited.www.ai.dto.AiAnswerResponse;
 import com.visited.www.ai.dto.AiAskRequest;
+import com.visited.www.ai.exception.AiResponseException;
 import com.visited.www.doc.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class AiServiceImpl implements AiService {
 
@@ -36,10 +39,15 @@ public class AiServiceImpl implements AiService {
     public AiAnswerResponse ask(AiAskRequest request) {
         String userMessage = buildUserMessage(request.getQuestion());
 
-        String answer = chatClient.prompt()
-                .user(userMessage)
-                .call()
-                .content();
+        String answer;
+        try {
+            answer = chatClient.prompt()
+                    .user(userMessage)
+                    .call()
+                    .content();
+        } catch (RuntimeException e) {
+            throw new AiResponseException(e);
+        }
 
         return new AiAnswerResponse(answer);
     }
@@ -49,12 +57,18 @@ public class AiServiceImpl implements AiService {
             return question;
         }
 
-        List<Document> relevantDocs = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(question)
-                        .topK(5)
-                        .build()
-        );
+        List<Document> relevantDocs;
+        try {
+            relevantDocs = vectorStore.similaritySearch(
+                    SearchRequest.builder()
+                            .query(question)
+                            .topK(5)
+                            .build()
+            );
+        } catch (RuntimeException e) {
+            log.warn("벡터 검색 실패, 컨텍스트 없이 질문만 전달합니다.", e);
+            return question;
+        }
 
         if (relevantDocs.isEmpty()) {
             return question;
@@ -91,7 +105,11 @@ public class AiServiceImpl implements AiService {
                 .toList();
 
         if (!aiDocs.isEmpty()) {
-            vectorStore.add(aiDocs);
+            try {
+                vectorStore.add(aiDocs);
+            } catch (RuntimeException e) {
+                throw new AiResponseException(e);
+            }
         }
     }
 }
