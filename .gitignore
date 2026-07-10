@@ -49,6 +49,9 @@ dist-ssr
 .npm
 .eslintcache
 
+# 디자인 시안 등 로컬 산출물 (git 제외)
+frontend/design/
+
 # ==========================================
 # 4. Backend (Java / Spring Boot / Gradle / Maven)
 # ==========================================

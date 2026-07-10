@@ -13,10 +13,10 @@ const QNA_STATUS_LABEL = {
 };
 
 const QNA_STATUS_CLASS = {
-  RECEIVED:    'stReceived',
+  RECEIVED: 'stReceived',
   IN_PROGRESS: 'stInProgress',
-  ANSWERED:    'stAnswered',
-  ON_HOLD:     'stOnHold',
+  ANSWERED: 'stAnswered',
+  ON_HOLD: 'stOnHold',
 };
 
 const STATUS_OPTIONS = ['RECEIVED', 'IN_PROGRESS', 'ANSWERED', 'ON_HOLD'];
@@ -260,7 +260,7 @@ function AdminQnaDetail({ questionId, onBack }) {
                         : QNA_STATUS_LABEL[h.newStatus]}
                     </span>
                     <span className={styles.timelineMeta}>
-                      {(h.changedByName ?? '관리자')} / {formatDateTime(h.createdAt)}
+                      {h.changedByName ?? '관리자'} / {formatDateTime(h.createdAt)}
                     </span>
                   </div>
                 </li>
@@ -275,7 +275,11 @@ function AdminQnaDetail({ questionId, onBack }) {
       {faqOpen && (
         <AdminQnaFaqModal
           questionId={questionId}
-          question={{ title: detail.title, category: detail.category?.name, content: detail.content }}
+          question={{
+            title: detail.title,
+            category: detail.category?.name,
+            content: detail.content,
+          }}
           answer={answer}
           onClose={() => setFaqOpen(false)}
           onSuccess={() => {

@@ -16,15 +16,13 @@ export const getQuestionCategories = () => axiosInstance.get('/api/question-cate
 
 // 알림
 export const getNotifications = () => axiosInstance.get('/api/notifications');
-export const markNotificationRead = id =>
-  axiosInstance.patch(`/api/notifications/${id}/read`);
+export const markNotificationRead = id => axiosInstance.patch(`/api/notifications/${id}/read`);
 export const deleteAllNotifications = () => axiosInstance.delete('/api/notifications');
 
 // 관리자 (질문 목록/상세/답변/상태변경/FAQ 전환)
 export const getAdminQnas = params => axiosInstance.get('/api/admin/questions', { params });
 export const getAdminQna = id => axiosInstance.get(`/api/admin/questions/${id}`);
-export const answerQna = (id, data) =>
-  axiosInstance.put(`/api/admin/questions/${id}/answer`, data);
+export const answerQna = (id, data) => axiosInstance.put(`/api/admin/questions/${id}/answer`, data);
 export const updateQnaStatus = (id, data) =>
   axiosInstance.patch(`/api/admin/questions/${id}/status`, data);
 export const convertQnaToFaq = (id, data) =>

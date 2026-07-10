@@ -235,23 +235,21 @@ function DonutChart({ data, size = 160 }) {
   const outerR = size / 2 - 6;
   const innerR = outerR - size * 0.18;
   const gapDeg = 2;
-  let angle = 0;
+
+  let acc = 0;
+  const segments = data.map(({ key, value, color }) => {
+    const sweep = (value / total) * 360;
+    const start = acc + gapDeg / 2;
+    const end = acc + sweep - gapDeg / 2;
+    acc += sweep;
+    return { key, color, d: describeDonutSegment(center, center, outerR, innerR, start, end) };
+  });
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className={styles.donutSvg}>
-      {data.map(({ key, value, color }) => {
-        const sweep = (value / total) * 360;
-        const start = angle + gapDeg / 2;
-        const end = angle + sweep - gapDeg / 2;
-        angle += sweep;
-        return (
-          <path
-            key={key}
-            d={describeDonutSegment(center, center, outerR, innerR, start, end)}
-            fill={color}
-          />
-        );
-      })}
+      {segments.map(({ key, color, d }) => (
+        <path key={key} d={d} fill={color} />
+      ))}
     </svg>
   );
 }
@@ -566,7 +564,6 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
 }
 
 function AdminUsersPage() {
-
   const {
     users,
     departments,
