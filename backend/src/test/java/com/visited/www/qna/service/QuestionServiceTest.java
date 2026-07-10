@@ -44,6 +44,12 @@ class QuestionServiceTest {
     @Mock
     private QuestionCategoryRepository questionCategoryRepository;
 
+    @Mock
+    private AutoFaqPromoter autoFaqPromoter;
+
+    @Mock
+    private AiCategoryClassifier aiCategoryClassifier;
+
     private QuestionCategory activeCategory() {
         QuestionCategory category = QuestionCategory.builder()
                 .name("IT/시스템")

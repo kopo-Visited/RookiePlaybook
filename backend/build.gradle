@@ -3,6 +3,7 @@ plugins {
 	id 'war'
 	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.github.spotbugs' version '6.5.8'
 }
 
 group = 'com.visited'
@@ -53,6 +54,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
 }
 
 dependencyManagement {
@@ -63,4 +65,28 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+spotbugs {
+	toolVersion = '4.10.2'
+	ignoreFailures = true
+	reportLevel = 'medium'
+	excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
+tasks.named('spotbugsMain') {
+	reports {
+		html {
+			required = true
+			outputLocation = layout.buildDirectory.file('reports/spotbugs/main.html')
+		}
+		xml {
+			required = true
+			outputLocation = layout.buildDirectory.file('reports/spotbugs/main.xml')
+		}
+	}
+}
+
+tasks.named('spotbugsTest') {
+	enabled = false
 }

@@ -83,6 +83,7 @@ bin/
 # 5. Documents (내부 문서 - git 제외)
 # ==========================================
 docs/*.pdf
+docs/find-security-bugs-review.md
 
 # ==========================================
 # 6. Editor & OS (IDE 및 운영체제 임시 파일)
