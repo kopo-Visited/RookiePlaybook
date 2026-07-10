@@ -57,6 +57,10 @@ public class AdminUserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
+        if (userRepository.existsByEmployeeNo(request.employeeNo())) {
+            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+        }
+
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
 
@@ -70,6 +74,8 @@ public class AdminUserService {
                 .department(department)
                 .role(role)
                 .position(request.position())
+                .employeeNo(request.employeeNo())
+                .phone(request.phone())
                 .status(request.status() == null ? UserStatus.ACTIVE : request.status())
                 .build();
 
@@ -84,12 +90,18 @@ public class AdminUserService {
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다."));
 
+        if (!request.employeeNo().equals(user.getEmployeeNo())
+                && userRepository.existsByEmployeeNo(request.employeeNo())) {
+            throw new IllegalArgumentException("이미 사용 중인 사번입니다.");
+        }
+
         user.updateInfo(
                 request.name(),
                 department,
                 request.position(),
                 request.status()
         );
+        user.updateContact(request.employeeNo(), request.phone());
 
         return UserResponse.from(user);
     }

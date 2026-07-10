@@ -23,14 +23,26 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final LoginAttemptService loginAttemptService;
 
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPassword()))
                 .orElseThrow(() -> new BusinessException(LOGIN_FAILED_MESSAGE, ErrorCode.UNAUTHORIZED));
+
+        if (user.getStatus() == UserStatus.LOCKED) {
+            throw new BusinessException(ErrorCode.ACCOUNT_LOCKED);
+        }
 
         if (user.getStatus() != UserStatus.ACTIVE) {
             throw new BusinessException("비활성화된 계정입니다. 관리자에게 문의해주세요.", ErrorCode.FORBIDDEN);
+        }
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            boolean locked = loginAttemptService.registerFailure(user.getId());
+            if (locked) {
+                throw new BusinessException(ErrorCode.ACCOUNT_LOCKED);
+            }
+            throw new BusinessException(LOGIN_FAILED_MESSAGE, ErrorCode.UNAUTHORIZED);
         }
 
         user.updateLastLoginAt();
