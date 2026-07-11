@@ -124,6 +124,13 @@ function buildAccessTrendBuckets(hourlyAccessTrend) {
   });
 }
 
+function formatDateTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function buildRecentUsersRows(recentUsers) {
   if (!recentUsers) return [];
   return recentUsers.map(u => ({
@@ -132,7 +139,7 @@ function buildRecentUsersRows(recentUsers) {
     dept: u.departmentName,
     position: u.position,
     email: u.email,
-    joinedAt: formatDate(u.createdAt),
+    lastLoginAt: formatDateTime(u.lastLoginAt),
     statusLabel: USER_STATUS_LABELS[u.status] ?? u.status,
   }));
 }
@@ -519,19 +526,19 @@ function AdminDashboardPage() {
                   <th>부서</th>
                   <th>직급</th>
                   <th>이메일</th>
-                  <th>가입일</th>
+                  <th>최근 접속</th>
                   <th>상태</th>
                 </tr>
               </thead>
               <tbody>
                 {recentUsersRows.map(
-                  ({ id, name, dept, position, email, joinedAt, statusLabel }) => (
+                  ({ id, name, dept, position, email, lastLoginAt, statusLabel }) => (
                     <tr key={id}>
                       <td>{name}</td>
                       <td>{dept}</td>
                       <td>{position}</td>
                       <td>{email}</td>
-                      <td>{joinedAt}</td>
+                      <td>{lastLoginAt}</td>
                       <td>
                         <span className={styles.statusBadge}>{statusLabel}</span>
                       </td>
