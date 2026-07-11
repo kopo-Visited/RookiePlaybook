@@ -65,9 +65,12 @@ public class EducationProgress {
                 this.completedAt = LocalDateTime.now();
             }
         } else if (progressRate > 0) {
+            // 단계 추가 등으로 수료 기준 아래로 내려오면 수료를 해제한다 (완료 시각도 초기화)
             this.status = ProgressStatus.IN_PROGRESS;
+            this.completedAt = null;
         } else {
             this.status = ProgressStatus.NOT_STARTED;
+            this.completedAt = null;
         }
     }
 
