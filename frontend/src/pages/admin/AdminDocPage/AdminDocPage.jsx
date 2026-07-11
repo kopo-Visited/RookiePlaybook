@@ -319,6 +319,7 @@ function AdminDocPage() {
           </button>
         </div>
 
+        <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -391,6 +392,7 @@ function AdminDocPage() {
               })}
           </tbody>
         </table>
+        </div>
 
         {totalPages > 1 && (
           <div className={styles.pagination}>
