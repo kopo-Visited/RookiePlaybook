@@ -251,6 +251,7 @@
 .usersTable {
   width: 100%;
   min-width: 760px;
+  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -269,6 +270,8 @@
   padding: 14px 8px 14px 0;
   border-bottom: 1px solid #f5f7fa;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .usersTable tr:last-child td {
