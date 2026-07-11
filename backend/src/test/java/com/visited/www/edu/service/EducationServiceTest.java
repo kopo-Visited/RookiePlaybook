@@ -492,6 +492,8 @@ class EducationServiceTest {
         Long stageId = 1L;
         EducationStage stage = mock(EducationStage.class);
         given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+        // 삭제 후 진도 재계산이 stage.getEducation()을 사용하므로 목킹한다
+        given(stage.getEducation()).willReturn(mock(Education.class));
 
         EducationMaterial material = mock(EducationMaterial.class);
         given(material.getId()).willReturn(5L);
