@@ -628,7 +628,7 @@ function AdminDashboardPage() {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>접속 현황 (최근 로그인 기준)</span>
-            <MoreLinkButton />
+            <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.USERS)} />
           </div>
           <div className={styles.trendHeader}>
             <span className={styles.trendValue}>{recentLoginCount.toLocaleString()}명</span>
