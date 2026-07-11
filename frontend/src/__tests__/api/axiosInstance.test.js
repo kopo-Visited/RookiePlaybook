@@ -35,6 +35,20 @@ describe('axiosInstance 응답 인터셉터', () => {
     expect(window.location.href).toBe(ROUTES.LOGIN);
   });
 
+  it('로그인 요청 자체의 401은 세션 만료 처리를 하지 않는다', async () => {
+    // given
+    const error = {
+      config: { url: '/api/auth/login' },
+      response: { status: 401, data: { message: '이메일 또는 비밀번호가 일치하지 않습니다.' } },
+    };
+
+    // when & then
+    await expect(rejected(error)).rejects.toBe(error);
+    expect(useToastStore.getState().message).toBeNull();
+    expect(useAuthStore.getState().token).toBe('token-abc');
+    expect(window.location.href).toBe('');
+  });
+
   it('이미 로그인 페이지에 있으면 401이어도 다시 이동시키지 않는다', async () => {
     // given
     mockLocation(ROUTES.LOGIN);
