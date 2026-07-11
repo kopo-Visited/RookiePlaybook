@@ -275,4 +275,62 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(video.currentTime).toBe(15);
     expect(video.getAttribute('src')).not.toContain('#t=');
   });
+
+  it('현재 영상 미시청 시 다음 영상 버튼이 비활성화된다', async () => {
+    // given & when — 다음 단계(stage 2)가 존재하는 첫 단계
+    mockSuccess();
+    renderPage(1);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
+  });
+
+  it('현재 영상을 95% 이상 시청하면 다음 영상 버튼이 활성화된다', async () => {
+    // given
+    mockSuccess();
+    renderPage(1);
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video, { duration: 30 });
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
+
+    // when — 96% 지점까지 재생
+    video.currentTime = 29;
+    fireEvent.timeUpdate(video);
+
+    // then
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
+  });
+
+  it('과정을 이미 수료한 사용자는 미시청이어도 다음 영상 버튼이 활성화된다', async () => {
+    // given — 과정 수료(detail.isCompleted=true)
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: material })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: { ...detail, isCompleted: true } })
+      )
+    );
+
+    // when
+    renderPage(1);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
+    });
+  });
+
+  it('첫 단계가 아니면 미시청이어도 이전 영상 버튼은 활성화된다', async () => {
+    // given & when — 이전 단계(stage 1)가 존재하는 두 번째 단계
+    mockSuccess();
+    renderPage(2);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByRole('button', { name: /이전 영상/ })).toBeEnabled();
+  });
 });
