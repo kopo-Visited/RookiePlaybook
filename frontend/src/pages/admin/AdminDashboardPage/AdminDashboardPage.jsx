@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
+import useEduCompletionSummary from '../../../hooks/admin/useEduCompletionSummary';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { formatDate } from '../../../utils/formatDate';
@@ -91,6 +92,22 @@ function buildCategoryDonutData(distribution) {
     value: item.count,
     color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
   }));
+}
+
+const EDU_DONUT_COLORS = { completed: '#2288FF', incomplete: '#DBEAFE' };
+
+function buildEduDonutData(summary) {
+  if (!summary || summary.total === 0) return [];
+  const incomplete = Math.max(summary.total - summary.completed, 0);
+  return [
+    {
+      key: 'completed',
+      label: '완료',
+      value: summary.completed,
+      color: EDU_DONUT_COLORS.completed,
+    },
+    { key: 'incomplete', label: '미완료', value: incomplete, color: EDU_DONUT_COLORS.incomplete },
+  ];
 }
 
 const ACCESS_BUCKET_LABELS = ['00-03시', '04-07시', '08-11시', '12-15시', '16-19시', '20-23시'];
@@ -444,8 +461,14 @@ function AdminDashboardPage() {
   const navigate = useNavigate();
 
   const { stats, loading: statsLoading } = useDashboardStats();
+  const { summary: eduSummary, loading: eduLoading, error: eduError } = useEduCompletionSummary();
   const statCardValues = buildStatCardValues(stats);
   const categoryDonutData = buildCategoryDonutData(stats?.documentCategoryDistribution);
+  const eduDonutData = buildEduDonutData(eduSummary);
+  const eduRate =
+    eduSummary && eduSummary.total > 0
+      ? Math.round((eduSummary.completed / eduSummary.total) * 100)
+      : 0;
   const accessTrendData = buildAccessTrendBuckets(stats?.accessTrend);
   const recentLoginCount = stats?.accessTrend?.reduce((sum, h) => sum + h.count, 0) ?? 0;
   const recentUsersRows = buildRecentUsersRows(stats?.recentUsers);
@@ -544,7 +567,41 @@ function AdminDashboardPage() {
             <span className={styles.panelTitle}>교육 완료 현황</span>
             <MoreLinkButton onClick={() => navigate(ROUTES.ADMIN.EDU)} />
           </div>
-          <p className={styles.statDeltaCaption}>Education 기능 연동 후 제공될 예정입니다.</p>
+          {eduDonutData.length > 0 ? (
+            <>
+              <div className={styles.donutWrap}>
+                <DonutChart data={eduDonutData} />
+              </div>
+              <ul className={styles.legendList}>
+                <li className={styles.legendItem}>
+                  <svg width="8" height="8" viewBox="0 0 8 8" className={styles.legendDot}>
+                    <circle cx="4" cy="4" r="4" fill={EDU_DONUT_COLORS.completed} />
+                  </svg>
+                  <span className={styles.legendLabel}>완료 (완료율 {eduRate}%)</span>
+                  <span className={styles.legendValue}>
+                    {eduSummary.completed.toLocaleString()}명
+                  </span>
+                </li>
+                <li className={styles.legendItem}>
+                  <svg width="8" height="8" viewBox="0 0 8 8" className={styles.legendDot}>
+                    <circle cx="4" cy="4" r="4" fill={EDU_DONUT_COLORS.incomplete} />
+                  </svg>
+                  <span className={styles.legendLabel}>미완료</span>
+                  <span className={styles.legendValue}>
+                    {(eduSummary.total - eduSummary.completed).toLocaleString()}명
+                  </span>
+                </li>
+              </ul>
+            </>
+          ) : (
+            <p className={styles.statDeltaCaption}>
+              {eduLoading
+                ? '불러오는 중...'
+                : eduError
+                  ? '교육 현황을 불러오지 못했습니다.'
+                  : '진행 중인 교육 진도가 없습니다.'}
+            </p>
+          )}
         </section>
       </div>
 

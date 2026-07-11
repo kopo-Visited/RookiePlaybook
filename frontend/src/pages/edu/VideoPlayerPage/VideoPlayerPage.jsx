@@ -275,8 +275,11 @@ function VideoPlayerPage() {
             >
               다음 영상 ›
             </Button>
-            <Button variant={BUTTON_VARIANTS.SECONDARY} onClick={() => navigate(ROUTES.DASHBOARD)}>
-              ← 대시보드로
+            <Button
+              variant={BUTTON_VARIANTS.SECONDARY}
+              onClick={() => navigate(ROUTES.EDU.DETAIL(id))}
+            >
+              ← 목록으로
             </Button>
           </div>
         </div>

@@ -50,11 +50,25 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
+// 진도 조회 API: 전체=10건, 완료(isCompleted=true)=6건 → 완료율 60%
+function mockEduProgress({ total = 10, completed = 6 } = {}) {
+  return http.get('/api/admin/progress', ({ request }) => {
+    const isCompleted = new URL(request.url).searchParams.get('isCompleted');
+    const totalElements = isCompleted === 'true' ? completed : total;
+    return HttpResponse.json({
+      success: true,
+      message: '',
+      data: { content: [], totalElements, totalPages: 1, size: 1, number: 0 },
+    });
+  });
+}
+
 function mockStatsSuccess() {
   server.use(
     http.get('/api/admin/dashboard/stats', () =>
       HttpResponse.json({ success: true, message: '', data: mockStats })
-    )
+    ),
+    mockEduProgress()
   );
 }
 
@@ -101,6 +115,17 @@ describe('AdminDashboardPage 렌더링', () => {
     expect(screen.getByText('문서 카테고리 분포')).toBeInTheDocument();
     expect(screen.getByText('교육 완료 현황')).toBeInTheDocument();
     await screen.findByText('user1@company.com');
+  });
+
+  it('교육 완료 현황 패널에 완료율과 완료/미완료 인원이 표시된다', async () => {
+    // given & when
+    mockStatsSuccess();
+    renderAdminDashboardPage();
+
+    // then — 전체 10건 중 완료 6건 → 완료율 60%, 미완료 4명
+    expect(await screen.findByText('완료 (완료율 60%)')).toBeInTheDocument();
+    expect(screen.getByText('6명')).toBeInTheDocument();
+    expect(screen.getByText('4명')).toBeInTheDocument();
   });
 
   it('최근 등록 문서, 최근 질문, 운영 공지, 접속 현황 패널이 렌더링된다', async () => {

@@ -100,7 +100,7 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByText('회사 비전 소개')).toBeInTheDocument();
   });
 
-  it('단계 완료/이전/다음/대시보드로 버튼이 렌더링된다', async () => {
+  it('단계 완료/이전/다음/목록으로 버튼이 렌더링된다', async () => {
     // given & when
     mockSuccess();
     renderPage();
@@ -110,7 +110,27 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByRole('button', { name: '단계 완료' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /이전 영상/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /다음 영상/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /대시보드로/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /목록으로/ })).toBeInTheDocument();
+  });
+
+  it('목록으로 버튼 클릭 시 교육 상세(/edu/:id)로 이동한다', async () => {
+    // given
+    mockSuccess();
+    render(
+      <MemoryRouter initialEntries={['/edu/1/stages/1']}>
+        <Routes>
+          <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
+          <Route path="/edu/:id" element={<div>교육 상세 페이지</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const btn = await screen.findByRole('button', { name: /목록으로/ });
+
+    // when
+    await userEvent.click(btn);
+
+    // then
+    expect(await screen.findByText('교육 상세 페이지')).toBeInTheDocument();
   });
 
   it('첫 단계에서는 이전 영상 버튼이 비활성화된다', async () => {
