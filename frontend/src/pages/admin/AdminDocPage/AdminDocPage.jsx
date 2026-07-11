@@ -298,78 +298,80 @@ function AdminDocPage() {
           </button>
         </div>
 
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>문서명</th>
-              <th>카테고리</th>
-              <th>상태</th>
-              <th>등록일</th>
-              <th>조회수</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td
-                  colSpan={6}
-                  className={styles.textCell}
-                  style={{ textAlign: 'center', padding: '40px' }}
-                >
-                  불러오는 중...
-                </td>
+                <th>문서명</th>
+                <th>카테고리</th>
+                <th>상태</th>
+                <th>등록일</th>
+                <th>조회수</th>
+                <th>관리</th>
               </tr>
-            )}
-            {!loading && filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  className={styles.textCell}
-                  style={{ textAlign: 'center', padding: '40px' }}
-                >
-                  문서가 없습니다.
-                </td>
-              </tr>
-            )}
-            {!loading &&
-              pagedDocs.map(row => {
-                const publicStatus = row.isPublic ? '공개' : '비공개';
-                return (
-                  <tr key={row.id}>
-                    <td>
-                      <span className={styles.docTitle}>{row.title}</span>
-                    </td>
-                    <td>
-                      <div>
-                        <Badge
-                          colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE}
-                          size={BADGE_SIZES.SM}
-                        >
-                          {row.categoryName}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td>
-                      <div>
-                        <StatusBadge status={publicStatus} />
-                      </div>
-                    </td>
-                    <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
-                    <td className={styles.textCell}>{row.viewCount}</td>
-                    <td>
-                      <ActionButtons
-                        row={row}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onTogglePublic={handleTogglePublic}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className={styles.textCell}
+                    style={{ textAlign: 'center', padding: '40px' }}
+                  >
+                    불러오는 중...
+                  </td>
+                </tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className={styles.textCell}
+                    style={{ textAlign: 'center', padding: '40px' }}
+                  >
+                    문서가 없습니다.
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                pagedDocs.map(row => {
+                  const publicStatus = row.isPublic ? '공개' : '비공개';
+                  return (
+                    <tr key={row.id}>
+                      <td>
+                        <span className={styles.docTitle}>{row.title}</span>
+                      </td>
+                      <td>
+                        <div>
+                          <Badge
+                            colorKey={DEPT_COLOR[row.categoryName] ?? COLOR_KEYS.BLUE}
+                            size={BADGE_SIZES.SM}
+                          >
+                            {row.categoryName}
+                          </Badge>
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <StatusBadge status={publicStatus} />
+                        </div>
+                      </td>
+                      <td className={styles.textCell}>{formatDate(row.createdAt)}</td>
+                      <td className={styles.textCell}>{row.viewCount}</td>
+                      <td>
+                        <ActionButtons
+                          row={row}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                          onTogglePublic={handleTogglePublic}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
 
         {totalPages > 1 && (
           <div className={styles.pagination}>

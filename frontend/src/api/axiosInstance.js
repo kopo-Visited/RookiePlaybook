@@ -4,7 +4,6 @@ import useToastStore from '../stores/toastStore';
 import { ROUTES } from '../constants/routes';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
 });
 
