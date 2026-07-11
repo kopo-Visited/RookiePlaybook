@@ -11,6 +11,9 @@ import useFetch from '../../../hooks/useFetch';
 import useVideoProgress from '../../../hooks/edu/useVideoProgress';
 import { getMaterial, getEducationDetail, completeStage } from '../../../api/eduApi';
 
+// 이 비율 이상 시청해야 단계 완료가 가능하다
+const WATCH_THRESHOLD = 0.95;
+
 function formatTime(sec) {
   if (!Number.isFinite(sec) || sec < 0) return '00:00';
   const m = Math.floor(sec / 60);
@@ -95,12 +98,8 @@ function VideoPlayerPage() {
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [watched, setWatched] = useState(false);
   const [toast, setToast] = useState(null);
-
-  // 단계 이동(stageId 변경) 시 완료 상태 초기화
-  useEffect(() => {
-    setJustCompleted(false);
-  }, [stageId]);
 
   const {
     data: matRes,
@@ -119,6 +118,16 @@ function VideoPlayerPage() {
     currentIndex >= 0 && currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
 
   useVideoProgress(videoRef, material?.materialId, material?.lastWatchedPosition ?? 0);
+
+  // 단계 이동(stageId) 또는 자료 로드 시 완료/시청 상태 초기화.
+  // 이어보기로 이미 기준 이상 시청한 경우 시청 완료로 간주한다.
+  useEffect(() => {
+    setJustCompleted(false);
+    const resumeWatched =
+      !!material?.totalDuration &&
+      (material.lastWatchedPosition ?? 0) / material.totalDuration >= WATCH_THRESHOLD;
+    setWatched(resumeWatched);
+  }, [stageId, material]);
 
   function togglePlay() {
     const video = videoRef.current;
@@ -178,7 +187,14 @@ function VideoPlayerPage() {
               onClick={togglePlay}
               onPlay={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
-              onTimeUpdate={e => setCurrent(e.currentTarget.currentTime)}
+              onEnded={() => setWatched(true)}
+              onTimeUpdate={e => {
+                const video = e.currentTarget;
+                setCurrent(video.currentTime);
+                if (video.duration && video.currentTime / video.duration >= WATCH_THRESHOLD) {
+                  setWatched(true);
+                }
+              }}
               onLoadedMetadata={e => {
                 const video = e.currentTarget;
                 setDuration(video.duration);
@@ -256,7 +272,7 @@ function VideoPlayerPage() {
           <div className={styles.actions}>
             <Button
               variant={BUTTON_VARIANTS.PRIMARY}
-              disabled={isCompleted}
+              disabled={isCompleted || !watched}
               onClick={handleComplete}
             >
               {isCompleted ? '완료됨' : '단계 완료'}
