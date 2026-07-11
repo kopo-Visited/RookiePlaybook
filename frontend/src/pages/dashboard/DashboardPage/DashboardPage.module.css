@@ -7,7 +7,7 @@
 /* ── 환영 배너 ── */
 .welcomeBanner {
   background: linear-gradient(135deg, #2288ff 0%, #4fa3ff 100%);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 28px 32px;
   display: flex;
   align-items: center;
@@ -65,10 +65,7 @@
 
 /* ── 공통 카드 ── */
 .card {
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-  border-radius: 18px;
+  composes: card from '../../../styles/common.module.css';
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -132,7 +129,7 @@
   background: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 0 24px;
   height: 138px;
   display: flex;
@@ -379,7 +376,7 @@
 .btnOutline {
   height: 44px;
   border: 1px solid var(--color-border-input);
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 14.1px;
   font-weight: 900;
   color: var(--color-primary);

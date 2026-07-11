@@ -6,6 +6,19 @@ import Dropdown from '../../../components/Dropdown/Dropdown';
 const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
 
+function IconX() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+      <path
+        d="M1 1l12 12M13 1L1 13"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function AdminDocModal({ onClose, onCreated, editDoc }) {
   const isEdit = !!editDoc;
 
@@ -67,8 +80,8 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
               {isEdit ? '문서 내용을 수정합니다.' : '신입사원이 참고할 지식 문서를 추가합니다.'}
             </p>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>
-            ×
+          <button className={styles.closeBtn} onClick={onClose} aria-label="닫기">
+            <IconX />
           </button>
         </div>
 

@@ -152,7 +152,7 @@
 }
 .btnPrimary {
   align-self: flex-end;
-  height: 42px;
+  height: 44px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
   font-size: 14px;
