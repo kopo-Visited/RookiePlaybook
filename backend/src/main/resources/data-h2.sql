@@ -233,6 +233,129 @@ FROM (VALUES
 JOIN documents d ON d.title = m.doc_title
 JOIN tags t ON t.tag_name = m.tag_name;
 
+-- 추가 태그
+INSERT INTO tags (tag_name, status, created_at) VALUES
+('PostgreSQL', 'ACTIVE', CURRENT_TIMESTAMP),
+('React',      'ACTIVE', CURRENT_TIMESTAMP),
+('API',        'ACTIVE', CURRENT_TIMESTAMP),
+('테스트',     'ACTIVE', CURRENT_TIMESTAMP),
+('Python',     'ACTIVE', CURRENT_TIMESTAMP);
+
+-- 추가 문서
+INSERT INTO documents (category_id, title, content, is_public, status, view_count, created_at)
+SELECT c.id, d.title, d.content, d.is_public, 'ACTIVE', d.view_count, d.created_at
+FROM (VALUES
+  ('공통', TRUE, 88, DATEADD('DAY', -38, CURRENT_TIMESTAMP), '사내 OA 도구 활용 가이드',
+   '업무에 필요한 OA 도구 사용 방법을 안내합니다.
+- Google Workspace: Gmail, Drive, Docs, Sheets, Slides 사용
+- 공유 드라이브: 팀별 폴더 생성 후 권한 관리
+- 캘린더: 회의 초대 시 참석자 전원 초대 필수
+- 파일 명명 규칙: [날짜]_[팀명]_[문서명] 형식 사용
+- 보안 문서: 외부 공유 금지, 내부 공유만 허용'),
+  ('공통', TRUE, 56, DATEADD('DAY', -33, CURRENT_TIMESTAMP), '출장 및 외근 신청 절차',
+   '출장 및 외근 발생 시 아래 절차를 따르세요.
+1. 출장 신청서 작성: ERP 시스템 → 출장관리 메뉴
+2. 팀장 승인 후 출발 (당일 출장은 전일 신청)
+3. 교통비: 대중교통 우선, 택시는 심야·긴급 시만 허용
+4. 숙박비: 1박 10만원 한도 (법인카드 사용)
+5. 귀환 후 3일 이내 정산 완료'),
+  ('개발', TRUE, 176, DATEADD('DAY', -20, CURRENT_TIMESTAMP), 'Spring Boot 개발 컨벤션',
+   '팀 공통 Spring Boot 개발 컨벤션입니다.
+- 패키지 구조: controller / service / repository / entity / dto 분리
+- 예외 처리: 전역 ExceptionHandler 사용, 커스텀 Exception 정의
+- 응답 형식: ApiResponse 래퍼 클래스 통일
+- 트랜잭션: @Transactional 서비스 레이어에만 적용
+- 로깅: SLF4J + Logback 사용, System.out.println 금지'),
+  ('개발', TRUE, 132, DATEADD('DAY', -16, CURRENT_TIMESTAMP), '단위 테스트 작성 가이드',
+   '코드 품질을 위한 단위 테스트 작성 가이드입니다.
+- 테스트 프레임워크: JUnit 5 + Mockito
+- 테스트 커버리지 목표: 서비스 레이어 80% 이상
+- 네이밍: 메서드명_상황_기대결과 형식
+- Given-When-Then 패턴 사용
+- 외부 의존성(DB, API)은 반드시 Mock 처리'),
+  ('개발', TRUE, 109, DATEADD('DAY', -12, CURRENT_TIMESTAMP), 'API 설계 및 문서화 가이드',
+   'RESTful API 설계 원칙과 문서화 방법입니다.
+- URI 설계: 소문자, 복수형 명사 사용 (예: /api/users)
+- HTTP 메서드: GET(조회), POST(생성), PUT(수정), DELETE(삭제)
+- 응답 코드: 200/201/400/401/403/404/500 표준 사용
+- Swagger: @Operation, @ApiResponse 어노테이션 필수 작성
+- API 변경 시 버전 관리 (/api/v1, /api/v2)'),
+  ('인프라', TRUE, 143, DATEADD('DAY', -14, CURRENT_TIMESTAMP), 'Docker 컨테이너 운영 가이드',
+   '운영 환경 Docker 컨테이너 관리 방법입니다.
+- 이미지 빌드: docker build -t [이미지명]:[태그] .
+- 컨테이너 실행: docker-compose up -d
+- 로그 확인: docker logs -f [컨테이너명]
+- 컨테이너 재시작: docker-compose restart [서비스명]
+- 이미지 정리: docker system prune -a (주기적 실행)
+- 볼륨 백업: 데이터 볼륨 주기적 스냅샷 생성'),
+  ('인프라', TRUE, 97, DATEADD('DAY', -9, CURRENT_TIMESTAMP), 'CI/CD 파이프라인 운영 가이드',
+   '자동화 배포 파이프라인 운영 가이드입니다.
+- 파이프라인 구성: 빌드 → 테스트 → Docker 이미지 빌드 → 배포
+- develop 브랜치 push 시 자동 배포 트리거
+- 빌드 실패 시 Slack 알림 발송
+- 롤백: 이전 이미지 태그로 docker-compose pull 후 재시작
+- 배포 이력: GitHub Actions 탭에서 확인 가능'),
+  ('보안', TRUE, 91, DATEADD('DAY', -7, CURRENT_TIMESTAMP), '오픈소스 라이브러리 보안 점검',
+   '외부 라이브러리 도입 시 보안 점검 절차입니다.
+- 라이브러리 도입 전 CVE 취약점 확인 (snyk, npm audit)
+- 라이선스 확인: MIT, Apache 2.0 외 라이선스는 법무팀 검토
+- 버전 고정: package.json에 정확한 버전 명시
+- 주기적 업데이트: 보안 패치 릴리즈 시 즉시 적용
+- 취약점 발견 시 보안팀 즉시 보고'),
+  ('보안', TRUE, 68, DATEADD('DAY', -5, CURRENT_TIMESTAMP), '소스코드 보안 리뷰 가이드',
+   '코드 리뷰 시 보안 관점 체크리스트입니다.
+- SQL Injection: PreparedStatement 또는 ORM 사용 확인
+- XSS: 사용자 입력값 이스케이프 처리 확인
+- 인증/인가: API 엔드포인트 권한 체크 확인
+- 민감 정보: 소스코드에 비밀번호/키 하드코딩 금지
+- 로그: 개인정보, 비밀번호 로그 출력 금지'),
+  ('네트워크', TRUE, 115, DATEADD('DAY', -3, CURRENT_TIMESTAMP), 'DNS 및 도메인 관리 가이드',
+   '사내 DNS 설정 및 도메인 관리 방법입니다.
+- 내부 DNS: 10.0.0.1 (사내망 전용)
+- 외부 DNS: 공식 도메인 변경은 인프라팀 요청
+- 도메인 추가: Route53 콘솔 → 인프라팀 담당자 요청
+- TTL 설정: 운영 환경 300초, 변경 작업 시 60초로 낮춤
+- SSL 인증서: Let''s Encrypt 자동 갱신 설정'),
+  ('네트워크', TRUE, 79, DATEADD('DAY', -1, CURRENT_TIMESTAMP), '네트워크 장애 대응 매뉴얼',
+   '네트워크 장애 발생 시 대응 절차입니다.
+1. 장애 범위 파악: 개인 PC / 팀 / 전사 구분
+2. 인프라팀 긴급 연락: 내선 5678 / 휴대폰 010-XXXX-XXXX
+3. 임시 조치: 모바일 핫스팟으로 긴급 업무 처리
+4. 장애 보고서: 발생 시각, 영향 범위, 원인, 조치 내용 기록
+5. 재발 방지: 원인 분석 후 개선 조치')
+) AS d(category_name, is_public, view_count, created_at, title, content)
+JOIN categories c ON c.category_name = d.category_name;
+
+-- 추가 문서-태그 연결
+INSERT INTO document_tags (document_id, tag_id, created_at)
+SELECT d.id, t.id, CURRENT_TIMESTAMP
+FROM (VALUES
+  ('사내 OA 도구 활용 가이드',       '운영'),
+  ('사내 OA 도구 활용 가이드',       '온보딩'),
+  ('출장 및 외근 신청 절차',         '운영'),
+  ('Spring Boot 개발 컨벤션',        'Spring'),
+  ('Spring Boot 개발 컨벤션',        'Java'),
+  ('단위 테스트 작성 가이드',         '테스트'),
+  ('단위 테스트 작성 가이드',         'Java'),
+  ('단위 테스트 작성 가이드',         'Spring'),
+  ('API 설계 및 문서화 가이드',       'API'),
+  ('API 설계 및 문서화 가이드',       'Spring'),
+  ('Docker 컨테이너 운영 가이드',     'Docker'),
+  ('Docker 컨테이너 운영 가이드',     'Linux'),
+  ('Docker 컨테이너 운영 가이드',     '운영'),
+  ('CI/CD 파이프라인 운영 가이드',    'CI/CD'),
+  ('CI/CD 파이프라인 운영 가이드',    'Docker'),
+  ('오픈소스 라이브러리 보안 점검',   '보안'),
+  ('소스코드 보안 리뷰 가이드',       '보안'),
+  ('소스코드 보안 리뷰 가이드',       '코드리뷰'),
+  ('DNS 및 도메인 관리 가이드',       '네트워크'),
+  ('DNS 및 도메인 관리 가이드',       'AWS'),
+  ('네트워크 장애 대응 매뉴얼',       '네트워크'),
+  ('네트워크 장애 대응 매뉴얼',       '운영')
+) AS m(doc_title, tag_name)
+JOIN documents d ON d.title = m.doc_title
+JOIN tags t ON t.tag_name = m.tag_name;
+
 -- ============================================================
 -- 교육(edu) 도메인 시드 데이터
 -- ============================================================
