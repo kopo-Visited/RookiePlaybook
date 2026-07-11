@@ -132,8 +132,12 @@ function VideoPlayerPage() {
   function togglePlay() {
     const video = videoRef.current;
     if (!video) return;
-    if (video.paused) video.play();
-    else video.pause();
+    if (video.paused) {
+      // play()가 반환하는 Promise를 처리해 재생 거부 시 unhandled rejection을 막는다
+      video.play()?.catch(() => {});
+    } else {
+      video.pause();
+    }
   }
   function skip(delta) {
     const video = videoRef.current;
@@ -182,7 +186,10 @@ function VideoPlayerPage() {
             <video
               ref={videoRef}
               className={styles.video}
-              src={material.videoUrl}
+              // 이어보기 위치가 없으면 미디어 프래그먼트(#t=0.1)로 첫 프레임을 네이티브 표시한다.
+              // JS로 currentTime을 seek하면 재생 제스처(play())와 경쟁해 첫 클릭이 무시되므로 프래그먼트를 쓴다.
+              // (이어보기 위치가 있으면 useVideoProgress가 그 위치로 복원하므로 프래그먼트를 붙이지 않는다)
+              src={material.lastWatchedPosition ? material.videoUrl : `${material.videoUrl}#t=0.1`}
               preload="metadata"
               onClick={togglePlay}
               onPlay={() => setPlaying(true)}
@@ -195,13 +202,7 @@ function VideoPlayerPage() {
                   setWatched(true);
                 }
               }}
-              onLoadedMetadata={e => {
-                const video = e.currentTarget;
-                setDuration(video.duration);
-                // 이어보기 위치가 없을 때만 첫 프레임으로 살짝 이동해 재생 전 썸네일처럼 보이게 한다
-                // (이어보기 위치가 있으면 useVideoProgress가 그 위치로 복원하므로 건드리지 않는다)
-                if (!material.lastWatchedPosition) video.currentTime = 0.1;
-              }}
+              onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
             />
 
             {!playing && (
