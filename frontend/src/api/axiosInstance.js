@@ -19,8 +19,9 @@ axiosInstance.interceptors.response.use(
   response => response.data,
   error => {
     const status = error.response?.status;
+    const isLoginRequest = error.config?.url?.includes('/api/auth/login');
 
-    if (status === 401) {
+    if (status === 401 && !isLoginRequest) {
       useAuthStore.getState().logout();
       useToastStore.getState().show('세션이 만료되었습니다. 다시 로그인해주세요.');
       if (window.location.pathname !== ROUTES.LOGIN) {
