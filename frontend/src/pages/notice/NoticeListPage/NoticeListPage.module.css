@@ -52,12 +52,16 @@
 .item {
   padding: 16px 0;
   border-bottom: 1px solid #eef1f6;
+  cursor: pointer;
 }
 .item:first-child {
   padding-top: 0;
 }
 .item:last-child {
   border-bottom: none;
+}
+.item:hover .itemTitle {
+  color: var(--color-primary);
 }
 
 .itemHead {

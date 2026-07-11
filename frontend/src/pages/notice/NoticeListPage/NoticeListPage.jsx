@@ -6,9 +6,11 @@ import { ROUTES } from '../../../constants/routes';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
+import NoticeDetailModal from '../../../components/NoticeDetailModal/NoticeDetailModal';
 import useFetch from '../../../hooks/useFetch';
 
 const PAGE_SIZE = 10;
+const PREVIEW_LENGTH = 80;
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -19,6 +21,7 @@ function formatDate(iso) {
 function NoticeListPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [selectedNotice, setSelectedNotice] = useState(null);
 
   const { data: noticeRes, loading, error } = useFetch(() => getAllNotices(), []);
   const notices = Array.isArray(noticeRes?.data) ? noticeRes.data : [];
@@ -48,7 +51,7 @@ function NoticeListPage() {
         {!loading && !error && notices.length > 0 && (
           <ul className={styles.list}>
             {pagedNotices.map(n => (
-              <li key={n.noticeId} className={styles.item}>
+              <li key={n.noticeId} className={styles.item} onClick={() => setSelectedNotice(n)}>
                 <div className={styles.itemHead}>
                   <span className={styles.itemTitle}>
                     {n.title}
@@ -56,7 +59,10 @@ function NoticeListPage() {
                   </span>
                   <span className={styles.itemDate}>{formatDate(n.createdAt)}</span>
                 </div>
-                <p className={styles.itemContent}>{n.content}</p>
+                <p className={styles.itemContent}>
+                  {n.content?.slice(0, PREVIEW_LENGTH)}
+                  {n.content?.length > PREVIEW_LENGTH ? '...' : ''}
+                </p>
                 <span className={styles.itemWriter}>{n.writerName}</span>
               </li>
             ))}
@@ -91,6 +97,10 @@ function NoticeListPage() {
           </div>
         )}
       </section>
+
+      {selectedNotice && (
+        <NoticeDetailModal notice={selectedNotice} onClose={() => setSelectedNotice(null)} />
+      )}
     </div>
   );
 }

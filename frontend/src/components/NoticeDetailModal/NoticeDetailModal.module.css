@@ -1,0 +1,92 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.28);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 480px;
+  max-height: 80vh;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.modalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.modalTitleWrap {
+  min-width: 0;
+}
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #8b96a8;
+}
+.newBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff5c5c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  background: #eef3f9;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #637087;
+  flex-shrink: 0;
+}
+
+.infoBox {
+  background: #f7f9fc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 21px;
+}
+.infoText {
+  font-size: 13px;
+  font-weight: 400;
+  color: #4a5568;
+  line-height: 24px;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 680px) {
+  .modal {
+    width: calc(100vw - 32px);
+  }
+}
