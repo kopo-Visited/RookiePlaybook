@@ -7,6 +7,8 @@ import useAdminUsers from '../../../hooks/admin/useAdminUsers';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
 
+const PAGE_SIZE = 10;
+
 const STAT_CARD_CONFIG = [
   { key: 'total', label: '전체 사용자', colorKey: COLOR_KEYS.BLUE, icon: <IconPerson /> },
   { key: 'active', label: '활성 사용자', colorKey: COLOR_KEYS.GREEN, icon: <IconDocText /> },
@@ -582,6 +584,7 @@ function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [editingUser, setEditingUser] = useState(null);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
   const statCardValues = useMemo(() => buildUserStatCardValues(users), [users]);
   const deptDistribution = useMemo(() => buildDeptDistribution(users), [users]);
@@ -602,11 +605,35 @@ function AdminUsersPage() {
     });
   }, [users, keyword, deptFilter, roleFilter, statusFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const pagedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function handleKeywordChange(value) {
+    setKeyword(value);
+    setPage(1);
+  }
+
+  function handleDeptFilterChange(value) {
+    setDeptFilter(value);
+    setPage(1);
+  }
+
+  function handleRoleFilterChange(value) {
+    setRoleFilter(value);
+    setPage(1);
+  }
+
+  function handleStatusFilterChange(value) {
+    setStatusFilter(value);
+    setPage(1);
+  }
+
   function handleResetFilters() {
     setKeyword('');
     setDeptFilter('ALL');
     setRoleFilter('ALL');
     setStatusFilter('ALL');
+    setPage(1);
   }
 
   async function handleRegisterSave(form) {
@@ -677,7 +704,7 @@ function AdminUsersPage() {
             <input
               className={styles.filterInput}
               value={keyword}
-              onChange={e => setKeyword(e.target.value)}
+              onChange={e => handleKeywordChange(e.target.value)}
               placeholder="이름 또는 이메일 검색"
             />
             <span className={styles.filterSearchIcon}>
@@ -688,7 +715,9 @@ function AdminUsersPage() {
           <select
             className={styles.filterSelect}
             value={deptFilter}
-            onChange={e => setDeptFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+            onChange={e =>
+              handleDeptFilterChange(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))
+            }
           >
             <option value="ALL">부서 전체</option>
             {departments.map(dept => (
@@ -701,7 +730,9 @@ function AdminUsersPage() {
           <select
             className={styles.filterSelect}
             value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))}
+            onChange={e =>
+              handleRoleFilterChange(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))
+            }
           >
             <option value="ALL">권한 전체</option>
             {roles.map(role => (
@@ -714,7 +745,7 @@ function AdminUsersPage() {
           <select
             className={styles.filterSelect}
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
+            onChange={e => handleStatusFilterChange(e.target.value)}
           >
             <option value="ALL">상태 전체</option>
             {STATUS_OPTIONS.map(status => (
@@ -759,7 +790,7 @@ function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(u => (
+                  {pagedUsers.map(u => (
                     <tr key={u.userId}>
                       <td>{u.name}</td>
                       <td>{u.departmentName}</td>
@@ -789,6 +820,33 @@ function AdminUsersPage() {
               </table>
               {filteredUsers.length === 0 && (
                 <p className={styles.emptyText}>조건에 맞는 사용자가 없습니다.</p>
+              )}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    className={styles.pageArrow}
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    ‹
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                    <button
+                      key={n}
+                      className={`${styles.pageNum} ${page === n ? styles.pageNumActive : ''}`}
+                      onClick={() => setPage(n)}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    className={styles.pageArrow}
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                  >
+                    ›
+                  </button>
+                </div>
               )}
             </>
           )}
