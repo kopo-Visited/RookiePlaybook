@@ -6,6 +6,7 @@ import useFetch from '../../../hooks/useFetch';
 import { getDocuments } from '../../../api/docApi';
 import { getQnas } from '../../../api/qnaApi';
 import { getMyProgress } from '../../../api/eduApi';
+import { getFaqs } from '../../../api/docApi';
 import { getNotices } from '../../../api/noticeApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
@@ -173,6 +174,7 @@ function DashboardPage() {
   const { data: docRes } = useFetch(() => getDocuments().catch(() => null), []);
   const { data: qnaRes } = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
   const { data: eduRes } = useFetch(() => getMyProgress().catch(() => null), []);
+  const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
   const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
 
   const docs = Array.isArray(docRes?.data) ? docRes.data : [];
@@ -183,12 +185,15 @@ function DashboardPage() {
       ? qnaRaw
       : [];
   const eduList = Array.isArray(eduRes?.data) ? eduRes.data : [];
+  const faqs = Array.isArray(faqRes?.data) ? faqRes.data : [];
   const notices = Array.isArray(noticeRes?.data) ? noticeRes.data : [];
 
   const recentDocs = useMemo(
     () => [...docs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5),
     [docs]
   );
+
+  const recentFaqs = useMemo(() => faqs.slice(0, 5), [faqs]);
 
   const myQnas = useMemo(() => qnas.slice(0, 3), [qnas]);
 
@@ -446,17 +451,14 @@ function DashboardPage() {
             </button>
           </div>
           <ul className={styles.noticeList}>
-            {[
-              '연차는 언제부터 사용할 수 있나요?',
-              '재택근무 신청은 어떻게 하나요?',
-              '복지포인트 사용처가 어디인가요?',
-              '급여명세서는 어디서 확인하나요?',
-              '사내 메신저 계정은 어떻게 만드나요?',
-            ].map((q, i) => (
-              <li key={i} className={styles.noticeItem}>
+            {recentFaqs.length === 0 && (
+              <li className={styles.emptyText}>등록된 FAQ가 없습니다.</li>
+            )}
+            {recentFaqs.map(faq => (
+              <li key={faq.id} className={styles.noticeItem}>
                 <span className={styles.noticeTitle}>
                   <span style={{ color: '#2288FF', fontWeight: 900, marginRight: 6 }}>Q.</span>
-                  {q}
+                  {faq.question}
                 </span>
               </li>
             ))}
