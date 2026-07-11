@@ -31,8 +31,8 @@
   gap: 6px;
 }
 .title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
   color: #172033;
   line-height: 26px;
 }
@@ -51,7 +51,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #637087;
+  color: var(--color-text-label);
   flex-shrink: 0;
 }
 
@@ -177,7 +177,7 @@
   line-height: 20px;
 }
 .textarea::placeholder {
-  color: #9aa5b8;
+  color: var(--color-text-secondary);
 }
 .textarea:focus {
   border-color: var(--color-primary);

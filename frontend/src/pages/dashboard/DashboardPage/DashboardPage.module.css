@@ -7,7 +7,7 @@
 /* ── 환영 배너 ── */
 .welcomeBanner {
   background: linear-gradient(135deg, #2288ff 0%, #4fa3ff 100%);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 28px 32px;
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
   justify-content: space-between;
 }
 .pageTitle {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   color: #2b2f3a;
   line-height: 29px;
@@ -65,10 +65,7 @@
 
 /* ── 공통 카드 ── */
 .card {
-  background: #ffffff;
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-  border-radius: 18px;
+  composes: card from '../../../styles/common.module.css';
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -81,13 +78,13 @@
   justify-content: space-between;
 }
 .sectionTitle {
-  font-size: 16.9px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--color-text-title);
   letter-spacing: -0.2px;
 }
 .linkBtn {
-  font-size: 12.2px;
+  font-size: 12px;
   font-weight: 900;
   color: var(--color-primary);
   background: none;
@@ -119,7 +116,7 @@
 }
 .gray {
   background: #eef3f9;
-  color: #637087;
+  color: var(--color-text-label);
 }
 
 /* ── 통계 카드 ── */
@@ -132,7 +129,7 @@
   background: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
-  border-radius: 18px;
+  border-radius: 20px;
   padding: 0 24px;
   height: 138px;
   display: flex;
@@ -160,7 +157,7 @@
   line-height: 22px;
 }
 .statValue {
-  font-size: 29px;
+  font-size: 29.1px;
   font-weight: 900;
   color: var(--color-text-title);
   letter-spacing: -0.5px;
@@ -379,7 +376,7 @@
 .btnOutline {
   height: 44px;
   border: 1px solid var(--color-border-input);
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 14.1px;
   font-weight: 900;
   color: var(--color-primary);

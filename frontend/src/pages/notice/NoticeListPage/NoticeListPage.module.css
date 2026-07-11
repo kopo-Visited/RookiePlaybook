@@ -9,7 +9,7 @@
   margin-bottom: 8px;
 }
 .pageTitle {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-title);
   margin-bottom: 6px;
@@ -21,20 +21,22 @@
   line-height: 20px;
 }
 
-/* ── Action Bar ── */
-.actionBar {
-  display: flex;
-  align-items: center;
-}
+/* ── Back button (DocDetailPage와 동일 디자인) ── */
 .backBtn {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-title);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: none;
   border: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  font-family: inherit;
   padding: 0;
+  width: fit-content;
+}
+.backBtn:hover {
+  color: var(--color-primary);
 }
 
 /* ── Card ── */
@@ -47,6 +49,7 @@
 .list {
   display: flex;
   flex-direction: column;
+  list-style: none;
 }
 
 .item {
@@ -80,7 +83,7 @@
 }
 .itemDate {
   font-size: 12px;
-  color: #8b96a8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 .newBadge {

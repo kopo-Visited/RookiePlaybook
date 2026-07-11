@@ -18,15 +18,14 @@
   gap: 4px;
 }
 .pageTitle {
-  font-size: 24px;
-  font-weight: 900;
+  font-size: 16px;
+  font-weight: 700;
   color: #172033;
   letter-spacing: -0.6px;
   line-height: 29px;
 }
 .pageSubtitle {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
   color: #6f7b91;
   line-height: 16px;
 }
@@ -53,13 +52,13 @@
   gap: 4px;
 }
 .statLabel {
-  font-size: 15px;
+  font-size: 14.1px;
   font-weight: 900;
   color: #172033;
   line-height: 18px;
 }
 .statValue {
-  font-size: 32px;
+  font-size: 29.1px;
   font-weight: 900;
   color: #172033;
   letter-spacing: -0.8px;
@@ -123,7 +122,7 @@
   justify-content: space-between;
 }
 .sectionTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   color: #172033;
   letter-spacing: -0.4px;
@@ -189,21 +188,11 @@
   box-sizing: border-box;
 }
 .filterSearch::placeholder {
-  color: #637087;
+  color: var(--color-text-label);
 }
 .filterSelect {
-  height: 44px;
-  padding: 0 12px;
-  background: #ffffff;
-  border: 1px solid #d7e1ef;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #637087;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  min-width: 120px;
+  width: 140px;
+  flex-shrink: 0;
 }
 .resetBtn {
   height: 40px;
@@ -213,7 +202,7 @@
   border-radius: 10px;
   font-size: 13px;
   font-weight: 800;
-  color: #637087;
+  color: var(--color-text-label);
   cursor: pointer;
   font-family: inherit;
 }
@@ -232,7 +221,7 @@
 }
 .table th {
   padding: 14px 16px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   color: #8a96aa;
   text-align: left;

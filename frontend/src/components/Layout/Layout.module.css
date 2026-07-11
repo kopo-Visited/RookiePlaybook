@@ -200,7 +200,7 @@
 }
 .userDept {
   font-size: 12px;
-  color: #7d8799;
+  color: var(--color-text-secondary);
   line-height: 1.2;
 }
 

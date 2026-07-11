@@ -30,7 +30,7 @@
 .title {
   margin: 0;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
   color: var(--color-text-title);
 }
 .closeBtn {
@@ -152,11 +152,11 @@
 }
 .btnPrimary {
   align-self: flex-end;
-  height: 42px;
+  height: 44px;
   padding: 0 20px;
   border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
   font-family: inherit;
   border: none;

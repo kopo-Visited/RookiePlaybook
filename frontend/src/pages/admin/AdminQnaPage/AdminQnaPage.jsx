@@ -4,6 +4,7 @@ import AdminQnaDetail from './AdminQnaDetail';
 import { getAdminQnas } from '../../../api/qnaApi';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -217,30 +218,24 @@ function AdminQnaPage() {
               onKeyDown={e => e.key === 'Enter' && runSearch()}
             />
           </div>
-          <select
+          <Dropdown
             className={styles.filterSelect}
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-          >
-            <option value="">전체 상태</option>
-            {STAT_CARDS.map(s => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-          <select
+            onChange={setStatusFilter}
+            options={[
+              { value: '', label: '전체 상태' },
+              ...STAT_CARDS.map(s => ({ value: s.key, label: s.label })),
+            ]}
+          />
+          <Dropdown
             className={styles.filterSelect}
             value={categoryFilter}
-            onChange={e => setCategoryFilter(e.target.value)}
-          >
-            <option value="">전체 카테고리</option>
-            {categories.map(c => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+            onChange={setCategoryFilter}
+            options={[
+              { value: '', label: '전체 카테고리' },
+              ...categories.map(c => ({ value: c, label: c })),
+            ]}
+          />
           <input
             type="date"
             className={styles.filterDate}

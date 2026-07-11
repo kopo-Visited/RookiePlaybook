@@ -90,7 +90,7 @@
 }
 
 .typing {
-  color: #9aa5b8;
+  color: var(--color-text-secondary);
   font-size: 12px;
 }
 
@@ -115,7 +115,7 @@
   background: transparent;
 }
 .input::placeholder {
-  color: #9aa5b8;
+  color: var(--color-text-secondary);
 }
 .input:disabled {
   opacity: 0.6;

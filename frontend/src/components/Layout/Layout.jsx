@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
 import { ROUTES } from '../../constants/routes';
 import useAuthStore from '../../stores/authStore';
@@ -176,6 +176,7 @@ const NAV_ITEMS = [
 
 function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = useAuthStore(state => state.user);
   const clearAuth = useAuthStore(state => state.logout);
 
@@ -248,19 +249,25 @@ function Layout() {
         </div>
 
         <nav className={styles.nav}>
-          {NAV_ITEMS.map(({ to, label, icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className={({ isActive }) =>
-                `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-              }
-            >
-              <span className={styles.navIcon}>{icon}</span>
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {NAV_ITEMS.map(({ to, label, icon }) => {
+            // 공지사항(/notice)은 사이드바에 자체 메뉴가 없어 대시보드에서
+            // 들어온 하위 화면으로 취급해 대시보드 메뉴를 계속 활성 상태로 보여준다.
+            const forcedActive =
+              to === ROUTES.DASHBOARD && location.pathname === ROUTES.NOTICE.LIST;
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/'}
+                className={({ isActive }) =>
+                  `${styles.navItem} ${isActive || forcedActive ? styles.navItemActive : ''}`
+                }
+              >
+                <span className={styles.navIcon}>{icon}</span>
+                <span>{label}</span>
+              </NavLink>
+            );
+          })}
         </nav>
 
         <div className={styles.helpCard}>

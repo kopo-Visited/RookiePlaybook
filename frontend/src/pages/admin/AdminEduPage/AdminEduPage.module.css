@@ -12,15 +12,14 @@
   gap: 6px;
 }
 .pageTitle {
-  font-size: 24px;
-  font-weight: 900;
+  font-size: 16px;
+  font-weight: 700;
   color: #172033;
   letter-spacing: -0.6px;
   line-height: 29px;
 }
 .pageSubtitle {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
   color: #6f7b91;
   line-height: 16px;
 }
@@ -37,7 +36,7 @@
   border-radius: 10px;
   font-size: 14px;
   font-weight: 800;
-  color: #637087;
+  color: var(--color-text-label);
   cursor: pointer;
   font-family: inherit;
 }
@@ -65,7 +64,7 @@
   justify-content: space-between;
 }
 .sectionTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   color: #172033;
   letter-spacing: -0.4px;
@@ -102,7 +101,7 @@
   text-align: left;
   font-size: 12px;
   font-weight: 400;
-  color: #8a99ad;
+  color: var(--color-text-secondary);
   padding-bottom: 12px;
   border-bottom: 1px solid #f5f7fa;
 }
@@ -159,16 +158,8 @@
   flex-wrap: wrap;
 }
 .filterSelect {
-  height: 39px;
-  border: 1px solid var(--color-border-input);
-  border-radius: 10px;
-  padding: 0 12px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #6f7b91;
-  background: var(--color-bg-white);
-  outline: none;
-  cursor: pointer;
+  width: 160px;
+  flex-shrink: 0;
 }
 .resetBtn {
   height: 39px;

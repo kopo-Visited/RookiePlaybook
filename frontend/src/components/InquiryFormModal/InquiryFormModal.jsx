@@ -3,6 +3,7 @@ import styles from './InquiryFormModal.module.css';
 import { createInquiry } from '../../api/inquiryApi';
 import { INQUIRY_TYPES } from '../../constants/inquiry';
 import { hasBlank } from '../../utils/validation';
+import Dropdown from '../Dropdown/Dropdown';
 
 function IconX() {
   return (
@@ -68,13 +69,7 @@ function InquiryFormModal({ onClose, onSuccess }) {
         <div className={styles.formGrid}>
           <div className={styles.field}>
             <label className={styles.fieldLabel}>문의 유형</label>
-            <select className={styles.select} value={type} onChange={e => setType(e.target.value)}>
-              {INQUIRY_TYPES.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <Dropdown value={type} onChange={setType} options={INQUIRY_TYPES} />
           </div>
 
           <div className={styles.field}>

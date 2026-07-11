@@ -9,7 +9,7 @@
   margin-bottom: 8px;
 }
 .pageTitle {
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-title);
   margin-bottom: 6px;
@@ -136,7 +136,7 @@
   border: none;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
@@ -229,7 +229,7 @@
 /* ── Text ── */
 .titleText {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-text-body);
 }
 .secondary {

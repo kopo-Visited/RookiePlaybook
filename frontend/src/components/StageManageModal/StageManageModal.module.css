@@ -53,7 +53,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #637087;
+  color: var(--color-text-label);
   flex-shrink: 0;
 }
 
@@ -76,7 +76,7 @@
   color: #172033;
 }
 .btnPrimary {
-  height: 40px;
+  height: 44px;
   padding: 0 16px;
   min-width: 76px;
   background: var(--color-primary);
@@ -224,7 +224,7 @@
   line-height: 20px;
 }
 .textarea::placeholder {
-  color: #9aa5b8;
+  color: var(--color-text-secondary);
 }
 .textarea:focus {
   border-color: var(--color-primary);

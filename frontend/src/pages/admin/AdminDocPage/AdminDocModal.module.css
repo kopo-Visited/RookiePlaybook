@@ -12,7 +12,7 @@
   width: 720px;
   background: #ffffff;
   box-shadow: 0px 30px 80px rgba(23, 32, 51, 0.24);
-  border-radius: 24px;
+  border-radius: 20px;
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@
   margin-bottom: 24px;
 }
 .modalTitle {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 900;
   color: #172033;
   letter-spacing: -0.4px;
@@ -48,7 +48,7 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
-  color: #637087;
+  color: var(--color-text-label);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,21 +90,7 @@
   box-sizing: border-box;
 }
 .input::placeholder {
-  color: #637087;
-}
-.select {
-  height: 44px;
-  padding: 0 14px;
-  background: #ffffff;
-  border: 1px solid #d7e1ef;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #637087;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  box-sizing: border-box;
+  color: var(--color-text-label);
 }
 .textarea {
   height: 112px;
@@ -120,7 +106,7 @@
   box-sizing: border-box;
 }
 .textarea::placeholder {
-  color: #637087;
+  color: var(--color-text-label);
 }
 
 /* ── file upload ── */
@@ -170,7 +156,7 @@
   padding: 0 20px;
   background: #ffffff;
   border: 1px solid #cfe4ff;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 900;
   color: #2288ff;
@@ -182,7 +168,7 @@
   padding: 0 20px;
   background: #2288ff;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 15px;
   font-weight: 900;
   color: #ffffff;

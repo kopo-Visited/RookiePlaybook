@@ -5,6 +5,7 @@ import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
 import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
 import Badge from '../../../components/Badge/Badge';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
 
 const STALE_THRESHOLD_DAYS = 90;
@@ -106,7 +107,7 @@ function AdminDocPage() {
         label: '비공개 문서',
         value: `${privateDocs}건`,
         sub: '비공개 처리 문서',
-        subColor: '#637087',
+        subColor: 'var(--color-text-label)',
         colorKey: 'orange',
         iconText: 'Prv',
       },
@@ -272,27 +273,25 @@ function AdminDocPage() {
               onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <select
+          <Dropdown
             className={styles.filterSelect}
             value={categoryFilter}
-            onChange={e => setCategoryFilter(e.target.value)}
-          >
-            <option value="">카테고리 전체</option>
-            {categoryOptions.map(c => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-          <select
+            onChange={setCategoryFilter}
+            options={[
+              { value: '', label: '카테고리 전체' },
+              ...categoryOptions.map(c => ({ value: c, label: c })),
+            ]}
+          />
+          <Dropdown
             className={styles.filterSelect}
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-          >
-            <option value="">상태 전체</option>
-            <option value="공개">공개</option>
-            <option value="비공개">비공개</option>
-          </select>
+            onChange={setStatusFilter}
+            options={[
+              { value: '', label: '상태 전체' },
+              { value: '공개', label: '공개' },
+              { value: '비공개', label: '비공개' },
+            ]}
+          />
           <button className={styles.resetBtn} onClick={handleReset}>
             초기화
           </button>
