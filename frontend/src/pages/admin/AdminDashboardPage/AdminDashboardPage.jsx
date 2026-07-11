@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import useEduCompletionSummary from '../../../hooks/admin/useEduCompletionSummary';
+import useFetch from '../../../hooks/useFetch';
+import { getAdminNotices } from '../../../api/noticeApi';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { formatDate } from '../../../utils/formatDate';
@@ -162,6 +164,15 @@ function buildRecentQuestionItems(recentQuestions) {
   }));
 }
 
+function buildRecentNoticeItems(notices) {
+  if (!notices) return [];
+  return notices.slice(0, 3).map(n => ({
+    id: n.noticeId,
+    title: n.title,
+    meta: `${n.writerName} ㅣ ${formatDate(n.createdAt)}`,
+  }));
+}
+
 function IconPerson() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -239,6 +250,25 @@ function IconDocBadge() {
       />
       <path
         d="M14 2v5h5M8 12h8M8 16h5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconNoticeBadge() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M3 10v4a1 1 0 001 1h2l4 4V5L6 9H4a1 1 0 00-1 1z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 8.5a4 4 0 010 7M18 6a7.5 7.5 0 010 12"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinecap="round"
@@ -460,6 +490,7 @@ function AdminDashboardPage() {
 
   const { stats, loading: statsLoading } = useDashboardStats();
   const { summary: eduSummary, loading: eduLoading, error: eduError } = useEduCompletionSummary();
+  const { data: noticeRes } = useFetch(() => getAdminNotices().catch(() => null), []);
   const statCardValues = buildStatCardValues(stats);
   const categoryDonutData = buildCategoryDonutData(stats?.documentCategoryDistribution);
   const eduDonutData = buildEduDonutData(eduSummary);
@@ -472,6 +503,7 @@ function AdminDashboardPage() {
   const recentUsersRows = buildRecentUsersRows(stats?.recentUsers);
   const recentDocItems = buildRecentDocItems(stats?.recentDocuments);
   const recentQuestionItems = buildRecentQuestionItems(stats?.recentQuestions);
+  const recentNoticeItems = buildRecentNoticeItems(noticeRes?.data);
 
   return (
     <div className={styles.page}>
@@ -615,12 +647,12 @@ function AdminDashboardPage() {
           renderIcon={() => <span className={styles.qMark}>Q</span>}
           onMoreClick={() => navigate(ROUTES.ADMIN.QNA)}
         />
-        <section className={styles.panel}>
-          <div className={styles.panelHead}>
-            <span className={styles.panelTitle}>운영 공지</span>
-          </div>
-          <p className={styles.statDeltaCaption}>공지사항 기능 연동 후 제공될 예정입니다.</p>
-        </section>
+        <ListPanel
+          title="운영 공지"
+          items={recentNoticeItems}
+          renderIcon={() => <IconNoticeBadge />}
+          onMoreClick={() => navigate(ROUTES.ADMIN.SETTINGS, { state: { tab: 'notice' } })}
+        />
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
