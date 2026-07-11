@@ -82,7 +82,7 @@ function AdminDocPage() {
   const [page, setPage] = useState(1);
 
   const { data: apiRes, loading } = useFetch(() => getAdminDocuments(), [refreshKey]);
-  const docs = apiRes?.data ?? [];
+  const docs = useMemo(() => apiRes?.data ?? [], [apiRes]);
 
   const { data: faqRes } = useFetch(() => getFaqs(), []);
   const totalFaqs = faqRes?.data?.length ?? 0;
