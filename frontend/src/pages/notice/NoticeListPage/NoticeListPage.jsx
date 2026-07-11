@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './NoticeListPage.module.css';
 import { getAllNotices } from '../../../api/noticeApi';
-import { ROUTES } from '../../../constants/routes';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
@@ -18,6 +17,20 @@ function formatDate(iso) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function IconArrowLeft() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M19 12H5M5 12l7 7M5 12l7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function NoticeListPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -31,15 +44,14 @@ function NoticeListPage() {
 
   return (
     <div className={styles.page}>
+      <button className={styles.backBtn} onClick={() => navigate(-1)}>
+        <IconArrowLeft />
+        뒤로가기
+      </button>
+
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>공지사항</h1>
         <p className={styles.pageSubtitle}>회사의 모든 공지사항을 확인할 수 있어요.</p>
-      </div>
-
-      <div className={styles.actionBar}>
-        <button className={styles.backBtn} onClick={() => navigate(ROUTES.DASHBOARD)}>
-          ← 대시보드로
-        </button>
       </div>
 
       <section className={styles.card}>
