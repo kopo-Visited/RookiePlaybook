@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
-import useAuthStore from '../../../stores/authStore';
 import AdminQnaDetail from './AdminQnaDetail';
 import { getAdminQnas } from '../../../api/qnaApi';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
@@ -58,15 +57,6 @@ function parseCreatedAt(createdAt) {
   return { year: `20${yy}`, month: mm, day: dd };
 }
 
-function IconSearch() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
-      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function StatusBadge({ status }) {
   return (
     <span className={`${styles.statusBadge} ${styles[QNA_STATUS_CLASS[status]] ?? ''}`}>
@@ -90,10 +80,6 @@ function StatCard({ statusKey, label, count }) {
 }
 
 function AdminQnaPage() {
-  const user = useAuthStore(state => state.user);
-  const displayName = user?.name ?? '관리자';
-  const avatarChar = displayName[0];
-
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -205,25 +191,6 @@ function AdminQnaPage() {
         <div className={styles.titleBlock}>
           <h1 className={styles.pageTitle}>답변 관리</h1>
           <p className={styles.pageSubtitle}>신입사원의 질문을 확인하고 답변을 등록·관리하세요.</p>
-        </div>
-        <div className={styles.headerRight}>
-          <div className={styles.searchBox}>
-            <span className={styles.searchIcon}>
-              <IconSearch />
-            </span>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="질문 제목, 작성자 검색"
-            />
-          </div>
-          <div className={styles.profile}>
-            <div className={styles.avatar}>{avatarChar}</div>
-            <div className={styles.userText}>
-              <span className={styles.userName}>{displayName}님</span>
-              <span className={styles.userRole}>관리자</span>
-            </div>
-          </div>
         </div>
       </header>
 

@@ -678,15 +678,6 @@ function AdminUsersPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.topbar}>
-        <div className={styles.searchBox}>
-          <input type="text" className={styles.searchInput} placeholder="문서, 교육, 질문 검색" />
-          <span className={styles.searchIcon}>
-            <IconSearch />
-          </span>
-        </div>
-      </header>
-
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>사용자 관리</h1>
         <p className={styles.pageSubtitle}>사내 사용자 계정과 권한을 조회하고 관리하세요.</p>
