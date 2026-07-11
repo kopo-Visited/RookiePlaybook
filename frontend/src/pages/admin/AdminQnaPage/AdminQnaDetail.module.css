@@ -66,8 +66,8 @@
   color: var(--color-text-title);
 }
 .qTitle {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
   color: var(--color-text-title);
   line-height: 32px;
 }
@@ -87,7 +87,7 @@
 
 /* ── answer editor ── */
 .sectionTitle {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--color-text-title);
   margin-bottom: var(--spacing-md);
@@ -179,7 +179,7 @@
 
 /* ── side ── */
 .sideTitle {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--color-text-title);
   margin-bottom: var(--spacing-lg);
