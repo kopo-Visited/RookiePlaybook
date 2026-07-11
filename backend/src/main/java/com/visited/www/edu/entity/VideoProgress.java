@@ -7,7 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "video_progress")
+@Table(name = "video_progress",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_video_progress_user_material",
+                columnNames = {"user_id", "material_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class VideoProgress {

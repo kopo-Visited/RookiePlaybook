@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stage_completions")
+@Table(name = "stage_completions",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_stage_completion_user_stage",
+                columnNames = {"user_id", "stage_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StageCompletion {
