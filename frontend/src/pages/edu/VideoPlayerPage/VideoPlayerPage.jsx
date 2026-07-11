@@ -268,7 +268,12 @@ function VideoPlayerPage() {
 
           <div className={styles.info}>
             <h1 className={styles.courseTitle}>[{detail?.title}]</h1>
-            <p className={styles.videoTitle}>영상 제목 : {stage?.title ?? material.title}</p>
+            <p className={styles.videoTitle}>
+              영상 제목 : {stage?.title ?? material.title}
+              {currentIndex >= 0 &&
+                stages.length > 0 &&
+                ` (${currentIndex + 1}/${stages.length}단계)`}
+            </p>
             {stage?.description && <p className={styles.videoDesc}>{stage.description}</p>}
           </div>
 
