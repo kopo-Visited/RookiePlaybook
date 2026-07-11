@@ -143,11 +143,63 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByRole('button', { name: /이전 영상/ })).toBeDisabled();
   });
 
-  it('단계 완료 버튼 클릭 시 완료 처리되고 완료됨으로 바뀐다', async () => {
+  it('영상을 충분히 시청하기 전에는 단계 완료 버튼이 비활성화된다', async () => {
+    // given & when
+    mockSuccess();
+    renderPage();
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByRole('button', { name: '단계 완료' })).toBeDisabled();
+  });
+
+  it('영상을 95% 이상 시청하면 단계 완료 버튼이 활성화된다', async () => {
     // given
     mockSuccess();
     renderPage();
-    const btn = await screen.findByRole('button', { name: '단계 완료' });
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video, { duration: 30 });
+    expect(screen.getByRole('button', { name: '단계 완료' })).toBeDisabled();
+
+    // when — 96% 지점까지 재생
+    video.currentTime = 29;
+    fireEvent.timeUpdate(video);
+
+    // then
+    expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+  });
+
+  it('이어보기 위치가 이미 95% 이상이면 단계 완료 버튼이 바로 활성화된다', async () => {
+    // given
+    const resumeMaterial = { ...material, lastWatchedPosition: 590, totalDuration: 600 };
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: resumeMaterial })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: detail })
+      )
+    );
+
+    // when
+    renderPage();
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+  });
+
+  it('영상을 95% 이상 시청한 뒤 단계 완료 버튼 클릭 시 완료 처리된다', async () => {
+    // given
+    mockSuccess();
+    renderPage();
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video, { duration: 30 });
+    video.currentTime = 29;
+    fireEvent.timeUpdate(video);
+    const btn = screen.getByRole('button', { name: '단계 완료' });
 
     // when
     await userEvent.click(btn);
