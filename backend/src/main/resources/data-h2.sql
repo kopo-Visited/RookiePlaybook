@@ -259,12 +259,14 @@ ALTER TABLE education_stages ALTER COLUMN id RESTART WITH 7;
 -- 교육 자료 (단계 1:1), total_duration 단위: 초
 INSERT INTO education_materials (id, stage_id, title, video_url, total_duration)
 VALUES
-    (1, 1, '회사 소개 영상', 'https://videos.example.com/company-intro.mp4', 600),
-    (2, 2, '정보보안 기초 강의', 'https://videos.example.com/security-basic.mp4', 900),
-    (3, 3, 'Git 워크플로우', 'https://videos.example.com/git-workflow.mp4', 720),
-    (4, 4, 'Spring Boot 시작하기', 'https://videos.example.com/springboot-intro.mp4', 1200),
-    (5, 5, 'JPA 영속성 컨텍스트', 'https://videos.example.com/jpa-basic.mp4', 1500),
-    (6, 6, 'OWASP Top 10', 'https://videos.example.com/owasp-top10.mp4', 1800);
+    -- 로컬 개발용 재생 가능한 영상: MDN 공개 CC0(퍼블릭 도메인, 출처표기 불필요) 클립.
+    -- 배포 시에는 CloudFront에 올린 CC0 영상 URL로 교체한다(운영 데이터는 이 파일이 아닌 별도 관리).
+    (1, 1, '회사 소개 영상', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 600),
+    (2, 2, '정보보안 기초 강의', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 900),
+    (3, 3, 'Git 워크플로우', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 720),
+    (4, 4, 'Spring Boot 시작하기', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 1200),
+    (5, 5, 'JPA 영속성 컨텍스트', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 1500),
+    (6, 6, 'OWASP Top 10', 'https://mdn.github.io/shared-assets/videos/flower.mp4', 1800);
 ALTER TABLE education_materials ALTER COLUMN id RESTART WITH 7;
 
 -- 과정 진도 (관리자 id=1, 일반 사용자 id=2)
@@ -283,9 +285,9 @@ VALUES
     (4, 2, 5, CURRENT_TIMESTAMP);
 ALTER TABLE stage_completions ALTER COLUMN id RESTART WITH 5;
 
--- 영상 시청 위치 (이어보기)
+-- 영상 시청 위치 (이어보기) — 로컬 CC0 클립 길이(~30초) 안으로 설정해 이어보기 복원이 끝을 넘지 않게 함
 INSERT INTO video_progress (id, user_id, material_id, watched_position)
 VALUES
-    (1, 1, 3, 120),
-    (2, 2, 4, 300);
+    (1, 1, 3, 10),
+    (2, 2, 4, 15);
 ALTER TABLE video_progress ALTER COLUMN id RESTART WITH 3;

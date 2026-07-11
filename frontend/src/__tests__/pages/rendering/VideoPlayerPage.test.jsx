@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { setupServer } from 'msw/node';
@@ -12,6 +12,20 @@ const material = {
   lastWatchedPosition: 0,
   totalDuration: 600,
 };
+
+// jsdom은 미디어를 실제 로드하지 않으므로, video의 currentTime/duration을 스텁으로 심어
+// loadedmetadata 시 첫 프레임 이동 로직(설정된 currentTime 값)을 관찰한다.
+function stubVideoTime(video, { duration = 30 } = {}) {
+  let pos = 0;
+  Object.defineProperty(video, 'currentTime', {
+    configurable: true,
+    get: () => pos,
+    set: v => {
+      pos = v;
+    },
+  });
+  Object.defineProperty(video, 'duration', { configurable: true, get: () => duration });
+}
 
 const detail = {
   educationId: 1,
@@ -141,5 +155,53 @@ describe('VideoPlayerPage 렌더링', () => {
 
     // then
     expect(await screen.findByText('영상을 불러오지 못했습니다.')).toBeInTheDocument();
+  });
+
+  it('video에 preload="metadata"가 설정된다', async () => {
+    // given & when
+    mockSuccess();
+    renderPage();
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(document.querySelector('video')).toHaveAttribute('preload', 'metadata');
+  });
+
+  it('이어보기 위치가 없으면 로드 시 첫 프레임(≈0.1초)으로 이동한다', async () => {
+    // given
+    mockSuccess();
+    renderPage();
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video);
+
+    // when
+    fireEvent.loadedMetadata(video);
+
+    // then
+    expect(video.currentTime).toBeCloseTo(0.1);
+  });
+
+  it('이어보기 위치가 있으면 첫 프레임으로 이동하지 않고 저장 위치로 복원한다', async () => {
+    // given
+    const resumeMaterial = { ...material, lastWatchedPosition: 15 };
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: resumeMaterial })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: detail })
+      )
+    );
+    renderPage();
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video);
+
+    // when
+    fireEvent.loadedMetadata(video);
+
+    // then — 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원된다
+    expect(video.currentTime).toBe(15);
   });
 });

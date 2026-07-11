@@ -172,11 +172,18 @@ function VideoPlayerPage() {
               ref={videoRef}
               className={styles.video}
               src={material.videoUrl}
+              preload="metadata"
               onClick={togglePlay}
               onPlay={() => setPlaying(true)}
               onPause={() => setPlaying(false)}
               onTimeUpdate={e => setCurrent(e.currentTarget.currentTime)}
-              onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
+              onLoadedMetadata={e => {
+                const video = e.currentTarget;
+                setDuration(video.duration);
+                // 이어보기 위치가 없을 때만 첫 프레임으로 살짝 이동해 재생 전 썸네일처럼 보이게 한다
+                // (이어보기 위치가 있으면 useVideoProgress가 그 위치로 복원하므로 건드리지 않는다)
+                if (!material.lastWatchedPosition) video.currentTime = 0.1;
+              }}
             />
 
             {!playing && (
