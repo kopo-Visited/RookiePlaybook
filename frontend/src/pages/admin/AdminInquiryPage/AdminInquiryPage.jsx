@@ -8,6 +8,8 @@ import EmptyState from '../../../components/EmptyState/EmptyState';
 import InquiryDetailModal from '../../../components/InquiryDetailModal/InquiryDetailModal';
 import { INQUIRY_TYPE_LABEL } from '../../../constants/inquiry';
 
+const PAGE_SIZE = 10;
+
 const STATUS_LABEL = { RECEIVED: '접수', ANSWERED: '답변완료' };
 const STATUS_STYLE = {
   RECEIVED: { color: '#FF4D94', background: '#FFF0F6' },
@@ -35,12 +37,15 @@ function StatusBadge({ status }) {
 function AdminInquiryPage() {
   const [detailId, setDetailId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [page, setPage] = useState(1);
 
   const { data, loading, error } = useFetch(
     () => getAdminInquiries().then(r => r.data ?? r),
     [refreshKey]
   );
   const items = data ?? [];
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pagedItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className={styles.page}>
@@ -67,7 +72,7 @@ function AdminInquiryPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
+              {pagedItems.map(item => (
                 <tr
                   key={item.inquiryId}
                   className={styles.tableRow}
@@ -94,6 +99,34 @@ function AdminInquiryPage() {
               ))}
             </tbody>
           </table>
+        )}
+
+        {!loading && !error && totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
+                onClick={() => setPage(n)}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              ›
+            </button>
+          </div>
         )}
       </section>
 
