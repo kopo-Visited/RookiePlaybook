@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: rookie-db
+    environment:
+      POSTGRES_DB: rookie_playbook
+      POSTGRES_USER: rookie
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: always
+
+  backend:
+    image: jeongyoni/rookie-playbook-backend:latest
+    container_name: rookie-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rookie_playbook
+      SPRING_DATASOURCE_USERNAME: rookie
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    restart: always
+
+  frontend:
+    image: jeongyoni/rookie-playbook-frontend:latest
+    container_name: rookie-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  postgres-data:
