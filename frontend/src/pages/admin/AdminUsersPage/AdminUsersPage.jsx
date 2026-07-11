@@ -11,9 +11,9 @@ const PAGE_SIZE = 10;
 
 const STAT_CARD_CONFIG = [
   { key: 'total', label: '전체 사용자', colorKey: COLOR_KEYS.BLUE, icon: <IconPerson /> },
-  { key: 'active', label: '활성 사용자', colorKey: COLOR_KEYS.GREEN, icon: <IconDocText /> },
-  { key: 'admin', label: '관리자 계정', colorKey: COLOR_KEYS.PINK, icon: <IconChatBubble /> },
-  { key: 'inactive', label: '비활성 계정', colorKey: COLOR_KEYS.ORANGE, icon: <IconAcademicCap /> },
+  { key: 'active', label: '활성 사용자', colorKey: COLOR_KEYS.GREEN, icon: <IconUserCheck /> },
+  { key: 'admin', label: '관리자 계정', colorKey: COLOR_KEYS.PINK, icon: <IconShieldCheck /> },
+  { key: 'inactive', label: '비활성 계정', colorKey: COLOR_KEYS.ORANGE, icon: <IconUserOff /> },
 ];
 
 function buildUserStatCardValues(users) {
@@ -126,59 +126,48 @@ function IconPerson() {
   );
 }
 
-function IconDocText() {
+function IconUserCheck() {
   return (
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="10" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M3 20a7 7 0 0114 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
       <path
-        d="M6 2h9l5 5v15a1 1 0 01-1 1H5a1 1 0 01-1-1V3a1 1 0 011-1z"
+        d="M16 14.5l2 2 3.5-3.5"
         stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M14 2v5h5M8 12h8M8 16h5"
-        stroke="currentColor"
-        strokeWidth="1.6"
+        strokeWidth="1.8"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-function IconChatBubble() {
+function IconShieldCheck() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path
-        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"
+        d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"
         stroke="currentColor"
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
       <path
-        d="M7 9h.01M12 9h.01M17 9h.01"
+        d="M9 12l2 2 4-4"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.6"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-function IconAcademicCap() {
+function IconUserOff() {
   return (
-    <svg width="29" height="30" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 3L2 8l10 5 10-5-10-5z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 11.5v5c0 2.21 2.69 4 6 4s6-1.79 6-4v-5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M4 20a8 8 0 0116 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M3.5 3.5l17 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -678,15 +667,6 @@ function AdminUsersPage() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.topbar}>
-        <div className={styles.searchBox}>
-          <input type="text" className={styles.searchInput} placeholder="문서, 교육, 질문 검색" />
-          <span className={styles.searchIcon}>
-            <IconSearch />
-          </span>
-        </div>
-      </header>
-
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>사용자 관리</h1>
         <p className={styles.pageSubtitle}>사내 사용자 계정과 권한을 조회하고 관리하세요.</p>

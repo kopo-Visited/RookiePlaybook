@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboardPage.module.css';
 import useDashboardStats from '../../../hooks/admin/useDashboardStats';
 import useEduCompletionSummary from '../../../hooks/admin/useEduCompletionSummary';
+import useFetch from '../../../hooks/useFetch';
+import { getAdminNotices } from '../../../api/noticeApi';
 import { COLOR_KEYS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { formatDate } from '../../../utils/formatDate';
@@ -124,6 +126,13 @@ function buildAccessTrendBuckets(hourlyAccessTrend) {
   });
 }
 
+function formatDateTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function buildRecentUsersRows(recentUsers) {
   if (!recentUsers) return [];
   return recentUsers.map(u => ({
@@ -132,7 +141,7 @@ function buildRecentUsersRows(recentUsers) {
     dept: u.departmentName,
     position: u.position,
     email: u.email,
-    joinedAt: formatDate(u.createdAt),
+    lastLoginAt: formatDateTime(u.lastLoginAt),
     statusLabel: USER_STATUS_LABELS[u.status] ?? u.status,
   }));
 }
@@ -152,6 +161,15 @@ function buildRecentQuestionItems(recentQuestions) {
     id: q.id,
     title: q.title,
     meta: `${q.departmentName ?? '부서 미상'} ㅣ ${formatRelativeTime(q.createdAt)}`,
+  }));
+}
+
+function buildRecentNoticeItems(notices) {
+  if (!notices) return [];
+  return notices.slice(0, 3).map(n => ({
+    id: n.noticeId,
+    title: n.title,
+    meta: `${n.writerName} ㅣ ${formatDate(n.createdAt)}`,
   }));
 }
 
@@ -240,11 +258,21 @@ function IconDocBadge() {
   );
 }
 
-function IconSearch() {
+function IconNoticeBadge() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
-      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M3 10v4a1 1 0 001 1h2l4 4V5L6 9H4a1 1 0 00-1 1z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M15 8.5a4 4 0 010 7M18 6a7.5 7.5 0 010 12"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -462,6 +490,7 @@ function AdminDashboardPage() {
 
   const { stats, loading: statsLoading } = useDashboardStats();
   const { summary: eduSummary, loading: eduLoading, error: eduError } = useEduCompletionSummary();
+  const { data: noticeRes } = useFetch(() => getAdminNotices().catch(() => null), []);
   const statCardValues = buildStatCardValues(stats);
   const categoryDonutData = buildCategoryDonutData(stats?.documentCategoryDistribution);
   const eduDonutData = buildEduDonutData(eduSummary);
@@ -474,18 +503,10 @@ function AdminDashboardPage() {
   const recentUsersRows = buildRecentUsersRows(stats?.recentUsers);
   const recentDocItems = buildRecentDocItems(stats?.recentDocuments);
   const recentQuestionItems = buildRecentQuestionItems(stats?.recentQuestions);
+  const recentNoticeItems = buildRecentNoticeItems(noticeRes?.data);
 
   return (
     <div className={styles.page}>
-      <header className={styles.topbar}>
-        <div className={styles.searchBox}>
-          <input type="text" className={styles.searchInput} placeholder="문서, 교육, 질문 검색" />
-          <span className={styles.searchIcon}>
-            <IconSearch />
-          </span>
-        </div>
-      </header>
-
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>관리자 대시보드</h1>
         <p className={styles.pageSubtitle}>진행중인 교육과 수료 현황을 관리해요</p>
@@ -513,25 +534,33 @@ function AdminDashboardPage() {
           </div>
           <div className={styles.tableWrap}>
             <table className={styles.usersTable}>
+              <colgroup>
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '13%' }} />
+                <col style={{ width: '12%' }} />
+                <col style={{ width: '28%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '12%' }} />
+              </colgroup>
               <thead>
                 <tr>
                   <th>이름</th>
                   <th>부서</th>
                   <th>직급</th>
                   <th>이메일</th>
-                  <th>가입일</th>
+                  <th>최근 접속</th>
                   <th>상태</th>
                 </tr>
               </thead>
               <tbody>
                 {recentUsersRows.map(
-                  ({ id, name, dept, position, email, joinedAt, statusLabel }) => (
+                  ({ id, name, dept, position, email, lastLoginAt, statusLabel }) => (
                     <tr key={id}>
                       <td>{name}</td>
                       <td>{dept}</td>
                       <td>{position}</td>
                       <td>{email}</td>
-                      <td>{joinedAt}</td>
+                      <td>{lastLoginAt}</td>
                       <td>
                         <span className={styles.statusBadge}>{statusLabel}</span>
                       </td>
@@ -618,17 +647,16 @@ function AdminDashboardPage() {
           renderIcon={() => <span className={styles.qMark}>Q</span>}
           onMoreClick={() => navigate(ROUTES.ADMIN.QNA)}
         />
-        <section className={styles.panel}>
-          <div className={styles.panelHead}>
-            <span className={styles.panelTitle}>운영 공지</span>
-          </div>
-          <p className={styles.statDeltaCaption}>공지사항 기능 연동 후 제공될 예정입니다.</p>
-        </section>
+        <ListPanel
+          title="운영 공지"
+          items={recentNoticeItems}
+          renderIcon={() => <IconNoticeBadge />}
+          onMoreClick={() => navigate(ROUTES.ADMIN.SETTINGS, { state: { tab: 'notice' } })}
+        />
 
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <span className={styles.panelTitle}>접속 현황 (최근 로그인 기준)</span>
-            <MoreLinkButton />
           </div>
           <div className={styles.trendHeader}>
             <span className={styles.trendValue}>{recentLoginCount.toLocaleString()}명</span>

@@ -20,4 +20,9 @@ public class NoticeController {
     public ApiResponse<List<NoticeResponseDto>> getRecentNotices() {
         return ApiResponse.success(noticeService.getRecentNotices());
     }
+
+    @GetMapping("/all")
+    public ApiResponse<List<NoticeResponseDto>> getAllNotices() {
+        return ApiResponse.success(noticeService.getAllNotices());
+    }
 }

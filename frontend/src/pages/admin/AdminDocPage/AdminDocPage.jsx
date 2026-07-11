@@ -15,15 +15,6 @@ const STATUS_COLOR = {
   비공개: COLOR_KEYS.AMBER,
 };
 
-function IconSearch() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
-      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function StatCard({ label, value, sub, subColor, colorKey, iconText }) {
   return (
     <div className={styles.statCard}>
@@ -242,18 +233,6 @@ function AdminDocPage() {
           <p className={styles.pageSubtitle}>
             사내 지식문서와 FAQ를 등록하고 공개 상태를 관리하세요.
           </p>
-        </div>
-        <div className={styles.headerRight}>
-          <div className={styles.searchBox}>
-            <span className={styles.searchIcon}>
-              <IconSearch />
-            </span>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="문서, FAQ, 카테고리 검색"
-            />
-          </div>
         </div>
       </header>
 
