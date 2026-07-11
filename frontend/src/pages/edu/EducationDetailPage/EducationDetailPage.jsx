@@ -3,6 +3,8 @@ import styles from './EducationDetailPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import { getEducationDetail } from '../../../api/eduApi';
 import { ROUTES } from '../../../constants/routes';
+import Spinner from '../../../components/Spinner/Spinner';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 
 function IconArrowLeft() {
   return (
@@ -35,8 +37,8 @@ function EducationDetailPage() {
         목록으로
       </button>
 
-      {loading && <p className={styles.stateMsg}>교육 과정을 불러오는 중...</p>}
-      {error && <p className={styles.stateMsg}>교육 과정을 불러오지 못했습니다.</p>}
+      {loading && <Spinner />}
+      {!loading && error && <ErrorMessage message="교육 과정을 불러오지 못했습니다." />}
 
       {edu && (
         <div className={styles.card}>

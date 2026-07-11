@@ -4,6 +4,7 @@ import AdminQnaFaqModal from './AdminQnaFaqModal';
 import { getAdminQna, answerQna, updateQnaStatus } from '../../../api/qnaApi';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
+import Spinner from '../../../components/Spinner/Spinner';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -78,7 +79,9 @@ function AdminQnaDetail({ questionId, onBack }) {
             <IconBack />
             <span>목록으로</span>
           </button>
-          <div className={styles.card}>불러오는 중…</div>
+          <div className={styles.card}>
+            <Spinner />
+          </div>
         </div>
       </div>
     );

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styles from './VideoPlayerPage.module.css';
 import Button from '../../../components/Button/Button';
 import Toast from '../../../components/Toast/Toast';
+import Spinner from '../../../components/Spinner/Spinner';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import { BUTTON_VARIANTS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import useFetch from '../../../hooks/useFetch';
@@ -162,8 +164,8 @@ function VideoPlayerPage() {
 
   return (
     <div className={styles.page}>
-      {matLoading && <p className={styles.stateMsg}>영상을 불러오는 중...</p>}
-      {matError && <p className={styles.stateMsg}>영상을 불러오지 못했습니다.</p>}
+      {matLoading && <Spinner />}
+      {!matLoading && matError && <ErrorMessage message="영상을 불러오지 못했습니다." />}
 
       {material && (
         <div className={styles.card}>

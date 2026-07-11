@@ -5,6 +5,9 @@ import useFetch from '../../../hooks/useFetch';
 import { getEducations } from '../../../api/eduApi';
 import { ROUTES } from '../../../constants/routes';
 import MyProgressModal from '../../../components/MyProgressModal/MyProgressModal';
+import Spinner from '../../../components/Spinner/Spinner';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
+import EmptyState from '../../../components/EmptyState/EmptyState';
 
 const PAGE_SIZE = 10;
 
@@ -52,10 +55,10 @@ function EducationListPage() {
           </button>
         </div>
 
-        {loading && <p className={styles.empty}>교육 과정을 불러오는 중...</p>}
-        {error && <p className={styles.empty}>교육 과정을 불러오지 못했습니다.</p>}
+        {loading && <Spinner />}
+        {!loading && error && <ErrorMessage message="교육 과정을 불러오지 못했습니다." />}
         {!loading && !error && educations.length === 0 && (
-          <p className={styles.empty}>등록된 교육 과정이 없습니다.</p>
+          <EmptyState message="등록된 교육 과정이 없습니다." />
         )}
 
         {!loading && !error && educations.length > 0 && (
