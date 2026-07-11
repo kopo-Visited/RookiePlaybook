@@ -185,9 +185,11 @@ describe('VideoPlayerPage 렌더링', () => {
     // when
     renderPage();
 
-    // then
+    // then — 자료 로드 후 effect로 watched가 설정되므로 waitFor로 반영을 기다린다
     await screen.findByText('[신입사원 온보딩 교육]');
-    expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+    });
   });
 
   it('영상을 95% 이상 시청한 뒤 단계 완료 버튼 클릭 시 완료 처리된다', async () => {
@@ -239,19 +241,15 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(document.querySelector('video')).toHaveAttribute('preload', 'metadata');
   });
 
-  it('이어보기 위치가 없으면 로드 시 첫 프레임(≈0.1초)으로 이동한다', async () => {
-    // given
+  it('이어보기 위치가 없으면 첫 프레임을 미디어 프래그먼트(#t=0.1)로 표시한다', async () => {
+    // given & when
     mockSuccess();
     renderPage();
+
+    // then — JS seek 대신 src 프래그먼트로 첫 프레임을 표시(재생 첫 클릭과 경쟁하지 않도록)
     await screen.findByText('[신입사원 온보딩 교육]');
     const video = document.querySelector('video');
-    stubVideoTime(video);
-
-    // when
-    fireEvent.loadedMetadata(video);
-
-    // then
-    expect(video.currentTime).toBeCloseTo(0.1);
+    expect(video.getAttribute('src')).toContain('#t=0.1');
   });
 
   it('이어보기 위치가 있으면 첫 프레임으로 이동하지 않고 저장 위치로 복원한다', async () => {
@@ -273,7 +271,8 @@ describe('VideoPlayerPage 렌더링', () => {
     // when
     fireEvent.loadedMetadata(video);
 
-    // then — 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원된다
+    // then — 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원되고, src에 프래그먼트가 없다
     expect(video.currentTime).toBe(15);
+    expect(video.getAttribute('src')).not.toContain('#t=');
   });
 });
