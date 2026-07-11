@@ -73,7 +73,7 @@
   height: 40px;
   padding: 0 16px;
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -107,7 +107,7 @@
   background: var(--color-bg-white);
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-text-title);
   font-family: inherit;
   outline: none;
@@ -126,7 +126,7 @@
   background-position: right 12px center;
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-text-secondary);
   font-family: inherit;
   outline: none;
@@ -142,7 +142,7 @@
   background: var(--color-bg-white);
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-text-secondary);
   font-family: inherit;
   outline: none;
@@ -160,7 +160,7 @@
   background: var(--color-red);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-bg-white);
   cursor: pointer;
@@ -178,7 +178,7 @@
   background: var(--color-primary);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-bg-white);
   cursor: pointer;
@@ -208,7 +208,7 @@
   border-bottom: 1px solid var(--color-border);
   height: 56px;
   vertical-align: middle;
-  font-size: 16px;
+  font-size: 12px;
 }
 .checkCol {
   width: 44px;
@@ -228,8 +228,8 @@
   background: #fafcff;
 }
 .qTitle {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 900;
   color: var(--color-text-title);
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -237,7 +237,7 @@
   overflow: hidden;
 }
 .textCell {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--color-text-body);
   white-space: nowrap;
@@ -246,7 +246,7 @@
   padding: 48px 0;
   text-align: center;
   color: var(--color-text-secondary);
-  font-size: 15px;
+  font-size: 14px;
 }
 .statusBadge {
   display: inline-flex;
@@ -292,8 +292,8 @@
   border-radius: var(--radius-md);
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--color-text-title);
   cursor: pointer;
   font-family: inherit;

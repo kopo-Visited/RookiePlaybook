@@ -37,7 +37,7 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-text-body);
 }
@@ -61,7 +61,7 @@
   white-space: nowrap;
 }
 .qDept {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   color: var(--color-text-title);
 }
@@ -99,7 +99,7 @@
   background: var(--color-bg-white);
   border: 1px solid var(--color-border-input);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 26px;
   color: var(--color-text-title);
   font-family: inherit;
@@ -138,7 +138,7 @@
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-text-title);
   cursor: pointer;
@@ -150,7 +150,7 @@
   background: var(--color-primary);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-bg-white);
   cursor: pointer;
@@ -166,7 +166,7 @@
   background: var(--color-red);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-bg-white);
   cursor: pointer;
@@ -208,7 +208,7 @@
   gap: var(--spacing-xs);
 }
 .userName {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   color: var(--color-text-title);
 }
@@ -229,7 +229,7 @@
   background-position: right 14px center;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-text-title);
   font-family: inherit;
   outline: none;
@@ -263,7 +263,7 @@
   background: var(--color-primary);
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--color-bg-white);
   cursor: pointer;
