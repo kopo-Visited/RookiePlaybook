@@ -3,6 +3,7 @@ import styles from './AdminUsersPage.module.css';
 import Button from '../../../components/Button/Button';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import useAdminUsers from '../../../hooks/admin/useAdminUsers';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
@@ -331,38 +332,22 @@ function UserFormFields({ form, onChange, departments, roles, isEdit }) {
 
       <div className={styles.field}>
         <label className={styles.label}>부서 선택</label>
-        <select
-          className={styles.input}
+        <Dropdown
           value={form.departmentId}
-          onChange={e => onChange({ ...form, departmentId: Number(e.target.value) })}
-        >
-          <option value="" disabled>
-            부서를 선택하세요
-          </option>
-          {departments.map(dept => (
-            <option key={dept.departmentId} value={dept.departmentId}>
-              {dept.name}
-            </option>
-          ))}
-        </select>
+          onChange={val => onChange({ ...form, departmentId: val })}
+          options={departments.map(dept => ({ value: dept.departmentId, label: dept.name }))}
+          placeholder="부서를 선택하세요"
+        />
       </div>
 
       <div className={styles.field}>
         <label className={styles.label}>권한 선택</label>
-        <select
-          className={styles.input}
+        <Dropdown
           value={form.roleId}
-          onChange={e => onChange({ ...form, roleId: Number(e.target.value) })}
-        >
-          <option value="" disabled>
-            권한을 선택하세요
-          </option>
-          {roles.map(role => (
-            <option key={role.roleId} value={role.roleId}>
-              {role.name}
-            </option>
-          ))}
-        </select>
+          onChange={val => onChange({ ...form, roleId: val })}
+          options={roles.map(role => ({ value: role.roleId, label: role.name }))}
+          placeholder="권한을 선택하세요"
+        />
       </div>
 
       <div className={styles.field}>
@@ -692,48 +677,32 @@ function AdminUsersPage() {
             </span>
           </div>
 
-          <select
+          <Dropdown
             className={styles.filterSelect}
             value={deptFilter}
-            onChange={e =>
-              handleDeptFilterChange(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))
-            }
-          >
-            <option value="ALL">부서 전체</option>
-            {departments.map(dept => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.name}
-              </option>
-            ))}
-          </select>
+            onChange={handleDeptFilterChange}
+            options={[
+              { value: 'ALL', label: '부서 전체' },
+              ...departments.map(dept => ({ value: dept.departmentId, label: dept.name })),
+            ]}
+          />
 
-          <select
+          <Dropdown
             className={styles.filterSelect}
             value={roleFilter}
-            onChange={e =>
-              handleRoleFilterChange(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))
-            }
-          >
-            <option value="ALL">권한 전체</option>
-            {roles.map(role => (
-              <option key={role.roleId} value={role.roleId}>
-                {role.name}
-              </option>
-            ))}
-          </select>
+            onChange={handleRoleFilterChange}
+            options={[
+              { value: 'ALL', label: '권한 전체' },
+              ...roles.map(role => ({ value: role.roleId, label: role.name })),
+            ]}
+          />
 
-          <select
+          <Dropdown
             className={styles.filterSelect}
             value={statusFilter}
-            onChange={e => handleStatusFilterChange(e.target.value)}
-          >
-            <option value="ALL">상태 전체</option>
-            {STATUS_OPTIONS.map(status => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </select>
+            onChange={handleStatusFilterChange}
+            options={[{ value: 'ALL', label: '상태 전체' }, ...STATUS_OPTIONS]}
+          />
 
           <button type="button" className={styles.resetButton} onClick={handleResetFilters}>
             초기화

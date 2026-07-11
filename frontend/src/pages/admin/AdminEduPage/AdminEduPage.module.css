@@ -158,16 +158,8 @@
   flex-wrap: wrap;
 }
 .filterSelect {
-  height: 39px;
-  border: 1px solid var(--color-border-input);
-  border-radius: 10px;
-  padding: 0 12px;
-  font-size: 14px;
-  font-family: inherit;
-  color: #6f7b91;
-  background: var(--color-bg-white);
-  outline: none;
-  cursor: pointer;
+  width: 160px;
+  flex-shrink: 0;
 }
 .resetBtn {
   height: 39px;

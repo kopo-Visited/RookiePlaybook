@@ -16,6 +16,7 @@ import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import EducationFormModal from '../../../components/EducationFormModal/EducationFormModal';
 import StageManageModal from '../../../components/StageManageModal/StageManageModal';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const PROGRESS_PAGE_SIZE = 20;
 
@@ -235,43 +236,32 @@ function ProgressView({ departments, educations }) {
   return (
     <>
       <div className={styles.filterRow}>
-        <select
+        <Dropdown
           className={styles.filterSelect}
           value={departmentId}
-          onChange={e => changeFilter(setDepartmentId, e.target.value)}
-        >
-          <option value="ALL">부서 전체</option>
-          {departments.map(dept => (
-            <option key={dept.departmentId} value={dept.departmentId}>
-              {dept.name}
-            </option>
-          ))}
-        </select>
+          onChange={val => changeFilter(setDepartmentId, val)}
+          options={[
+            { value: 'ALL', label: '부서 전체' },
+            ...departments.map(dept => ({ value: dept.departmentId, label: dept.name })),
+          ]}
+        />
 
-        <select
+        <Dropdown
           className={styles.filterSelect}
           value={educationId}
-          onChange={e => changeFilter(setEducationId, e.target.value)}
-        >
-          <option value="ALL">과정 전체</option>
-          {educations.map(edu => (
-            <option key={edu.educationId} value={edu.educationId}>
-              {edu.title}
-            </option>
-          ))}
-        </select>
+          onChange={val => changeFilter(setEducationId, val)}
+          options={[
+            { value: 'ALL', label: '과정 전체' },
+            ...educations.map(edu => ({ value: edu.educationId, label: edu.title })),
+          ]}
+        />
 
-        <select
+        <Dropdown
           className={styles.filterSelect}
           value={isCompleted}
-          onChange={e => changeFilter(setIsCompleted, e.target.value)}
-        >
-          {COMPLETION_OPTIONS.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          onChange={val => changeFilter(setIsCompleted, val)}
+          options={COMPLETION_OPTIONS}
+        />
 
         <button type="button" className={styles.resetBtn} onClick={resetFilters}>
           초기화
@@ -352,18 +342,15 @@ function IncompleteView({ educations }) {
   return (
     <>
       <div className={styles.filterRow}>
-        <select
+        <Dropdown
           className={styles.filterSelect}
           value={educationId}
-          onChange={e => changeEducation(e.target.value)}
-        >
-          <option value="ALL">과정 전체</option>
-          {educations.map(edu => (
-            <option key={edu.educationId} value={edu.educationId}>
-              {edu.title}
-            </option>
-          ))}
-        </select>
+          onChange={changeEducation}
+          options={[
+            { value: 'ALL', label: '과정 전체' },
+            ...educations.map(edu => ({ value: edu.educationId, label: edu.title })),
+          ]}
+        />
 
         <button type="button" className={styles.resetBtn} onClick={resetFilters}>
           초기화

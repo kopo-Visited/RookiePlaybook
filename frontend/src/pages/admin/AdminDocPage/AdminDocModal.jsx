@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './AdminDocModal.module.css';
 import { createDocument, updateDocument } from '../../../api/docApi';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
@@ -85,33 +86,21 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
 
           <div className={styles.field}>
             <label className={styles.label}>카테고리</label>
-            <select
-              className={styles.select}
+            <Dropdown
               value={form.category}
-              onChange={e => handleChange('category', e.target.value)}
-            >
-              <option value="">카테고리 선택</option>
-              {CATEGORIES.map(c => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={val => handleChange('category', val)}
+              options={CATEGORIES.map(c => ({ value: c, label: c }))}
+              placeholder="카테고리 선택"
+            />
           </div>
 
           <div className={styles.field}>
             <label className={styles.label}>공개 상태</label>
-            <select
-              className={styles.select}
+            <Dropdown
               value={form.visibility}
-              onChange={e => handleChange('visibility', e.target.value)}
-            >
-              {VISIBILITIES.map(v => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
+              onChange={val => handleChange('visibility', val)}
+              options={VISIBILITIES.map(v => ({ value: v, label: v }))}
+            />
           </div>
 
           <div className={`${styles.field} ${styles.fieldFull}`}>

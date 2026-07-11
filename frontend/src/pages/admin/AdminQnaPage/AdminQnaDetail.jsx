@@ -5,6 +5,7 @@ import { getAdminQna, answerQna, updateQnaStatus } from '../../../api/qnaApi';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
 import Spinner from '../../../components/Spinner/Spinner';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -227,17 +228,11 @@ function AdminQnaDetail({ questionId, onBack }) {
 
         <div className={styles.card}>
           <h2 className={styles.sideTitle}>상태 관리</h2>
-          <select
-            className={styles.statusSelect}
+          <Dropdown
             value={statusDraft}
-            onChange={e => setStatusDraft(e.target.value)}
-          >
-            {STATUS_OPTIONS.map(s => (
-              <option key={s} value={s}>
-                {QNA_STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
+            onChange={setStatusDraft}
+            options={STATUS_OPTIONS.map(s => ({ value: s, label: QNA_STATUS_LABEL[s] }))}
+          />
           <textarea
             className={styles.reasonArea}
             placeholder="간단한 변경 사유를 입력해주세요."

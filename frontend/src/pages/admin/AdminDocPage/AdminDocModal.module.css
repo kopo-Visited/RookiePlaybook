@@ -92,20 +92,6 @@
 .input::placeholder {
   color: #637087;
 }
-.select {
-  height: 44px;
-  padding: 0 14px;
-  background: #ffffff;
-  border: 1px solid #d7e1ef;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #637087;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  box-sizing: border-box;
-}
 .textarea {
   height: 112px;
   padding: 12px 14px;

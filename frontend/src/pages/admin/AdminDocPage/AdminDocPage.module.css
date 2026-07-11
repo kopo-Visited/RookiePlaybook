@@ -191,18 +191,8 @@
   color: #637087;
 }
 .filterSelect {
-  height: 44px;
-  padding: 0 12px;
-  background: #ffffff;
-  border: 1px solid #d7e1ef;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #637087;
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  min-width: 120px;
+  width: 140px;
+  flex-shrink: 0;
 }
 .resetBtn {
   height: 40px;
