@@ -11,7 +11,7 @@ public record RecentUserDto(
         String position,
         String email,
         String status,
-        LocalDateTime createdAt
+        LocalDateTime lastLoginAt
 ) {
     public static RecentUserDto from(User user) {
         return new RecentUserDto(
@@ -21,7 +21,7 @@ public record RecentUserDto(
                 user.getPosition(),
                 user.getEmail(),
                 user.getStatus().name(),
-                user.getCreatedAt()
+                user.getLastLoginAt()
         );
     }
 }
