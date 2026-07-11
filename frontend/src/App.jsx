@@ -16,6 +16,7 @@ import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
 import AdminQnaPage from './pages/admin/AdminQnaPage/AdminQnaPage';
 import QnaListPage from './pages/qna/QnaListPage/QnaListPage';
 import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
+import NoticeListPage from './pages/notice/NoticeListPage/NoticeListPage';
 import InquiryPage from './pages/inquiry/InquiryPage/InquiryPage';
 import AdminInquiryPage from './pages/admin/AdminInquiryPage/AdminInquiryPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage/AdminSettingsPage';
@@ -54,6 +55,7 @@ function App() {
             <Route path="/doc/:id" element={<DocDetailPage />} />
             <Route path={ROUTES.QNA.LIST} element={<QnaListPage />} />
             <Route path={ROUTES.QNA.ALL} element={<QnaAllPage />} />
+            <Route path={ROUTES.NOTICE.LIST} element={<NoticeListPage />} />
             <Route path={ROUTES.EDU.LIST} element={<EducationListPage />} />
             <Route path="/edu/:id" element={<EducationDetailPage />} />
             <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />

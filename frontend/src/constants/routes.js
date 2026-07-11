@@ -13,6 +13,9 @@ export const ROUTES = {
     LIST: '/qna',
     ALL: '/qna/all',
   },
+  NOTICE: {
+    LIST: '/notice',
+  },
   EDU: {
     LIST: '/edu',
     DETAIL: id => `/edu/${id}`,

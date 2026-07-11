@@ -9,7 +9,6 @@ import { getMyProgress } from '../../../api/eduApi';
 import { getNotices } from '../../../api/noticeApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
-import NoticeListModal from '../../../components/NoticeListModal/NoticeListModal';
 
 const STATUS_STYLE = {
   RECEIVED: { label: '답변 대기', color: '#6F7B91' },
@@ -170,7 +169,6 @@ function DashboardPage() {
   const user = useAuthStore(s => s.user);
   const [qnaModalOpen, setQnaModalOpen] = useState(false);
   const [qnaRefreshKey, setQnaRefreshKey] = useState(0);
-  const [noticeModalOpen, setNoticeModalOpen] = useState(false);
 
   const { data: docRes } = useFetch(() => getDocuments().catch(() => null), []);
   const { data: qnaRes } = useFetch(() => getQnas().catch(() => null), [qnaRefreshKey]);
@@ -419,7 +417,7 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>공지사항</span>
-            <button className={styles.linkBtn} onClick={() => setNoticeModalOpen(true)}>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.NOTICE.LIST)}>
               전체보기 ›
             </button>
           </div>
@@ -501,8 +499,6 @@ function DashboardPage() {
           }}
         />
       )}
-
-      {noticeModalOpen && <NoticeListModal onClose={() => setNoticeModalOpen(false)} />}
     </div>
   );
 }

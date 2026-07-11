@@ -7,6 +7,12 @@ import axiosInstance from './axiosInstance';
 export const getNotices = () => axiosInstance.get('/api/notices');
 
 /**
+ * 공지사항 전체 목록 조회 (로그인 사용자)
+ * GET /api/notices/all
+ */
+export const getAllNotices = () => axiosInstance.get('/api/notices/all');
+
+/**
  * 공지사항 전체 목록 조회 (관리자)
  * GET /api/admin/notices
  */
