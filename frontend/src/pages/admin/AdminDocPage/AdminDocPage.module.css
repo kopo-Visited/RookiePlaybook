@@ -208,8 +208,12 @@
 }
 
 /* ── table ── */
+.tableScroll {
+  overflow-x: auto;
+}
 .table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
 }
 .table thead tr {
@@ -233,6 +237,14 @@
   padding: 0 16px;
   display: flex;
   align-items: center;
+}
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 80px;
+  text-align: center;
+}
+.table td:nth-child(5) > * {
+  justify-content: center;
 }
 .typeBadge {
   display: inline-flex;

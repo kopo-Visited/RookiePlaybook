@@ -22,6 +22,7 @@ import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.dto.response.StageResponseDto;
 import com.visited.www.edu.entity.Education;
 import com.visited.www.edu.entity.EducationMaterial;
+import com.visited.www.edu.entity.EducationProgress;
 import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.mapper.EducationMapper;
@@ -213,7 +214,24 @@ public class EducationServiceImpl implements EducationService {
         educationMaterialRepository.save(EducationMaterial.create(
                 stage, request.getVideoTitle(), request.getVideoUrl()));
 
+        // 총 단계 수가 늘었으므로 해당 과정 사용자들의 진도를 재계산한다
+        recalculateProgressForEducation(education);
+
         return new StageCreateResponseDto(stage.getId(), stage.getTitle());
+    }
+
+    // 단계 추가/삭제로 총 단계 수가 바뀌면 해당 과정의 모든 사용자 진도를 재계산한다.
+    // (재계산하지 않으면 저장된 progress_rate/status가 상세 화면의 실시간 계산과 어긋난다)
+    private void recalculateProgressForEducation(Education education) {
+        long totalStages = educationStageRepository.countByEducationId(education.getId());
+        List<EducationProgress> progresses = educationProgressRepository
+                .findAllByEducationId(education.getId());
+        for (EducationProgress progress : progresses) {
+            long completedStages = stageCompletionRepository
+                    .countByUserIdAndStage_Education_Id(progress.getUser().getId(), education.getId());
+            int progressRate = totalStages > 0 ? (int) (completedStages * 100 / totalStages) : 0;
+            progress.updateProgress(progressRate, education.getCompletionCriteria());
+        }
     }
 
     // EDU-FR-008: 관리자 단계 수정 (자료 함께 수정, 없으면 생성)
@@ -250,6 +268,9 @@ public class EducationServiceImpl implements EducationService {
             educationMaterialRepository.delete(material);
         }
         educationStageRepository.delete(stage);
+
+        // 총 단계 수가 줄었으므로 해당 과정 사용자들의 진도를 재계산한다
+        recalculateProgressForEducation(stage.getEducation());
     }
 
     // EDU-FR-009: 관리자 진도 현황 조회 (부서/과정/완료여부 필터 + 페이징)
