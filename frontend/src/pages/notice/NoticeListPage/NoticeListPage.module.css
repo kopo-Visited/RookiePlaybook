@@ -83,7 +83,7 @@
 }
 .itemDate {
   font-size: 12px;
-  color: #8b96a8;
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 .newBadge {

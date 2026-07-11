@@ -35,7 +35,7 @@
   border-radius: 10px;
   font-size: 14px;
   font-weight: 800;
-  color: #637087;
+  color: var(--color-text-label);
   cursor: pointer;
   font-family: inherit;
 }
@@ -99,7 +99,7 @@
   text-align: left;
   font-size: 12px;
   font-weight: 400;
-  color: #8a99ad;
+  color: var(--color-text-secondary);
   padding-bottom: 12px;
   border-bottom: 1px solid #f5f7fa;
 }

@@ -45,7 +45,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #637087;
+  color: var(--color-text-label);
   flex-shrink: 0;
 }
 

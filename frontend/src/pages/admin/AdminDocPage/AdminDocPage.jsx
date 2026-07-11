@@ -107,7 +107,7 @@ function AdminDocPage() {
         label: '비공개 문서',
         value: `${privateDocs}건`,
         sub: '비공개 처리 문서',
-        subColor: '#637087',
+        subColor: 'var(--color-text-label)',
         colorKey: 'orange',
         iconText: 'Prv',
       },

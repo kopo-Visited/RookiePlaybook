@@ -119,7 +119,7 @@
 }
 .gray {
   background: #eef3f9;
-  color: #637087;
+  color: var(--color-text-label);
 }
 
 /* ── 통계 카드 ── */
