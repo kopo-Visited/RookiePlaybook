@@ -212,6 +212,7 @@
 .usersTable {
   width: 100%;
   min-width: 480px;
+  table-layout: fixed;
   border-collapse: collapse;
 }
 
@@ -229,6 +230,9 @@
   color: #46556e;
   padding: 12px 8px 12px 0;
   border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .usersTable tr:last-child td {
