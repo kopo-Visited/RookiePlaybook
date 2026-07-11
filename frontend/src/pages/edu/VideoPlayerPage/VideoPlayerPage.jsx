@@ -164,6 +164,8 @@ function VideoPlayerPage() {
   }
 
   const isCompleted = justCompleted || Boolean(stage?.isCompleted);
+  // 현재 영상을 95% 이상 봤거나, 이미 완료한 단계거나, 과정을 수료했으면 다음 단계로 이동 가능
+  const canGoNext = watched || isCompleted || Boolean(detail?.isCompleted);
 
   async function handleComplete() {
     try {
@@ -287,7 +289,7 @@ function VideoPlayerPage() {
             </Button>
             <Button
               variant={BUTTON_VARIANTS.PRIMARY}
-              disabled={!nextStage}
+              disabled={!nextStage || !canGoNext}
               onClick={() => nextStage && navigate(ROUTES.EDU.VIDEO(id, nextStage.stageId))}
             >
               다음 영상 ›
