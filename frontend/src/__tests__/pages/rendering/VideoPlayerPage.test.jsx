@@ -96,8 +96,28 @@ describe('VideoPlayerPage 렌더링', () => {
 
     // then
     expect(await screen.findByText('[신입사원 온보딩 교육]')).toBeInTheDocument();
-    expect(screen.getByText('영상 제목 : 회사 소개')).toBeInTheDocument();
+    expect(screen.getByText(/영상 제목 : 회사 소개/)).toBeInTheDocument();
     expect(screen.getByText('회사 비전 소개')).toBeInTheDocument();
+  });
+
+  it('영상 제목 옆에 현재/전체 단계가 표시된다', async () => {
+    // given & when — 전체 2단계 중 1단계
+    mockSuccess();
+    renderPage(1);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByText(/\(1\/2단계\)/)).toBeInTheDocument();
+  });
+
+  it('두 번째 단계에서는 (2/2단계)로 표시된다', async () => {
+    // given & when
+    mockSuccess();
+    renderPage(2);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByText(/\(2\/2단계\)/)).toBeInTheDocument();
   });
 
   it('단계 완료/이전/다음/목록으로 버튼이 렌더링된다', async () => {
