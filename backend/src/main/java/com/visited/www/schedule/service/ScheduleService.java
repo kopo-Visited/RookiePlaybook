@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ScheduleService {
 
-    List<ScheduleResponse> getSchedulesByDate(LocalDate date);
+    List<ScheduleResponse> getSchedulesByDate(LocalDate date, Long userId);
 
     List<ScheduleResponse> getAllSchedules();
 

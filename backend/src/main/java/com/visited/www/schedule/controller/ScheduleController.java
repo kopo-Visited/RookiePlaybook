@@ -6,6 +6,7 @@ import com.visited.www.schedule.dto.response.ScheduleResponse;
 import com.visited.www.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -21,9 +22,11 @@ public class ScheduleController {
 
     @GetMapping("/schedules")
     public ApiResponse<List<ScheduleResponse>> getSchedules(
+            @AuthenticationPrincipal Long userId,
             @RequestParam(required = false) LocalDate date) {
         LocalDate target = date != null ? date : LocalDate.now(ZoneId.of("Asia/Seoul"));
-        return ApiResponse.success(scheduleService.getSchedulesByDate(target));
+        return ApiResponse.success(scheduleService
+                .getSchedulesByDate(target, userId));
     }
 
     @GetMapping("/admin/schedules")
