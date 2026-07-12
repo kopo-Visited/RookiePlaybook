@@ -1,10 +1,9 @@
-name: CI/CD Deploy (Manual Fallback)
+name: CI/CD Deploy
 
-# TeamCity Cloud가 develop push에 대한 자동 배포를 전담한다 (docs/cicd.md 참조).
-# 이 워크플로우는 TeamCity 장애 등 비상 상황에서만 수동으로 실행하는 fallback이므로
-# push 트리거를 두지 않는다 — 자동 트리거를 다시 추가하면 TeamCity와 동시에 EC2에
-# 배포되어 충돌/중복배포가 발생할 수 있다.
 on:
+  push:
+    branches:
+      - develop
   workflow_dispatch: {}
 
 jobs:
