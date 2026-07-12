@@ -73,7 +73,7 @@ function ScheduleModal({ initial, onClose, onSave }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await onSave(form);
+    await onSave({ ...form, endTime: form.endTime || null });
   }
 
   return (
