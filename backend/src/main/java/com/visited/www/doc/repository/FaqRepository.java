@@ -8,4 +8,6 @@ import java.util.List;
 public interface FaqRepository extends JpaRepository<Faq, Long> {
 
     List<Faq> findByStatusAndIsPublicTrueOrderByCreatedAtDesc(String status);
+
+    List<Faq> findAllByOrderByCreatedAtDesc();
 }

@@ -2,6 +2,7 @@ package com.visited.www.doc.controller;
 
 import com.visited.www.doc.dto.request.DocumentCreateRequest;
 import com.visited.www.doc.dto.request.DocumentUpdateRequest;
+import com.visited.www.doc.dto.request.FaqRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
 import com.visited.www.doc.dto.response.FaqResponse;
 import com.visited.www.doc.service.DocumentService;
@@ -75,5 +76,28 @@ public class DocumentController {
     public ApiResponse<List<FaqResponse>> getFaqs() {
         List<FaqResponse> response = faqService.getFaqs();
         return ApiResponse.success(response);
+    }
+
+    @GetMapping("/admin/faqs")
+    public ApiResponse<List<FaqResponse>> getAllFaqs() {
+        return ApiResponse.success(faqService.getAllFaqs());
+    }
+
+    @PostMapping("/admin/faqs")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<FaqResponse> createFaq(@RequestBody FaqRequest request) {
+        return ApiResponse.success(faqService.createFaq(request));
+    }
+
+    @PutMapping("/admin/faqs/{id}")
+    public ApiResponse<FaqResponse> updateFaq(@PathVariable Long id,
+                                              @RequestBody FaqRequest request) {
+        return ApiResponse.success(faqService.updateFaq(id, request));
+    }
+
+    @DeleteMapping("/admin/faqs/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFaq(@PathVariable Long id) {
+        faqService.deleteFaq(id);
     }
 }

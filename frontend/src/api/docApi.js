@@ -18,3 +18,11 @@ export const deleteDocument = id => axiosInstance.delete(`/api/documents/${id}`)
 export const reviewDocument = id => axiosInstance.patch(`/api/documents/${id}/review`);
 
 export const getFaqs = (params = {}) => axiosInstance.get('/api/faqs', { params });
+
+export const getAdminFaqs = () => axiosInstance.get('/api/admin/faqs');
+
+export const createAdminFaq = data => axiosInstance.post('/api/admin/faqs', data);
+
+export const updateAdminFaq = (id, data) => axiosInstance.put(`/api/admin/faqs/${id}`, data);
+
+export const deleteAdminFaq = id => axiosInstance.delete(`/api/admin/faqs/${id}`);

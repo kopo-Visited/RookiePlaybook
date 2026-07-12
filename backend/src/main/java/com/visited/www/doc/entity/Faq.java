@@ -40,6 +40,13 @@ public class Faq {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    public void update(Category category, String question, String answer, Boolean isPublic) {
+        this.category = category;
+        this.question = question;
+        this.answer = answer;
+        this.isPublic = isPublic;
+    }
+
     @PrePersist
     protected void onCreate() {
         this.isPublic = this.isPublic == null ? true : this.isPublic;
