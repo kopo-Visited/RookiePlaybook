@@ -4,6 +4,7 @@ import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.service.EducationService;
+import com.visited.www.edu.service.ProgressService;
 import com.visited.www.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,7 @@ import java.util.List;
 @Tag(name = "Education", description = "교육 과정 API")
 public class EducationController {
     private final EducationService educationService;
+    private final ProgressService progressService;
 
     /**
      * EDU-FR-001: 교육 과정 목록 조회 (페이징 적용)
@@ -58,6 +61,23 @@ public class EducationController {
     ) {
         EducationDetailResponseDto response = educationService.getEducationDetail(userId, educationId);
         return ApiResponse.success(response);
+    }
+
+    /**
+     * 수강 시작(enroll): 진도 레코드를 진행중으로 생성 (멱등)
+     */
+    @Operation(summary = "수강 시작", description = "교육 과정 수강을 시작한다. 진도 레코드가 없으면 진행중으로 생성한다(멱등)")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수강 시작 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "존재하지 않는 교육 과정")
+    })
+    @PostMapping("/educations/{educationId}/enroll")
+    public ApiResponse<Void> enroll(
+            @Parameter(hidden = true) @AuthenticationPrincipal Long userId,
+            @PathVariable Long educationId
+    ) {
+        progressService.enroll(userId, educationId);
+        return ApiResponse.<Void>success(null, "수강이 시작되었습니다.");
     }
 
     /**

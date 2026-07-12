@@ -115,6 +115,10 @@ public class EducationServiceImpl implements EducationService {
         int progressRate = totalStages > 0 ? (int) (completedCount * 100 / totalStages) : 0;
         boolean isCompleted = progressRate >= education.getCompletionCriteria();
 
+        // 수강 여부 = 진도 레코드 존재 여부 (수강하기/이어서 학습 버튼 분기에 사용)
+        boolean enrolled = educationProgressRepository
+                .findByUserIdAndEducationId(userId, educationId).isPresent();
+
         List<StageResponseDto> stageDtos = stages.stream()
                 .map(stage -> {
                     MaterialResponseDto materialDto = null;
@@ -145,7 +149,8 @@ public class EducationServiceImpl implements EducationService {
                 progressRate,
                 isCompleted,
                 stageDtos,
-                education.getContentYear()
+                education.getContentYear(),
+                enrolled
         );
     }
 

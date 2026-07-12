@@ -93,7 +93,7 @@ class EducationControllerTest {
         );
 
         EducationDetailResponseDto mockDetail = new EducationDetailResponseDto(
-                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of(), 2024
+                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of(), 2024, true
         );
 
         given(educationService.getEducationDetail(userId, educationId))
