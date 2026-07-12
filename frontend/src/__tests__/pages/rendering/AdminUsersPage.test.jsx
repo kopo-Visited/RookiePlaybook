@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -200,13 +200,15 @@ describe('AdminUsersPage 인터랙션', () => {
     await userEvent.type(screen.getByPlaceholderText('초기 비밀번호를 입력하세요'), 'Temp1234!');
     await userEvent.click(screen.getByRole('button', { name: '저장' }));
 
-    // then
-    await screen.findByRole('button', { name: '+ 사용자 등록' });
-    expect(createRequestBody).toMatchObject({
-      name: '테스트유저',
-      email: 'newuser@company.com',
-      departmentId: 1,
-      roleId: 1,
-    });
+    // then — 등록 API 요청 본문이 캡처될 때까지 기다린 뒤 단정 (부하 시 응답 지연 대비)
+    await waitFor(() =>
+      expect(createRequestBody).toMatchObject({
+        name: '테스트유저',
+        email: 'newuser@company.com',
+        departmentId: 1,
+        roleId: 1,
+      })
+    );
+    expect(screen.getByRole('button', { name: '+ 사용자 등록' })).toBeInTheDocument();
   });
 });
