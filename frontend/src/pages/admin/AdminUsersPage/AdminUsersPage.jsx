@@ -574,7 +574,9 @@ function AdminUsersPage() {
         !keyword.trim() || u.name.includes(keyword.trim()) || u.email.includes(keyword.trim());
       const matchesDept = deptFilter === 'ALL' || u.departmentId === deptFilter;
       const matchesRole = roleFilter === 'ALL' || u.roleId === roleFilter;
-      const matchesStatus = statusFilter === 'ALL' || u.status === statusFilter;
+      const matchesStatus =
+        statusFilter === 'ALL' ||
+        (statusFilter === 'INACTIVE' ? u.status !== 'ACTIVE' : u.status === statusFilter);
       return matchesKeyword && matchesDept && matchesRole && matchesStatus;
     });
   }, [users, keyword, deptFilter, roleFilter, statusFilter]);
