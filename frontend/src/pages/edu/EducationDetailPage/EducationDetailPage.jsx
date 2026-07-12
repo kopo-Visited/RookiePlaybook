@@ -4,7 +4,7 @@ import styles from './EducationDetailPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import { getEducationDetail, enroll } from '../../../api/eduApi';
 import { ROUTES } from '../../../constants/routes';
-import { BUTTON_VARIANTS } from '../../../constants/styles';
+import { BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import Button from '../../../components/Button/Button';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
@@ -81,7 +81,23 @@ function EducationDetailPage() {
                 <span className={styles.criteria}>수료 기준 {edu.completionCriteria}%</span>
               </div>
             </div>
-            {edu.description && <p className={styles.desc}>{edu.description}</p>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {edu.description && (
+                <p className={styles.desc} style={{ flex: 1, margin: 0 }}>
+                  {edu.description}
+                </p>
+              )}
+              {firstIncomplete && (
+                <Button
+                  variant={BUTTON_VARIANTS.PRIMARY}
+                  size={BUTTON_SIZES.SMALL}
+                  onClick={handleStart}
+                  disabled={starting}
+                >
+                  {startLabel}
+                </Button>
+              )}
+            </div>
             <div className={styles.progressRow}>
               <div className={styles.progressBar}>
                 <div
@@ -91,11 +107,6 @@ function EducationDetailPage() {
               </div>
               <span className={styles.progressPct}>{edu.progressRate ?? 0}%</span>
             </div>
-            {firstIncomplete && (
-              <Button variant={BUTTON_VARIANTS.PRIMARY} onClick={handleStart} disabled={starting}>
-                {startLabel}
-              </Button>
-            )}
           </div>
 
           <hr className={styles.divider} />
