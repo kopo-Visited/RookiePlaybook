@@ -5,7 +5,9 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:54.180.104.172}:${DB_PORT:5432}/${DB_NAME:rookie_playbook}
     username: ${DB_USERNAME:rookie}
-    password: ${DB_PASSWORD:1234}
+    # 운영 환경은 반드시 DB_PASSWORD 환경변수로 덮어써야 한다 (EC2 .env 참조).
+    # 아래 값은 로컬 전용 placeholder이며 절대 운영에 쓰면 안 된다.
+    password: ${DB_PASSWORD:CHANGE_ME_INSECURE_LOCAL_ONLY_DB_PASSWORD_PLACEHOLDER}
     driver-class-name: org.postgresql.Driver
 
   h2:
