@@ -43,7 +43,11 @@ class AiServiceImpl implements AiService {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional(readOnly = true)
     public void onApplicationReady() {
-        indexAllDocuments();
+        try {
+            indexAllDocuments();
+        } catch (RuntimeException e) {
+            log.error("시작 시 문서 벡터 인덱싱 실패 — GOOGLE_API_KEY 설정 또는 임베딩 모델을 확인하세요.", e);
+        }
     }
 
     @Override
@@ -113,8 +117,11 @@ class AiServiceImpl implements AiService {
                 vectorStore.add(aiDocs);
                 log.info("문서 {}건 벡터 인덱싱 완료", aiDocs.size());
             } catch (RuntimeException e) {
+                log.error("벡터 인덱싱 실패: 문서 {}건 처리 중 오류 발생", aiDocs.size(), e);
                 throw new AiResponseException(e);
             }
+        } else {
+            log.warn("벡터 인덱싱: 공개 ACTIVE 문서가 없습니다.");
         }
     }
 
