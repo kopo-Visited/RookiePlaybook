@@ -133,6 +133,12 @@ public class AdminUserService {
                 request.status()
         );
 
+        // LOCKED 상태였던 계정을 ACTIVE로 되돌릴 때 실패 카운트를 초기화하지 않으면
+        // 곧바로 다음 로그인 실패 1회만으로 재잠김된다.
+        if (request.status() == UserStatus.ACTIVE) {
+            user.resetFailedLoginCount();
+        }
+
         return UserResponse.from(user);
     }
 
