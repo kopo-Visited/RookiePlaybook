@@ -158,6 +158,22 @@
 .actionBtnDanger:hover {
   background: #fff0f3;
 }
+.actionBtnReview {
+  height: 32px;
+  padding: 0 12px;
+  background: #eaf4ff;
+  border: 1px solid #cfe4ff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnReview:hover {
+  background: #d4eaff;
+}
 .emptyText {
   font-size: 13px;
   color: var(--color-text-secondary);

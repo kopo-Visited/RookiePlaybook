@@ -65,6 +65,12 @@ public class DocumentController {
         documentService.deleteDocument(id);
     }
 
+    @PatchMapping("/documents/{id}/review")
+    public ApiResponse<DocumentResponse> reviewDocument(@PathVariable Long id) {
+        DocumentResponse response = documentService.reviewDocument(id);
+        return ApiResponse.success(response);
+    }
+
     @GetMapping("/faqs")
     public ApiResponse<List<FaqResponse>> getFaqs() {
         List<FaqResponse> response = faqService.getFaqs();

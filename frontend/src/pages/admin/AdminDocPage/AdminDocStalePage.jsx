@@ -4,7 +4,12 @@ import styles from './AdminDocStalePage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
-import { getAdminDocuments, updateDocument, deleteDocument } from '../../../api/docApi';
+import {
+  getAdminDocuments,
+  updateDocument,
+  deleteDocument,
+  reviewDocument,
+} from '../../../api/docApi';
 import Badge from '../../../components/Badge/Badge';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
@@ -33,17 +38,13 @@ function AdminDocStalePage() {
 
   const staleDocs = useMemo(() => {
     const now = Date.now();
+    const lastActivity = d => new Date(d.lastReviewedAt ?? d.updatedAt ?? d.createdAt).getTime();
     return docs
-      .filter(d => {
-        const last = new Date(d.updatedAt ?? d.createdAt).getTime();
-        return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
-      })
-      .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
+      .filter(d => (now - lastActivity(d)) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS)
+      .sort((a, b) => lastActivity(a) - lastActivity(b))
       .map(d => ({
         ...d,
-        daysAgo: Math.floor(
-          (now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        ),
+        daysAgo: Math.floor((now - lastActivity(d)) / (1000 * 60 * 60 * 24)),
       }));
   }, [docs]);
 
@@ -73,6 +74,15 @@ function AdminDocStalePage() {
       setRefreshKey(k => k + 1);
     } catch {
       useToastStore.getState().show('공개 상태 변경에 실패했습니다.');
+    }
+  }, []);
+
+  const handleReview = useCallback(async doc => {
+    try {
+      await reviewDocument(doc.id);
+      setRefreshKey(k => k + 1);
+    } catch {
+      useToastStore.getState().show('검토 완료 처리에 실패했습니다.');
     }
   }, []);
 
@@ -108,7 +118,7 @@ function AdminDocStalePage() {
                 <tr>
                   <th>제목</th>
                   <th>카테고리</th>
-                  <th>마지막 갱신일</th>
+                  <th>마지막 확인일</th>
                   <th>경과일</th>
                   <th>공개상태</th>
                   <th>액션</th>
@@ -127,7 +137,7 @@ function AdminDocStalePage() {
                     </td>
                     <td>
                       <div className={styles.textCell}>
-                        {formatDate(doc.updatedAt ?? doc.createdAt)}
+                        {formatDate(doc.lastReviewedAt ?? doc.updatedAt ?? doc.createdAt)}
                       </div>
                     </td>
                     <td>
@@ -147,6 +157,13 @@ function AdminDocStalePage() {
                     </td>
                     <td>
                       <div className={styles.actionRow}>
+                        <button
+                          type="button"
+                          className={styles.actionBtnReview}
+                          onClick={() => handleReview(doc)}
+                        >
+                          검토 완료
+                        </button>
                         <button
                           type="button"
                           className={styles.actionBtn}

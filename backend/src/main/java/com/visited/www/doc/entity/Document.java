@@ -45,6 +45,9 @@ public class Document {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "last_reviewed_at")
+    private LocalDateTime lastReviewedAt;
+
     @Builder.Default
     @OneToMany(mappedBy = "document", fetch = FetchType.LAZY)
     private List<DocumentTag> documentTags = new ArrayList<>();
@@ -54,6 +57,10 @@ public class Document {
         this.title = title;
         this.content = content;
         this.isPublic = isPublic;
+    }
+
+    public void markAsReviewed() {
+        this.lastReviewedAt = LocalDateTime.now();
     }
 
     public void increaseViewCount() {

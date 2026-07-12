@@ -15,4 +15,6 @@ export const updateDocument = (id, data) => axiosInstance.put(`/api/documents/${
 
 export const deleteDocument = id => axiosInstance.delete(`/api/documents/${id}`);
 
+export const reviewDocument = id => axiosInstance.patch(`/api/documents/${id}/review`);
+
 export const getFaqs = (params = {}) => axiosInstance.get('/api/faqs', { params });

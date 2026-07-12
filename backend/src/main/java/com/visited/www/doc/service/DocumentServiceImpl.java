@@ -107,4 +107,14 @@ public class DocumentServiceImpl implements DocumentService {
 
         document.softDelete();
     }
+
+    @Override
+    @Transactional
+    public DocumentResponse reviewDocument(Long id) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new DocumentNotFoundException(id));
+
+        document.markAsReviewed();
+        return DocumentResponse.from(document);
+    }
 }

@@ -430,6 +430,23 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+.reviewBtn {
+  height: 30px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #cfe4ff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.reviewBtn:hover {
+  background: #eaf4ff;
+}
 
 /* ── responsive ── */
 @media (max-width: 1400px) {
