@@ -82,6 +82,7 @@ public class EducationServiceImpl implements EducationService {
                     LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
                     int totalStages = education.getStages().size();
                     int completedStages = progress != null ? progress.getCompletedStages() : 0;
+                    boolean enrolled = progress != null;
 
                     return new EducationListResponseDto(
                             education.getId(),
@@ -91,7 +92,8 @@ public class EducationServiceImpl implements EducationService {
                             progressRate,
                             isCompleted,
                             completedAt,
-                            education.getContentYear()
+                            education.getContentYear(),
+                            enrolled
                     );
                 })
                 .collect(Collectors.toList());
@@ -114,6 +116,10 @@ public class EducationServiceImpl implements EducationService {
         long completedCount = stages.stream().filter(StageWithProgressDto::getIsCompleted).count();
         int progressRate = totalStages > 0 ? (int) (completedCount * 100 / totalStages) : 0;
         boolean isCompleted = progressRate >= education.getCompletionCriteria();
+
+        // 수강 여부 = 진도 레코드 존재 여부 (수강하기/이어서 학습 버튼 분기에 사용)
+        boolean enrolled = educationProgressRepository
+                .findByUserIdAndEducationId(userId, educationId).isPresent();
 
         List<StageResponseDto> stageDtos = stages.stream()
                 .map(stage -> {
@@ -145,7 +151,8 @@ public class EducationServiceImpl implements EducationService {
                 progressRate,
                 isCompleted,
                 stageDtos,
-                education.getContentYear()
+                education.getContentYear(),
+                enrolled
         );
     }
 

@@ -5,6 +5,7 @@ import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
 import com.visited.www.edu.service.EducationService;
+import com.visited.www.edu.service.ProgressService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,10 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,6 +44,9 @@ class EducationControllerTest {
 
     @MockitoBean
     private EducationService educationService;
+
+    @MockitoBean
+    private ProgressService progressService;
 
     // ==================== EDU-FR-001: 교육 과정 목록 조회 ====================
 
@@ -56,7 +62,7 @@ class EducationControllerTest {
         );
 
         EducationListResponseDto dto = new EducationListResponseDto(
-                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null, 2024
+                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null, 2024, true
         );
         Page<EducationListResponseDto> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
 
@@ -76,6 +82,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.content[0].title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.content[0].progressRate").value(40))
                 .andExpect(jsonPath("$.data.content[0].contentYear").value(2024))
+                .andExpect(jsonPath("$.data.content[0].enrolled").value(true))
                 .andDo(print());
     }
 
@@ -93,7 +100,7 @@ class EducationControllerTest {
         );
 
         EducationDetailResponseDto mockDetail = new EducationDetailResponseDto(
-                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of(), 2024
+                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of(), 2024, true
         );
 
         given(educationService.getEducationDetail(userId, educationId))
@@ -111,7 +118,30 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.progressRate").value(40))
                 .andExpect(jsonPath("$.data.isCompleted").value(false))
                 .andExpect(jsonPath("$.data.contentYear").value(2024))
+                .andExpect(jsonPath("$.data.enrolled").value(true))
                 .andDo(print());
+    }
+
+    // ==================== 수강 시작(enroll) ====================
+
+    @Test
+    @DisplayName("POST /api/educations/{id}/enroll - 수강 시작 성공")
+    void enroll_success() throws Exception {
+        // given
+        Long userId = 1L;
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        // when & then
+        mockMvc.perform(post("/api/educations/{educationId}/enroll", 1L)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andDo(print());
+
+        verify(progressService).enroll(userId, 1L);
     }
 
     // ==================== EDU-FR-003: 단계 자료 조회 ====================

@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -59,6 +60,7 @@ function renderPage() {
     <MemoryRouter initialEntries={['/edu/1']}>
       <Routes>
         <Route path="/edu/:id" element={<EducationDetailPage />} />
+        <Route path="/edu/:id/stages/:stageId" element={<div>영상 페이지로 이동됨</div>} />
       </Routes>
     </MemoryRouter>
   );
@@ -108,6 +110,35 @@ describe('EducationDetailPage 렌더링', () => {
     expect(screen.getByText('정보보안 기초')).toBeInTheDocument();
     expect(screen.getByText('완료')).toBeInTheDocument();
     expect(screen.getByText('미완료')).toBeInTheDocument();
+  });
+
+  it('미수강이면 "수강하기" 버튼이 뜨고, 클릭 시 수강 처리 후 첫 미완료 단계로 이동한다', async () => {
+    // given
+    let enrolledCalled = false;
+    mockSuccess({ ...mockDetail, enrolled: false });
+    server.use(
+      http.post('/api/educations/:id/enroll', () => {
+        enrolledCalled = true;
+        return HttpResponse.json({ success: true, message: '수강이 시작되었습니다.' });
+      })
+    );
+    renderPage();
+
+    // when
+    await userEvent.click(await screen.findByRole('button', { name: '수강하기' }));
+
+    // then — enroll 호출 + 첫 미완료 단계(stage 2) 영상으로 이동
+    await waitFor(() => expect(enrolledCalled).toBe(true));
+    expect(await screen.findByText('영상 페이지로 이동됨')).toBeInTheDocument();
+  });
+
+  it('수강중이면 "이어서 학습하기" 버튼이 표시된다', async () => {
+    // given & when
+    mockSuccess({ ...mockDetail, enrolled: true });
+    renderPage();
+
+    // then
+    expect(await screen.findByRole('button', { name: '이어서 학습하기' })).toBeInTheDocument();
   });
 
   it('API 실패 시 에러 메시지가 렌더링된다', async () => {

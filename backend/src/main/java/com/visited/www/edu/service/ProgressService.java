@@ -15,4 +15,7 @@ public interface ProgressService {
 
     // EDU-FR-005: 내 진도 조회
     List<MyProgressResponseDto> getMyProgress(Long userId);
+
+    // 수강 시작(enroll): 진도 레코드가 없으면 진행중으로 생성 (멱등)
+    void enroll(Long userId, Long educationId);
 }

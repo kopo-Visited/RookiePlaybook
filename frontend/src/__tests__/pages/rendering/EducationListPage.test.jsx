@@ -13,6 +13,7 @@ const mockEducations = [
     progressRate: 66,
     isCompleted: false,
     completedAt: null,
+    enrolled: true,
   },
   {
     educationId: 2,
@@ -22,6 +23,7 @@ const mockEducations = [
     progressRate: 100,
     isCompleted: true,
     completedAt: '2026-07-09T09:00:00',
+    enrolled: true,
   },
 ];
 
@@ -90,15 +92,36 @@ describe('EducationListPage 렌더링', () => {
     expect(screen.getByText('2/3 단계')).toBeInTheDocument();
   });
 
-  it('완료/진행중 상태 칩이 표시된다', async () => {
+  it('완료/수강중 상태 칩이 표시된다', async () => {
     // given & when
     mockSuccess();
     renderPage();
 
     // then
     await screen.findByText('신입사원 온보딩 교육');
-    expect(screen.getByText('진행중')).toBeInTheDocument();
+    expect(screen.getByText('수강중')).toBeInTheDocument();
     expect(screen.getByText('완료')).toBeInTheDocument();
+  });
+
+  it('수강 기록이 없으면 "미수강" 칩이 표시된다', async () => {
+    // given & when
+    mockSuccess([
+      {
+        educationId: 3,
+        title: '미수강 과정',
+        totalStages: 2,
+        completedStages: 0,
+        progressRate: 0,
+        isCompleted: false,
+        completedAt: null,
+        enrolled: false,
+      },
+    ]);
+    renderPage();
+
+    // then
+    expect(await screen.findByText('미수강 과정')).toBeInTheDocument();
+    expect(screen.getByText('미수강')).toBeInTheDocument();
   });
 
   it('목록이 비어있으면 빈 상태 메시지가 렌더링된다', async () => {

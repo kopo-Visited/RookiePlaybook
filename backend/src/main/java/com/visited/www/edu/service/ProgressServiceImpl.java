@@ -1,5 +1,6 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.MyProgressResponseDto;
@@ -12,6 +13,7 @@ import com.visited.www.edu.entity.StageCompletion;
 import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
+import com.visited.www.edu.repository.EducationRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
@@ -19,6 +21,7 @@ import com.visited.www.entity.User;
 import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class ProgressServiceImpl implements ProgressService {
     private final EducationProgressRepository educationProgressRepository;
     private final EducationMaterialRepository educationMaterialRepository;
     private final VideoProgressRepository videoProgressRepository;
+    private final EducationRepository educationRepository;
     private final UserRepository userRepository;
 
     // EDU-FR-004: 단계 완료 처리 (완료 기록 저장 → 진도율 재계산 → 과정 진도 갱신)
@@ -98,6 +102,29 @@ public class ProgressServiceImpl implements ProgressService {
 
         log.info("영상 시청 위치 저장. userId={}, materialId={}, position={}",
                 userId, materialId, watchedPosition);
+    }
+
+    // 수강 시작(enroll): 진도 레코드가 없으면 진행중으로 생성한다 (멱등 - 이미 있으면 상태 유지)
+    // @Transactional을 두지 않아 저장 실패 시 유니크 제약 위반을 잡아 멱등 처리할 수 있게 한다.
+    @Override
+    public void enroll(Long userId, Long educationId) {
+        Education education = educationRepository.findById(educationId)
+                .orElseThrow(EducationNotFoundException::new);
+
+        if (educationProgressRepository.findByUserIdAndEducationId(userId, educationId).isPresent()) {
+            return;
+        }
+
+        try {
+            User user = userRepository.getReferenceById(userId);
+            EducationProgress progress = EducationProgress.create(user, education);
+            progress.markInProgress();
+            educationProgressRepository.save(progress);
+            log.info("교육 과정 수강 시작. userId={}, educationId={}", userId, educationId);
+        } catch (DataIntegrityViolationException e) {
+            // 동시 요청(StrictMode 이중 호출 등)으로 방금 생성됨 - 유니크 제약으로 중복이 막히므로 멱등 처리
+            log.debug("동시 수강 요청 무시. userId={}, educationId={}", userId, educationId);
+        }
     }
 
     // EDU-FR-005: 내 진도 조회 (진도 기록이 있는 과정만)

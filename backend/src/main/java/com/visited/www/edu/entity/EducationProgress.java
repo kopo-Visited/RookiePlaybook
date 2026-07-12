@@ -12,7 +12,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "education_progress")
+@Table(name = "education_progress", uniqueConstraints = @UniqueConstraint(
+        name = "uk_education_progress_user_education",
+        columnNames = {"user_id", "education_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EducationProgress {
@@ -53,6 +55,13 @@ public class EducationProgress {
 
     public static EducationProgress create(User user, Education education) {
         return new EducationProgress(user, education);
+    }
+
+    // 수강 시작(enroll) 시 진행중으로 표시 (아직 시작 전 상태일 때만)
+    public void markInProgress() {
+        if (this.status == ProgressStatus.NOT_STARTED) {
+            this.status = ProgressStatus.IN_PROGRESS;
+        }
     }
 
     // 진도율을 갱신하고 수료 기준 이상이면 수료 처리한다 (완료 시각은 최초 1회만 기록)

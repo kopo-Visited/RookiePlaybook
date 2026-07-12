@@ -9,7 +9,7 @@ import { BUTTON_VARIANTS } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import useFetch from '../../../hooks/useFetch';
 import useVideoProgress from '../../../hooks/edu/useVideoProgress';
-import { getMaterial, getEducationDetail, completeStage } from '../../../api/eduApi';
+import { getMaterial, getEducationDetail, completeStage, enroll } from '../../../api/eduApi';
 
 // 이 비율 이상 시청해야 단계 완료가 가능하다
 const WATCH_THRESHOLD = 0.95;
@@ -118,6 +118,11 @@ function VideoPlayerPage() {
     currentIndex >= 0 && currentIndex < stages.length - 1 ? stages[currentIndex + 1] : null;
 
   useVideoProgress(videoRef, material?.materialId, material?.lastWatchedPosition ?? 0);
+
+  // 안전망: 단계 직접 클릭 등 어떤 경로로 진입해도 수강 상태로 만든다 (멱등)
+  useEffect(() => {
+    enroll(id).catch(() => {});
+  }, [id]);
 
   // 단계 이동(stageId) 또는 자료 로드 시 완료/시청 상태 초기화.
   // 이어보기로 이미 기준 이상 시청한 경우 시청 완료로 간주한다.
