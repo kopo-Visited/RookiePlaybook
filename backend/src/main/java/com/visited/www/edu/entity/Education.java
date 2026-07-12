@@ -30,6 +30,9 @@ public class Education {
     @Column(nullable = false)
     private Integer completionCriteria;
 
+    // 콘텐츠 기준 연도 (예: 2024) — 실제 등록일(createdAt)과 별개인 콘텐츠 연식
+    private Integer contentYear;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -40,19 +43,23 @@ public class Education {
     @OrderBy("orderNumber ASC")
     private List<EducationStage> stages = new ArrayList<>();
 
-    private Education(String title, String description, Integer completionCriteria) {
+    private Education(String title, String description, Integer completionCriteria, Integer contentYear) {
         this.title = title;
         this.description = description;
         this.completionCriteria = completionCriteria;
+        this.contentYear = contentYear;
     }
 
-    public static Education create(String title, String description, Integer completionCriteria) {
-        return new Education(title, description, completionCriteria);
+    public static Education create(
+            String title, String description, Integer completionCriteria, Integer contentYear) {
+        return new Education(title, description, completionCriteria, contentYear);
     }
 
-    public void update(String title, String description, Integer completionCriteria) {
+    public void update(
+            String title, String description, Integer completionCriteria, Integer contentYear) {
         this.title = title;
         this.description = description;
         this.completionCriteria = completionCriteria;
+        this.contentYear = contentYear;
     }
 }

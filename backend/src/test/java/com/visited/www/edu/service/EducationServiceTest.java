@@ -355,7 +355,7 @@ class EducationServiceTest {
         educationService.updateEducation(educationId, request);
 
         // then
-        verify(education).update("수정 과정", "수정 설명", 90);
+        verify(education).update("수정 과정", "수정 설명", 90, null);
     }
 
     @Test

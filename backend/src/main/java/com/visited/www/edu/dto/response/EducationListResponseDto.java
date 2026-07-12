@@ -9,5 +9,6 @@ public record EducationListResponseDto(
         Integer completedStages,
         Integer progressRate,
         Boolean isCompleted,
-        LocalDateTime completedAt
+        LocalDateTime completedAt,
+        Integer contentYear
 ) {}
