@@ -86,7 +86,7 @@ function QnaAllPage() {
 
       <div className={styles.actionBar}>
         <button className={styles.btnAsk} onClick={() => navigate(ROUTES.QNA.LIST)}>
-          ← 내 질문으로
+          내 질문 확인하기
         </button>
       </div>
 
