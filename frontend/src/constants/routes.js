@@ -21,6 +21,7 @@ export const ROUTES = {
     DETAIL: id => `/edu/${id}`,
     VIDEO: (id, stageId) => `/edu/${id}/stages/${stageId}`,
   },
+  SCHEDULE: '/schedule',
   INQUIRY: '/contact',
   ADMIN: {
     DASHBOARD: '/admin',

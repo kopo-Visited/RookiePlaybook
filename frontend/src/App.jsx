@@ -26,6 +26,7 @@ import AdminEduPage from './pages/admin/AdminEduPage/AdminEduPage';
 import EducationListPage from './pages/edu/EducationListPage/EducationListPage';
 import EducationDetailPage from './pages/edu/EducationDetailPage/EducationDetailPage';
 import VideoPlayerPage from './pages/edu/VideoPlayerPage/VideoPlayerPage';
+import UserSchedulePage from './pages/schedule/UserSchedulePage/UserSchedulePage';
 import NotFoundPage from './pages/error/NotFoundPage/NotFoundPage';
 
 function PrivateRoute() {
@@ -61,6 +62,7 @@ function App() {
             <Route path={ROUTES.EDU.LIST} element={<EducationListPage />} />
             <Route path="/edu/:id" element={<EducationDetailPage />} />
             <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
+            <Route path={ROUTES.SCHEDULE} element={<UserSchedulePage />} />
             <Route path={ROUTES.INQUIRY} element={<InquiryPage />} />
           </Route>
         </Route>
