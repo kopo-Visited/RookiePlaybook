@@ -4,6 +4,7 @@ import com.visited.www.edu.EducationInUseException;
 import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageInUseException;
+import com.visited.www.edu.StageLockedException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.mapper.AdminProgressDto;
 import com.visited.www.edu.dto.mapper.EducationProgressDto;
@@ -52,6 +53,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -82,6 +84,9 @@ class EducationServiceTest {
 
     @Mock
     private StageCompletionRepository stageCompletionRepository;
+
+    @Mock
+    private StageAccessPolicy stageAccessPolicy;
 
     // ==================== EDU-FR-001: 교육 과정 목록 조회 ====================
 
@@ -259,6 +264,9 @@ class EducationServiceTest {
         Long userId = 1L;
         Long stageId = 1L;
 
+        given(educationStageRepository.findById(stageId))
+                .willReturn(Optional.of(mock(EducationStage.class)));
+
         EducationMaterial material = mock(EducationMaterial.class);
         given(material.getId()).willReturn(1L);
         given(material.getTitle()).willReturn("회사 소개 영상");
@@ -288,6 +296,9 @@ class EducationServiceTest {
         Long userId = 1L;
         Long stageId = 1L;
 
+        given(educationStageRepository.findById(stageId))
+                .willReturn(Optional.of(mock(EducationStage.class)));
+
         EducationMaterial material = mock(EducationMaterial.class);
         given(material.getId()).willReturn(1L);
         given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.of(material));
@@ -302,16 +313,33 @@ class EducationServiceTest {
     }
 
     @Test
-    @DisplayName("단계 자료 조회 - 존재하지 않는 stageId면 MaterialNotFoundException 발생")
+    @DisplayName("단계 자료 조회 - 단계는 있으나 자료가 없으면 MaterialNotFoundException 발생")
     void getStageMaterial_notFound() {
         // given
         Long userId = 1L;
-        Long stageId = 999L;
+        Long stageId = 1L;
+        given(educationStageRepository.findById(stageId))
+                .willReturn(Optional.of(mock(EducationStage.class)));
         given(educationMaterialRepository.findByStageId(stageId)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> educationService.getStageMaterial(userId, stageId))
                 .isInstanceOf(MaterialNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("단계 자료 조회 - 직전 단계 미완료로 잠긴 단계면 StageLockedException 발생")
+    void getStageMaterial_locked() {
+        // given
+        Long userId = 1L;
+        Long stageId = 2L;
+        EducationStage stage = mock(EducationStage.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+        willThrow(new StageLockedException()).given(stageAccessPolicy).assertUnlocked(userId, stage);
+
+        // when & then
+        assertThatThrownBy(() -> educationService.getStageMaterial(userId, stageId))
+                .isInstanceOf(StageLockedException.class);
     }
 
     // ==================== EDU-FR-007: 관리자 과정 CRUD ====================

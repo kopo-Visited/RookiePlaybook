@@ -141,6 +141,30 @@ describe('EducationDetailPage 렌더링', () => {
     expect(await screen.findByRole('button', { name: '이어서 학습하기' })).toBeInTheDocument();
   });
 
+  it('직전 단계를 완료하지 않은 단계는 잠기고 클릭해도 이동하지 않는다', async () => {
+    // given — 1단계 미완료 → 2단계는 잠김
+    const detail = {
+      ...mockDetail,
+      enrolled: true,
+      stages: [
+        { ...mockDetail.stages[0], isCompleted: false },
+        { ...mockDetail.stages[1], isCompleted: false },
+      ],
+    };
+    mockSuccess(detail);
+    renderPage();
+    await screen.findByText('회사 소개');
+
+    // then — 2단계에 잠김 배지 표시
+    expect(screen.getByText('🔒 잠김')).toBeInTheDocument();
+
+    // when — 잠긴 2단계 클릭
+    await userEvent.click(screen.getByText('정보보안 기초'));
+
+    // then — 영상으로 이동하지 않는다
+    expect(screen.queryByText('영상 페이지로 이동됨')).not.toBeInTheDocument();
+  });
+
   it('API 실패 시 에러 메시지가 렌더링된다', async () => {
     // given
     server.use(

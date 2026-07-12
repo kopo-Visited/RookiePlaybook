@@ -57,6 +57,7 @@ public class EducationServiceImpl implements EducationService {
     private final EducationStageRepository educationStageRepository;
     private final EducationProgressRepository educationProgressRepository;
     private final StageCompletionRepository stageCompletionRepository;
+    private final StageAccessPolicy stageAccessPolicy;
 
     // EDU-FR-001: 교육 과정 목록 조회
     @Override
@@ -159,6 +160,11 @@ public class EducationServiceImpl implements EducationService {
     // EDU-FR-003: 단계 자료 조회 (사용자의 이어보기 위치 포함)
     @Override
     public StageMaterialResponseDto getStageMaterial(Long userId, Long stageId) {
+        // 순차 잠금: 직전 단계를 완료하지 않았으면 이 단계 자료를 볼 수 없다 (URL 직접 진입 차단)
+        EducationStage stage = educationStageRepository.findById(stageId)
+                .orElseThrow(StageNotFoundException::new);
+        stageAccessPolicy.assertUnlocked(userId, stage);
+
         EducationMaterial material = educationMaterialRepository.findByStageId(stageId)
                 .orElseThrow(MaterialNotFoundException::new);
 

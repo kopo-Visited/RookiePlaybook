@@ -114,34 +114,50 @@ function EducationDetailPage() {
           <div className={styles.stageSection}>
             <span className={styles.stageHeading}>단계 ({edu.stages?.length ?? 0})</span>
             <ul className={styles.stageList}>
-              {(edu.stages ?? []).map(stage => (
-                <li
-                  key={stage.stageId}
-                  className={styles.stageItem}
-                  onClick={() => navigate(ROUTES.EDU.VIDEO(edu.educationId, stage.stageId))}
-                >
-                  <div className={styles.stageOrder}>{stage.orderNumber}</div>
-                  <div className={styles.stageBody}>
-                    <div className={styles.stageTitleRow}>
-                      <span className={styles.stageTitle}>{stage.title}</span>
-                      <span
-                        className={styles.badge}
-                        style={{
-                          background: stage.isCompleted ? 'var(--color-green-bg)' : '#EEF1F6',
-                          color: stage.isCompleted
-                            ? 'var(--color-green)'
-                            : 'var(--color-text-secondary)',
-                        }}
-                      >
-                        {stage.isCompleted ? '완료' : '미완료'}
-                      </span>
+              {(edu.stages ?? []).map((stage, i) => {
+                // 순차 잠금: 직전 단계를 완료하지 않았으면 잠긴다 (첫 단계는 항상 열림)
+                const locked = i > 0 && !edu.stages[i - 1].isCompleted;
+                return (
+                  <li
+                    key={stage.stageId}
+                    className={styles.stageItem}
+                    style={locked ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+                    onClick={() => {
+                      if (!locked) navigate(ROUTES.EDU.VIDEO(edu.educationId, stage.stageId));
+                    }}
+                  >
+                    <div className={styles.stageOrder}>{stage.orderNumber}</div>
+                    <div className={styles.stageBody}>
+                      <div className={styles.stageTitleRow}>
+                        <span className={styles.stageTitle}>{stage.title}</span>
+                        {locked ? (
+                          <span
+                            className={styles.badge}
+                            style={{ background: '#EEF1F6', color: 'var(--color-text-secondary)' }}
+                          >
+                            🔒 잠김
+                          </span>
+                        ) : (
+                          <span
+                            className={styles.badge}
+                            style={{
+                              background: stage.isCompleted ? 'var(--color-green-bg)' : '#EEF1F6',
+                              color: stage.isCompleted
+                                ? 'var(--color-green)'
+                                : 'var(--color-text-secondary)',
+                            }}
+                          >
+                            {stage.isCompleted ? '완료' : '미완료'}
+                          </span>
+                        )}
+                      </div>
+                      {stage.description && (
+                        <span className={styles.stageDesc}>{stage.description}</span>
+                      )}
                     </div>
-                    {stage.description && (
-                      <span className={styles.stageDesc}>{stage.description}</span>
-                    )}
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>

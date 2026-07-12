@@ -124,6 +124,13 @@ function VideoPlayerPage() {
     enroll(id).catch(() => {});
   }, [id]);
 
+  // 순차 잠금: 잠긴 단계로 URL 직접 진입하면 백엔드가 403을 주므로 상세로 되돌린다
+  useEffect(() => {
+    if (matError?.response?.status === 403) {
+      navigate(ROUTES.EDU.DETAIL(id), { replace: true });
+    }
+  }, [matError, id, navigate]);
+
   // 단계 이동(stageId) 또는 자료 로드 시 완료/시청 상태 초기화.
   // 이어보기로 이미 기준 이상 시청한 경우 시청 완료로 간주한다.
   useEffect(() => {
@@ -169,8 +176,8 @@ function VideoPlayerPage() {
   }
 
   const isCompleted = justCompleted || Boolean(stage?.isCompleted);
-  // 현재 영상을 95% 이상 봤거나, 이미 완료한 단계거나, 과정을 수료했으면 다음 단계로 이동 가능
-  const canGoNext = watched || isCompleted || Boolean(detail?.isCompleted);
+  // 순차 잠금: 현재 단계를 완료해야(또는 과정 수료) 다음 단계로 이동 가능 (단순 시청만으로는 불가)
+  const canGoNext = isCompleted || Boolean(detail?.isCompleted);
 
   async function handleComplete() {
     try {
