@@ -4,11 +4,15 @@ VALUES
     (2, 'INFRA', '인프라팀', true, CURRENT_TIMESTAMP),
     (3, 'SECURITY', '보안팀', true, CURRENT_TIMESTAMP),
     (4, 'HR', '인사팀', true, CURRENT_TIMESTAMP);
+-- 명시적 id로 시드했으므로 IDENTITY 카운터를 다음 값으로 맞춰야 이후 부서 생성 시 PK 충돌이 없다
+ALTER TABLE departments ALTER COLUMN id RESTART WITH 5;
 
 INSERT INTO roles (id, code, name, active, created_at)
 VALUES
     (1, 'ROLE_USER', '일반 사용자', true, CURRENT_TIMESTAMP),
     (2, 'ROLE_ADMIN', '관리자', true, CURRENT_TIMESTAMP);
+-- 위와 동일 이유로 roles IDENTITY 리스타트
+ALTER TABLE roles ALTER COLUMN id RESTART WITH 3;
 
 -- 로컬 개발용 기본 관리자 계정 (admin@company.com / Admin1234!)
 INSERT INTO users (id, name, email, password, department_id, role_id, position, status, created_at)
