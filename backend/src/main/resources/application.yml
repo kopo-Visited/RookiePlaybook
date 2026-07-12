@@ -32,8 +32,6 @@ spring:
       - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
       - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
-      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiTextEmbeddingAutoConfiguration
-      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingConnectionAutoConfiguration
       - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
 
   ai:
@@ -43,10 +41,12 @@ spring:
       chat:
         options:
           model: llama-3.3-70b-versatile
-    vectorstore:
-      pgvector:
-        initialize-schema: false
-        dimensions: 768
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY}
+        embedding:
+          options:
+            model: text-embedding-004
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml

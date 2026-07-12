@@ -1,5 +1,6 @@
 package com.visited.www.doc.service;
 
+import com.visited.www.ai.service.AiService;
 import com.visited.www.doc.dto.request.DocumentCreateRequest;
 import com.visited.www.doc.dto.request.DocumentUpdateRequest;
 import com.visited.www.doc.dto.response.DocumentResponse;
@@ -24,6 +25,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
     private final CategoryRepository categoryRepository;
+    private final AiService aiService;
 
     @Override
     public List<DocumentResponse> getDocuments() {
@@ -81,6 +83,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         Document saved = documentRepository.save(document);
+        aiService.indexDocument(saved.getId());
         return DocumentResponse.from(saved);
     }
 
@@ -96,6 +99,7 @@ public class DocumentServiceImpl implements DocumentService {
         document.update(category, request.getTitle(), request.getContent(),
                 request.getIsPublic() != null ? request.getIsPublic() : document.getIsPublic());
 
+        aiService.indexDocument(id);
         return DocumentResponse.from(document);
     }
 
@@ -106,6 +110,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .orElseThrow(() -> new DocumentNotFoundException(id));
 
         document.softDelete();
+        aiService.removeDocument(id);
     }
 
     @Override
