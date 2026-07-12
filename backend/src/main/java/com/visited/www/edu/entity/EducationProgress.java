@@ -12,7 +12,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "education_progress")
+@Table(name = "education_progress", uniqueConstraints = @UniqueConstraint(
+        name = "uk_education_progress_user_education",
+        columnNames = {"user_id", "education_id"}))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EducationProgress {

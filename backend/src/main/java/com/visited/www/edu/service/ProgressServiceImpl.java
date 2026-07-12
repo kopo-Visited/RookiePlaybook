@@ -21,6 +21,7 @@ import com.visited.www.entity.User;
 import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,18 +105,25 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     // 수강 시작(enroll): 진도 레코드가 없으면 진행중으로 생성한다 (멱등 - 이미 있으면 상태 유지)
+    // @Transactional을 두지 않아 저장 실패 시 유니크 제약 위반을 잡아 멱등 처리할 수 있게 한다.
     @Override
-    @Transactional
     public void enroll(Long userId, Long educationId) {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(EducationNotFoundException::new);
 
-        if (educationProgressRepository.findByUserIdAndEducationId(userId, educationId).isEmpty()) {
+        if (educationProgressRepository.findByUserIdAndEducationId(userId, educationId).isPresent()) {
+            return;
+        }
+
+        try {
             User user = userRepository.getReferenceById(userId);
             EducationProgress progress = EducationProgress.create(user, education);
             progress.markInProgress();
             educationProgressRepository.save(progress);
             log.info("교육 과정 수강 시작. userId={}, educationId={}", userId, educationId);
+        } catch (DataIntegrityViolationException e) {
+            // 동시 요청(StrictMode 이중 호출 등)으로 방금 생성됨 - 유니크 제약으로 중복이 막히므로 멱등 처리
+            log.debug("동시 수강 요청 무시. userId={}, educationId={}", userId, educationId);
         }
     }
 
