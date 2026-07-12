@@ -19,6 +19,7 @@ import StageManageModal from '../../../components/StageManageModal/StageManageMo
 import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const PROGRESS_PAGE_SIZE = 20;
+const COURSE_PAGE_SIZE = 10;
 
 const COMPLETION_OPTIONS = [
   { value: 'ALL', label: '완료여부 전체' },
@@ -42,12 +43,15 @@ function EducationSection() {
   const [editEducation, setEditEducation] = useState(null);
   const [stageEducation, setStageEducation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [page, setPage] = useState(1);
 
   const { data, loading, error } = useFetch(
-    () => getEducations({ page: 0, size: 100 }),
-    [refreshKey]
+    () => getEducations({ page: page - 1, size: COURSE_PAGE_SIZE }),
+    [refreshKey, page]
   );
-  const items = data?.data?.content ?? [];
+  const pageData = data?.data;
+  const items = pageData?.content ?? [];
+  const totalPages = pageData?.totalPages ?? 1;
 
   function openCreate() {
     setEditEducation(null);
@@ -69,7 +73,12 @@ function EducationSection() {
     if (!window.confirm(`"${edu.title}" 교육 과정을 삭제하시겠습니까?`)) return;
     try {
       await deleteEducation(edu.educationId);
-      setRefreshKey(k => k + 1);
+      // 현재 페이지의 마지막 항목을 지웠고 첫 페이지가 아니면 이전 페이지로, 아니면 새로고침
+      if (items.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        setRefreshKey(k => k + 1);
+      }
     } catch (err) {
       // 단계·진도가 있으면 백엔드가 409로 막으므로 그 사유를 그대로 보여준다
       useToastStore
@@ -134,6 +143,8 @@ function EducationSection() {
           </tbody>
         </table>
       )}
+
+      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
       {modalOpen && (
         <EducationFormModal
