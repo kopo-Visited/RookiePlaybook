@@ -8,6 +8,7 @@ import { getQnas } from '../../../api/qnaApi';
 import { getMyProgress } from '../../../api/eduApi';
 import { getFaqs } from '../../../api/docApi';
 import { getNotices } from '../../../api/noticeApi';
+import { getSchedules } from '../../../api/scheduleApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 
@@ -21,12 +22,6 @@ const STATUS_STYLE = {
 const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
 const EDU_ICON_COLORS = ['#2288FF', '#FF4D94', '#FFAD33', '#12B886', '#845EF7'];
 
-const schedules = [
-  { time: '09:00', title: '주간 팀 회의', place: '대회의실', dotColor: '#2288FF' },
-  { time: '11:00', title: '신규 입사자 OT', place: 'HR 교육장', dotColor: '#7C8CFF' },
-  { time: '14:00', title: '프로젝트 진행 상황 공유', place: '회의실 A', dotColor: '#4DABF7' },
-  { time: '16:00', title: '성과 리뷰 미팅', place: '회의실 B', dotColor: '#9775FA' },
-];
 
 const shortcuts = [
   { colorKey: 'blue', icon: <IconSearch />, label: '문서 검색', route: ROUTES.DOC.LIST },
@@ -176,6 +171,18 @@ function DashboardPage() {
   const { data: eduRes } = useFetch(() => getMyProgress().catch(() => null), []);
   const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
   const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
+  const { data: scheduleRes } = useFetch(() => getSchedules().catch(() => null), []);
+  const schedules = useMemo(
+    () =>
+      (scheduleRes?.data ?? []).map(s => ({
+        id: s.id,
+        time: s.startTime?.slice(0, 5) ?? '',
+        title: s.title,
+        place: s.place ?? '',
+        dotColor: s.dotColor ?? '#2288FF',
+      })),
+    [scheduleRes]
+  );
 
   const docs = Array.isArray(docRes?.data) ? docRes.data : [];
   const qnaRaw = qnaRes?.data;
@@ -474,8 +481,11 @@ function DashboardPage() {
             <span className={styles.dateTxt}>{todayLabel()}</span>
           </div>
           <ul className={styles.scheduleList}>
-            {schedules.map((s, i) => (
-              <li key={i} className={styles.scheduleItem}>
+            {schedules.length === 0 && (
+              <li className={styles.scheduleEmpty}>오늘 등록된 일정이 없습니다.</li>
+            )}
+            {schedules.map(s => (
+              <li key={s.id} className={styles.scheduleItem}>
                 <div className={styles.scheduleLeft}>
                   <span className={styles.scheduleTime}>{s.time}</span>
                   <div className={styles.scheduleLine}>

@@ -30,6 +30,7 @@ export const ROUTES = {
     QNA: '/admin/qna',
     EDU: '/admin/edu',
     INQUIRY: '/admin/inquiry',
+    SCHEDULE: '/admin/schedule',
     SETTINGS: '/admin/settings',
   },
 };

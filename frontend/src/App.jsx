@@ -20,6 +20,7 @@ import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
 import NoticeListPage from './pages/notice/NoticeListPage/NoticeListPage';
 import InquiryPage from './pages/inquiry/InquiryPage/InquiryPage';
 import AdminInquiryPage from './pages/admin/AdminInquiryPage/AdminInquiryPage';
+import AdminSchedulePage from './pages/admin/AdminSchedulePage/AdminSchedulePage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage/AdminSettingsPage';
 import AdminEduPage from './pages/admin/AdminEduPage/AdminEduPage';
 import EducationListPage from './pages/edu/EducationListPage/EducationListPage';
@@ -73,6 +74,7 @@ function App() {
             <Route path={ROUTES.ADMIN.QNA} element={<AdminQnaPage />} />
             <Route path={ROUTES.ADMIN.EDU} element={<AdminEduPage />} />
             <Route path={ROUTES.ADMIN.INQUIRY} element={<AdminInquiryPage />} />
+            <Route path={ROUTES.ADMIN.SCHEDULE} element={<AdminSchedulePage />} />
             <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettingsPage />} />
           </Route>
         </Route>

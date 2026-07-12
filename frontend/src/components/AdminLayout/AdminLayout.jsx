@@ -161,6 +161,35 @@ function IconLogout() {
   );
 }
 
+function IconCalendar() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect
+        x="3"
+        y="4"
+        width="18"
+        height="18"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 2v4M8 2v4M3 10h18"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function IconSettings() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -181,6 +210,7 @@ const NAV_ITEMS = [
   { to: ROUTES.ADMIN.QNA, label: '답변 관리', icon: <IconChatEllipses /> },
   { to: ROUTES.ADMIN.EDU, label: '교육관리', icon: <IconBook /> },
   { to: ROUTES.ADMIN.INQUIRY, label: '문의 관리', icon: <IconFileTray /> },
+  { to: ROUTES.ADMIN.SCHEDULE, label: '일정 관리', icon: <IconCalendar /> },
   { to: ROUTES.ADMIN.SETTINGS, label: '설정', icon: <IconSettings /> },
 ];
 
