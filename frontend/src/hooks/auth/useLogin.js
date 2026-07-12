@@ -27,7 +27,8 @@ const useLogin = () => {
       const response = await loginApi({ email, password });
       const { accessToken, ...user } = response.data;
       setAuth(user, accessToken);
-      const destination = user.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DOC.LIST;
+      const destination =
+        user.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DASHBOARD;
       navigate(user.passwordChangeRequired ? ROUTES.CHANGE_PASSWORD : destination, {
         replace: true,
       });

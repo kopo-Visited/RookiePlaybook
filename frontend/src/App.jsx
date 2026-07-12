@@ -39,7 +39,7 @@ function AdminRoute() {
   const user = useAuthStore(state => state.user);
   if (import.meta.env.DEV) return <Outlet />;
   const isAdmin = user?.roleCode === 'ROLE_ADMIN';
-  return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DOC.LIST} replace />;
+  return isAdmin ? <Outlet /> : <Navigate to={ROUTES.DASHBOARD} replace />;
 }
 
 function App() {
