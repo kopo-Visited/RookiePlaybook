@@ -68,6 +68,9 @@ function mockSuccess() {
       HttpResponse.json({ success: true, message: '', data: detail })
     ),
     http.post('/api/progress/video', () => HttpResponse.json({ success: true, message: '' })),
+    http.post('/api/educations/:id/enroll', () =>
+      HttpResponse.json({ success: true, message: '' })
+    ),
     http.post('/api/progress/stage', () =>
       HttpResponse.json({
         success: true,
@@ -294,6 +297,30 @@ describe('VideoPlayerPage 렌더링', () => {
     // then — 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원되고, src에 프래그먼트가 없다
     expect(video.currentTime).toBe(15);
     expect(video.getAttribute('src')).not.toContain('#t=');
+  });
+
+  it('영상 진입 시 수강(enroll)을 멱등 호출한다 (안전망)', async () => {
+    // given
+    let enrollCalled = false;
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: material })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: detail })
+      ),
+      http.post('/api/educations/:id/enroll', () => {
+        enrollCalled = true;
+        return HttpResponse.json({ success: true, message: '' });
+      })
+    );
+
+    // when
+    renderPage();
+    await screen.findByText('[신입사원 온보딩 교육]');
+
+    // then
+    await waitFor(() => expect(enrollCalled).toBe(true));
   });
 
   it('현재 영상 미시청 시 다음 영상 버튼이 비활성화된다', async () => {
