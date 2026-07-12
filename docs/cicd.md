@@ -2,8 +2,18 @@
 
 ## CI/CD 도구
 
-- **CI/CD**: TeamCity
+- **CI/CD**: TeamCity **Cloud** (JetBrains 관리형 SaaS — 서버를 직접 호스팅하지 않는다)
 - **형상 관리**: GitHub (브랜치 전략은 [branch-strategy.md](./branch-strategy.md) 참조)
+
+> TeamCity Cloud 무료 티어는 빌드 시간·동시 빌드 수에 제한이 있다. PR이 몰리는 시기엔 대기열이 생길 수 있으니, 한도에 자주 걸리면 유료 플랜 전환을 검토한다.
+
+### TeamCity Cloud 최초 설정
+
+1. [cloud.teamcity.com](https://cloud.teamcity.com) 가입 → 프로젝트 생성
+2. "Connect GitHub"에서 TeamCity Cloud GitHub App을 `kopo-Visited/RookiePlaybook`에 설치 (VCS 접근 + PR 빌드 상태 게시 권한)
+3. 이 레포를 가리키는 VCS Root 등록
+4. 아래 "CI 파이프라인 구성"대로 Build Configuration 생성
+5. GitHub 브랜치 보호 룰셋(`develop`, `main`)의 **Required status checks**에 TeamCity가 게시하는 빌드 상태(백엔드/프론트 각각) 등록
 
 ## CI (Continuous Integration) — 자동 빌드 및 테스트
 
@@ -78,12 +88,34 @@ GitHub 브랜치 보호 룰셋의 **Status Check** 항목에 TeamCity 빌드를 
 ### 배포 흐름
 
 ```
-develop → main PR merge → TeamCity 감지 → 백엔드/프론트엔드 빌드 → 각각 배포
+develop 브랜치에 push(=PR merge 포함) → TeamCity 감지 → Docker 이미지 빌드/푸시 → EC2 SSH 배포
 ```
 
-- `main` 브랜치에 merge될 때만 자동 배포 트리거
-- `develop` 브랜치는 CI만 실행, 배포 안 함
-- 백엔드와 프론트엔드는 독립적으로 배포된다
+- **`develop`에 push될 때마다 바로 배포한다** (`main`으로의 승격을 기다리지 않음). 지금 GitHub Actions(`deploy.yml`)와 동일한 트리거 시점을 유지하기로 결정 — 배포 빈도가 잦아지는 대신 확인 주기가 짧다는 장점을 우선함
+- 백엔드와 프론트엔드는 각각 별도 Docker 이미지로 빌드되지만, 배포(EC2 `docker-compose up -d`)는 두 이미지를 함께 갱신하는 한 번의 배포 스텝으로 묶는다 (`docker-compose.yml`이 두 서비스를 함께 관리하기 때문)
+
+### 배포 Build Configuration 구성 (TeamCity Cloud)
+
+CI(백엔드/프론트 빌드) Build Configuration이 모두 성공한 뒤 실행되는 별도의 "Deploy" Build Configuration을 만든다. VCS Trigger는 `develop` 브랜치로 한정한다.
+
+| Step | 내용 |
+|------|------|
+| 1 | Docker Hub 로그인 (`%docker.hub.username%` / `%docker.hub.password%` 파라미터) |
+| 2 | 프론트엔드 이미지 빌드 & 푸시 (`docker build ./frontend` → push) |
+| 3 | 백엔드 이미지 빌드 & 푸시 (`docker build ./backend` → push) |
+| 4 | EC2로 SSH 접속해 `docker pull` + `docker-compose up -d --force-recreate` 실행 (SSH Exec 빌드 러너 또는 셸 스텝에서 `%ec2.ssh.key%` 파라미터를 임시 키 파일로 기록 후 사용) |
+
+이 4단계는 지금 `.github/workflows/deploy.yml`에 있는 `frontend` → `backend` → `deploy` job과 1:1로 대응한다. TeamCity로 전환을 완료하면 `deploy.yml`은 중복 배포를 막기 위해 비활성화하거나 삭제한다.
+
+### 민감 정보(Parameters)로 옮겨야 할 것
+
+기존 GitHub Actions Secrets에 있는 값을 TeamCity Cloud Build Configuration → Parameters(Password 타입)로 동일하게 옮긴다:
+
+| GitHub Secret | TeamCity Parameter (예시) |
+|---|---|
+| `DOCKER_HUB_USERNAME` | `docker.hub.username` |
+| `DOCKER_HUB_PASSWORD` | `docker.hub.password` |
+| `EC2_SSH_KEY` | `ec2.ssh.key` |
 
 ### 배포 전 체크리스트
 
