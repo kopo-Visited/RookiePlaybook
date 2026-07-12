@@ -22,6 +22,9 @@ function EducationFormModal({ education, onClose, onSuccess }) {
   const [completionCriteria, setCompletionCriteria] = useState(
     education?.completionCriteria != null ? String(education.completionCriteria) : ''
   );
+  const [contentYear, setContentYear] = useState(
+    education?.contentYear != null ? String(education.contentYear) : ''
+  );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,15 +40,21 @@ function EducationFormModal({ education, onClose, onSuccess }) {
     };
   }, [onClose]);
 
-  // 백엔드 검증과 동일: 과정명 필수·100자 이내, 수료 기준 0~100 정수
+  // 백엔드 검증과 동일: 과정명 필수·100자 이내, 수료 기준 0~100 정수, 콘텐츠 연도 선택·2000 이상
   const criteriaNum = Number(completionCriteria);
   const criteriaValid =
     completionCriteria !== '' &&
     Number.isInteger(criteriaNum) &&
     criteriaNum >= 0 &&
     criteriaNum <= 100;
+  const yearNum = Number(contentYear);
+  const contentYearValid = contentYear === '' || (Number.isInteger(yearNum) && yearNum >= 2000);
   const canSubmit =
-    Boolean(title.trim()) && title.trim().length <= 100 && criteriaValid && !submitting;
+    Boolean(title.trim()) &&
+    title.trim().length <= 100 &&
+    criteriaValid &&
+    contentYearValid &&
+    !submitting;
 
   async function handleSubmit() {
     if (!canSubmit) return;
@@ -56,6 +65,7 @@ function EducationFormModal({ education, onClose, onSuccess }) {
         title: title.trim(),
         description: description.trim() || null,
         completionCriteria: criteriaNum,
+        contentYear: contentYear === '' ? null : yearNum,
       };
       if (isEdit) {
         await updateEducation(education.educationId, payload);
@@ -115,6 +125,21 @@ function EducationFormModal({ education, onClose, onSuccess }) {
               value={completionCriteria}
               onChange={e => setCompletionCriteria(e.target.value)}
             />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>콘텐츠 기준연도 (선택)</label>
+            <input
+              className={styles.input}
+              type="number"
+              min="2000"
+              placeholder="예: 2024"
+              value={contentYear}
+              onChange={e => setContentYear(e.target.value)}
+            />
+            {!contentYearValid && (
+              <p className={styles.formError}>콘텐츠 기준연도는 2000 이상이어야 합니다.</p>
+            )}
           </div>
         </div>
 
