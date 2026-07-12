@@ -94,22 +94,64 @@ public class AiServiceImpl implements AiService {
         List<Document> aiDocs = documentRepository
                 .findByStatusAndIsPublicTrueOrderByCreatedAtDesc(ACTIVE)
                 .stream()
-                .map(doc -> new Document(
-                        "doc-" + doc.getId(),
-                        doc.getTitle() + "\n" + doc.getContent(),
-                        Map.of(
-                                "documentId", doc.getId().toString(),
-                                "title", doc.getTitle()
-                        )
-                ))
+                .map(this::toAiDocument)
                 .toList();
 
         if (!aiDocs.isEmpty()) {
             try {
                 vectorStore.add(aiDocs);
+                log.info("문서 {}건 벡터 인덱싱 완료", aiDocs.size());
             } catch (RuntimeException e) {
                 throw new AiResponseException(e);
             }
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void indexDocument(Long documentId) {
+        if (vectorStore == null) {
+            return;
+        }
+        documentRepository.findById(documentId).ifPresent(doc -> {
+            if (!ACTIVE.equals(doc.getStatus()) || !Boolean.TRUE.equals(doc.getIsPublic())) {
+                return;
+            }
+            try {
+                vectorStore.delete(List.of("doc-" + documentId));
+            } catch (RuntimeException e) {
+                log.warn("기존 벡터 삭제 실패 (무시): documentId={}", documentId);
+            }
+            try {
+                vectorStore.add(List.of(toAiDocument(doc)));
+                log.info("문서 벡터 인덱싱 완료: documentId={}", documentId);
+            } catch (RuntimeException e) {
+                log.error("문서 벡터 인덱싱 실패: documentId={}", documentId, e);
+            }
+        });
+    }
+
+    @Override
+    public void removeDocument(Long documentId) {
+        if (vectorStore == null) {
+            return;
+        }
+        try {
+            vectorStore.delete(List.of("doc-" + documentId));
+            log.info("문서 벡터 삭제 완료: documentId={}", documentId);
+        } catch (RuntimeException e) {
+            log.warn("문서 벡터 삭제 실패 (무시): documentId={}", documentId);
+        }
+    }
+
+    private Document toAiDocument(com.visited.www.doc.entity.Document doc) {
+        return new Document(
+                "doc-" + doc.getId(),
+                doc.getTitle() + "\n" + doc.getContent(),
+                Map.of(
+                        "documentId", doc.getId().toString(),
+                        "title", doc.getTitle()
+                )
+        );
     }
 }

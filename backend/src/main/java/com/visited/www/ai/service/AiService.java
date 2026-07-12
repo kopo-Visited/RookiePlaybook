@@ -8,4 +8,8 @@ public interface AiService {
     AiAnswerResponse ask(AiAskRequest request);
 
     void indexAllDocuments();
+
+    void indexDocument(Long documentId);
+
+    void removeDocument(Long documentId);
 }

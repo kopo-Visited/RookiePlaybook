@@ -30,11 +30,9 @@ spring:
     exclude:
       - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
       - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
-      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiTextEmbeddingAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingConnectionAutoConfiguration
-      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
 
   ai:
     openai:
@@ -43,10 +41,17 @@ spring:
       chat:
         options:
           model: llama-3.3-70b-versatile
+      embedding:
+        api-key: ${OPENAI_API_KEY}
+        base-url: https://api.openai.com
+        options:
+          model: text-embedding-3-small
     vectorstore:
       pgvector:
-        initialize-schema: false
-        dimensions: 768
+        initialize-schema: true
+        dimensions: 1536
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml
