@@ -88,30 +88,30 @@ GitHub 브랜치 보호 룰셋의 **Status Check** 항목에 TeamCity 빌드를 
 ### 배포 흐름
 
 ```
-develop 브랜치에 push(=PR merge 포함) → TeamCity 감지 → Docker 이미지 빌드/푸시 → EC2 SSH 배포
+develop 브랜치에 push(=PR merge 포함) → TeamCity CI(Backend/Frontend Build) 통과
+  → Finish Build Trigger로 TeamCity `Deploy to EC2` 자동 실행
+  → Docker 이미지 빌드/푸시 → EC2 SSH 배포
 ```
 
-- **`develop`에 push될 때마다 바로 배포한다** (`main`으로의 승격을 기다리지 않음). 지금 GitHub Actions(`deploy.yml`)와 동일한 트리거 시점을 유지하기로 결정 — 배포 빈도가 잦아지는 대신 확인 주기가 짧다는 장점을 우선함
+- **자동 배포 경로는 TeamCity Cloud 하나뿐이다.** `develop`에 push될 때마다 TeamCity CI(`RookiePlaybook CI/CD`)가 먼저 돌고, 그게 성공하면 Finish Build Trigger로 `Deploy to EC2` Build Configuration이 이어서 자동 실행되어 EC2까지 배포된다
+- **`.github/workflows/deploy.yml`(GitHub Actions)은 더 이상 자동 실행되지 않는다.** `push` 트리거를 제거하고 `workflow_dispatch`만 남겨, TeamCity 장애 등 비상 상황에서만 수동으로 실행하는 fallback 용도로 유지한다
+  - ⚠️ **두 배포 시스템을 동시에 켜두면 안 된다.** TeamCity 자동 배포가 정상 동작 중일 때 GitHub Actions의 수동 배포까지 같이 돌리면 같은 EC2에 두 배포가 겹쳐 충돌하거나 산출물이 뒤섞일 수 있다. GitHub Actions 수동 배포는 TeamCity가 실패했거나 사용 불가능할 때만 실행한다
+  - GitHub Actions에서 수동 실행하는 방법: 저장소 Actions 탭 → `CI/CD Deploy (Manual Fallback)` 워크플로우 선택 → **Run workflow** 버튼
 - 백엔드와 프론트엔드는 각각 별도 Docker 이미지로 빌드되지만, 배포(EC2 `docker-compose up -d`)는 두 이미지를 함께 갱신하는 한 번의 배포 스텝으로 묶는다 (`docker-compose.yml`이 두 서비스를 함께 관리하기 때문)
 
-### 배포 Build Configuration 구성 (TeamCity Cloud)
-
-CI(백엔드/프론트 빌드) Build Configuration이 모두 성공한 뒤 실행되는 별도의 "Deploy" Build Configuration을 만든다. VCS Trigger는 `develop` 브랜치로 한정한다.
+### TeamCity `Deploy to EC2` Build Configuration 구성
 
 | Step | 내용 |
 |------|------|
+| 트리거 | Finish Build Trigger — `RookiePlaybook CI/CD` 성공 시에만 실행 (Snapshot Dependency로 연결) |
 | 1 | Docker Hub 로그인 (`%docker.hub.username%` / `%docker.hub.password%` 파라미터) |
-| 2 | 프론트엔드 이미지 빌드 & 푸시 (`docker build ./frontend` → push) |
-| 3 | 백엔드 이미지 빌드 & 푸시 (`docker build ./backend` → push) |
-| 4 | EC2로 SSH 접속해 `docker pull` + `docker-compose up -d --force-recreate` 실행 (SSH Exec 빌드 러너 또는 셸 스텝에서 `%ec2.ssh.key%` 파라미터를 임시 키 파일로 기록 후 사용) |
+| 2 | 프론트엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-frontend:latest`) |
+| 3 | 백엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-backend:latest`) |
+| 4 | SSH Exec으로 EC2(`13.125.15.58`, `ec2-user`, `/home/ec2-user/rookie-playbook`) 접속 → `docker pull` ×2 + `docker-compose up -d --force-recreate` |
 
-이 4단계는 지금 `.github/workflows/deploy.yml`에 있는 `frontend` → `backend` → `deploy` job과 1:1로 대응한다. TeamCity로 전환을 완료하면 `deploy.yml`은 중복 배포를 막기 위해 비활성화하거나 삭제한다.
+기존 GitHub Actions Secrets에 있던 값을 TeamCity Build Configuration → Parameters(Password 타입)로 동일하게 옮겨서 쓰고 있다:
 
-### 민감 정보(Parameters)로 옮겨야 할 것
-
-기존 GitHub Actions Secrets에 있는 값을 TeamCity Cloud Build Configuration → Parameters(Password 타입)로 동일하게 옮긴다:
-
-| GitHub Secret | TeamCity Parameter (예시) |
+| GitHub Secret | TeamCity Parameter |
 |---|---|
 | `DOCKER_HUB_USERNAME` | `docker.hub.username` |
 | `DOCKER_HUB_PASSWORD` | `docker.hub.password` |
