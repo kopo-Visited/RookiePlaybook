@@ -10,6 +10,7 @@ public record PublicQuestionListResponseDto(
         String title,
         String categoryName,
         String writerName,
+        Long writerId,
         QuestionStatus status,
         LocalDateTime createdAt
 ) {
@@ -19,6 +20,7 @@ public record PublicQuestionListResponseDto(
                 question.getTitle(),
                 question.getCategory().getName(),
                 writerName,
+                question.getUserId(),
                 question.getStatus(),
                 question.getCreatedAt()
         );

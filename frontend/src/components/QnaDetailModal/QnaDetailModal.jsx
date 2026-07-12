@@ -3,6 +3,8 @@ import styles from './QnaDetailModal.module.css';
 import { getQna, getPublicQna, deleteQna } from '../../api/qnaApi';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../constants/styles';
 import Badge from '../Badge/Badge';
+import useAuthStore from '../../stores/authStore';
+import { displayWriter } from '../../utils/maskName';
 
 const STATUS_LABEL = {
   RECEIVED: '접수',
@@ -39,6 +41,7 @@ function IconX() {
 }
 
 function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = false }) {
+  const myId = useAuthStore(s => s.user?.userId);
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -110,7 +113,9 @@ function QnaDetailModal({ questionId, onClose, onChanged, onEdit, publicView = f
             <h3 className={styles.qTitle}>{detail.title}</h3>
             <p className={styles.qContent}>{detail.content}</p>
             <span className={styles.meta}>
-              {publicView && detail.writerName ? `${detail.writerName} · ` : ''}
+              {publicView && detail.writerName
+                ? `${displayWriter(detail.writerName, detail.writerId, myId)} · `
+                : ''}
               등록 {formatDateTime(detail.createdAt)}
             </span>
 

@@ -12,6 +12,7 @@ public record PublicQuestionDetailResponseDto(
         String content,
         String categoryName,
         String writerName,
+        Long writerId,
         QuestionStatus status,
         LocalDateTime createdAt,
         AnswerDto answer
@@ -29,6 +30,7 @@ public record PublicQuestionDetailResponseDto(
                 question.getContent(),
                 question.getCategory().getName(),
                 writerName,
+                question.getUserId(),
                 question.getStatus(),
                 question.getCreatedAt(),
                 answer == null ? null : AnswerDto.from(answer)
