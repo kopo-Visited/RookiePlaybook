@@ -82,8 +82,24 @@ function mockListPaged() {
       const page = Number(new URL(request.url).searchParams.get('page') ?? 0);
       const content =
         page === 0
-          ? [{ educationId: 1, title: '1페이지 과정', totalStages: 1, completedStages: 0, progressRate: 0 }]
-          : [{ educationId: 2, title: '2페이지 과정', totalStages: 1, completedStages: 0, progressRate: 0 }];
+          ? [
+              {
+                educationId: 1,
+                title: '1페이지 과정',
+                totalStages: 1,
+                completedStages: 0,
+                progressRate: 0,
+              },
+            ]
+          : [
+              {
+                educationId: 2,
+                title: '2페이지 과정',
+                totalStages: 1,
+                completedStages: 0,
+                progressRate: 0,
+              },
+            ];
       return apiOk({ content, totalPages: 2, number: page, size: 10, totalElements: 11 });
     })
   );
