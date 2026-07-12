@@ -11,6 +11,39 @@ import {
 
 const DOT_COLORS = ['#2288FF', '#7C8CFF', '#4DABF7', '#9775FA', '#FF4D94', '#12B886', '#FFAD33'];
 
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const MINUTES = ['00', '10', '20', '30', '40', '50'];
+
+function TimePicker({ name, value, onChange, required }) {
+  const [h, m] = (value || '').split(':');
+  function handleH(e) {
+    onChange({ target: { name, value: `${e.target.value}:${m || '00'}` } });
+  }
+  function handleM(e) {
+    onChange({ target: { name, value: `${h || '00'}:${e.target.value}` } });
+  }
+  return (
+    <div className={styles.timePicker}>
+      <select className={styles.timeSelect} value={h || ''} onChange={handleH} required={required}>
+        {!h && <option value="">--</option>}
+        {HOURS.map(v => (
+          <option key={v} value={v}>
+            {v}시
+          </option>
+        ))}
+      </select>
+      <select className={styles.timeSelect} value={m || ''} onChange={handleM}>
+        {!m && <option value="">--</option>}
+        {MINUTES.map(v => (
+          <option key={v} value={v}>
+            {v}분
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const [y, m, d] = dateStr.split('-');
@@ -86,9 +119,7 @@ function ScheduleModal({ initial, onClose, onSave }) {
               <label className={styles.label}>
                 시작 시간 <span className={styles.required}>*</span>
               </label>
-              <input
-                className={styles.input}
-                type="time"
+              <TimePicker
                 name="startTime"
                 value={form.startTime}
                 onChange={handleChange}
@@ -97,13 +128,7 @@ function ScheduleModal({ initial, onClose, onSave }) {
             </div>
             <div className={styles.timeField}>
               <label className={styles.label}>종료 시간</label>
-              <input
-                className={styles.input}
-                type="time"
-                name="endTime"
-                value={form.endTime}
-                onChange={handleChange}
-              />
+              <TimePicker name="endTime" value={form.endTime} onChange={handleChange} />
             </div>
           </div>
 

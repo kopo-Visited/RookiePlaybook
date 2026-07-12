@@ -220,6 +220,30 @@
   flex-direction: column;
 }
 
+.timePicker {
+  display: flex;
+  gap: 6px;
+}
+
+.timeSelect {
+  flex: 1;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-text-title);
+  background: #fff;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+}
+.timeSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
 .colorRow {
   display: flex;
   gap: 10px;
