@@ -1,6 +1,7 @@
 package com.visited.www.edu.controller;
 
 import com.visited.www.edu.MaterialNotFoundException;
+import com.visited.www.edu.StageLockedException;
 import com.visited.www.edu.dto.response.EducationDetailResponseDto;
 import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.dto.response.StageMaterialResponseDto;
@@ -194,6 +195,29 @@ class EducationControllerTest {
                         .with(authentication(auth))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("GET /api/stages/{stageId}/material - 직전 단계 미완료로 잠긴 단계면 403 반환")
+    void getStageMaterial_locked() throws Exception {
+        // given (URL로 직접 진입해도 백엔드 가드가 막는다)
+        Long userId = 1L;
+        Long stageId = 2L;
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        given(educationService.getStageMaterial(userId, stageId))
+                .willThrow(new StageLockedException());
+
+        // when & then
+        mockMvc.perform(get("/api/stages/{stageId}/material", stageId)
+                        .with(authentication(auth))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.success").value(false))
                 .andDo(print());
     }

@@ -2,6 +2,7 @@ package com.visited.www.edu.service;
 
 import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
+import com.visited.www.edu.StageLockedException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -66,6 +68,9 @@ class ProgressServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private StageAccessPolicy stageAccessPolicy;
 
     @Test
     @DisplayName("단계 완료 처리 - 신규 완료 시 완료 기록을 저장하고 진도율을 갱신한다")
@@ -164,6 +169,21 @@ class ProgressServiceTest {
         // then
         assertThat(result.progressRate()).isEqualTo(25);   // 1/4
         verify(stageCompletionRepository, never()).save(any(StageCompletion.class));
+    }
+
+    @Test
+    @DisplayName("단계 완료 처리 - 직전 단계 미완료로 잠긴 단계면 StageLockedException이 발생한다")
+    void completeStage_locked() {
+        // given
+        Long userId = 1L;
+        Long stageId = 2L;
+        EducationStage stage = mock(EducationStage.class);
+        given(educationStageRepository.findById(stageId)).willReturn(Optional.of(stage));
+        willThrow(new StageLockedException()).given(stageAccessPolicy).assertUnlocked(userId, stage);
+
+        // when & then
+        assertThatThrownBy(() -> progressService.completeStage(userId, stageId))
+                .isInstanceOf(StageLockedException.class);
     }
 
     @Test
