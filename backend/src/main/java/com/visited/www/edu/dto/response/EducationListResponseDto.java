@@ -10,5 +10,6 @@ public record EducationListResponseDto(
         Integer progressRate,
         Boolean isCompleted,
         LocalDateTime completedAt,
-        Integer contentYear
+        Integer contentYear,
+        Boolean enrolled
 ) {}

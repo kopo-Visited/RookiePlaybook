@@ -82,6 +82,7 @@ public class EducationServiceImpl implements EducationService {
                     LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
                     int totalStages = education.getStages().size();
                     int completedStages = progress != null ? progress.getCompletedStages() : 0;
+                    boolean enrolled = progress != null;
 
                     return new EducationListResponseDto(
                             education.getId(),
@@ -91,7 +92,8 @@ public class EducationServiceImpl implements EducationService {
                             progressRate,
                             isCompleted,
                             completedAt,
-                            education.getContentYear()
+                            education.getContentYear(),
+                            enrolled
                     );
                 })
                 .collect(Collectors.toList());
