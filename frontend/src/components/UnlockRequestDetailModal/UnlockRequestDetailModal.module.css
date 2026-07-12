@@ -1,0 +1,120 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.28);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.modalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 28px;
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  background: #eef3f9;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-label);
+  flex-shrink: 0;
+}
+
+.detailGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detailRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f3f8;
+}
+.detailRow:last-child {
+  border-bottom: none;
+}
+.detailLabel {
+  width: 72px;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5e6b82;
+  line-height: 20px;
+}
+.detailValue {
+  font-size: 13px;
+  color: var(--color-text-title);
+  line-height: 20px;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 12px;
+  min-width: 52px;
+  background: #ffffff;
+  border: 1px solid #d9e1eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 16px;
+  min-width: 76px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 680px) {
+  .modal {
+    width: calc(100vw - 32px);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
