@@ -10,6 +10,8 @@ import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
 import { pageWindow } from '../../../utils/pageWindow';
+import { displayWriter } from '../../../utils/maskName';
+import useAuthStore from '../../../stores/authStore';
 
 const PAGE_SIZE = 10;
 
@@ -47,6 +49,7 @@ function StatusBadge({ status }) {
 
 function QnaAllPage() {
   const navigate = useNavigate();
+  const myId = useAuthStore(s => s.user?.userId);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -131,7 +134,9 @@ function QnaAllPage() {
                     <span className={styles.titleText}>{item.title}</span>
                   </td>
                   <td>
-                    <span className={styles.secondary}>{item.writerName ?? '-'}</span>
+                    <span className={styles.secondary}>
+                      {displayWriter(item.writerName, item.writerId, myId)}
+                    </span>
                   </td>
                   <td>
                     <span className={styles.secondary}>{formatDate(item.createdAt)}</span>
