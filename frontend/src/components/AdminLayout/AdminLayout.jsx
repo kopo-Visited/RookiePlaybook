@@ -250,9 +250,9 @@ function AdminLayout() {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, []);
 
-  function goToUnlockRequests() {
+  function goToUnlockRequests(requestId) {
     setNotifOpen(false);
-    navigate(ROUTES.ADMIN.SETTINGS, { state: { tab: 'unlock' } });
+    navigate(ROUTES.ADMIN.SETTINGS, { state: { tab: 'unlock', requestId } });
   }
 
   async function handleLogout() {
@@ -320,7 +320,7 @@ function AdminLayout() {
                     <li
                       key={req.requestId}
                       className={styles.notifItem}
-                      onClick={goToUnlockRequests}
+                      onClick={() => goToUnlockRequests(req.requestId)}
                     >
                       <span className={styles.notifItemTitle}>{req.name}님 계정 잠금해제 요청</span>
                       <span className={styles.notifItemTime}>
@@ -330,7 +330,7 @@ function AdminLayout() {
                   ))}
                 </ul>
                 {pendingRequests.length > 0 && (
-                  <button className={styles.notifPanelMore} onClick={goToUnlockRequests}>
+                  <button className={styles.notifPanelMore} onClick={() => goToUnlockRequests()}>
                     전체보기 ›
                   </button>
                 )}

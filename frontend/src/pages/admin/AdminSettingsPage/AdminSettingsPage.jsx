@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styles from './AdminSettingsPage.module.css';
 import useFetch from '../../../hooks/useFetch';
@@ -14,6 +14,7 @@ import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import DepartmentFormModal from '../../../components/DepartmentFormModal/DepartmentFormModal';
 import NoticeFormModal from '../../../components/NoticeFormModal/NoticeFormModal';
+import UnlockRequestDetailModal from '../../../components/UnlockRequestDetailModal/UnlockRequestDetailModal';
 
 const TABS = [
   { key: 'department', label: '부서 관리' },
@@ -206,14 +207,24 @@ function NoticeSection() {
 }
 
 function UnlockRequestSection() {
+  const location = useLocation();
   const [refreshKey, setRefreshKey] = useState(0);
   const [resolvingId, setResolvingId] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   const { data, loading, error } = useFetch(
     () => getAccountUnlockRequests().then(r => r.data ?? r),
     [refreshKey]
   );
   const items = data ?? [];
+
+  // 관리자 알림벨에서 특정 요청을 클릭해 들어온 경우, 해당 요청의 상세를 자동으로 연다
+  useEffect(() => {
+    const targetId = location.state?.requestId;
+    if (!targetId) return;
+    const found = (data ?? []).find(r => r.requestId === targetId);
+    if (found) setSelectedRequest(found);
+  }, [location.state?.requestId, data]);
 
   async function handleResolve(request) {
     if (!window.confirm(`${request.name}님의 계정 비밀번호를 초기화하고 잠금을 해제하시겠습니까?`))
@@ -222,6 +233,7 @@ function UnlockRequestSection() {
     try {
       await resolveAccountUnlockRequest(request.requestId);
       setRefreshKey(k => k + 1);
+      setSelectedRequest(null);
     } catch {
       useToastStore.getState().show('잠금해제 처리에 실패했습니다.');
     } finally {
@@ -250,11 +262,6 @@ function UnlockRequestSection() {
           <thead>
             <tr>
               <th>이름</th>
-              <th>이메일</th>
-              <th>사번</th>
-              <th>부서</th>
-              <th>전화번호</th>
-              <th>메모</th>
               <th>접수일</th>
               <th>상태</th>
               <th>관리</th>
@@ -267,21 +274,6 @@ function UnlockRequestSection() {
                   <span className={styles.titleText}>{req.name}</span>
                 </td>
                 <td>
-                  <span className={styles.secondary}>{req.email}</span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>{req.employeeNo}</span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>{req.departmentName}</span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>{req.phone}</span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>{req.memo || '-'}</span>
-                </td>
-                <td>
                   <span className={styles.secondary}>{formatDate(req.createdAt)}</span>
                 </td>
                 <td>
@@ -290,22 +282,23 @@ function UnlockRequestSection() {
                   </span>
                 </td>
                 <td>
-                  <button
-                    className={styles.actionBtn}
-                    disabled={req.status === 'RESOLVED' || resolvingId === req.requestId}
-                    onClick={() => handleResolve(req)}
-                  >
-                    {req.status === 'RESOLVED'
-                      ? '처리완료'
-                      : resolvingId === req.requestId
-                        ? '처리 중...'
-                        : '비밀번호 초기화'}
+                  <button className={styles.actionBtn} onClick={() => setSelectedRequest(req)}>
+                    상세보기
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {selectedRequest && (
+        <UnlockRequestDetailModal
+          request={selectedRequest}
+          resolving={resolvingId === selectedRequest.requestId}
+          onClose={() => setSelectedRequest(null)}
+          onResolve={handleResolve}
+        />
       )}
     </section>
   );

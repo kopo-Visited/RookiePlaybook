@@ -193,8 +193,10 @@ describe('AdminUsersPage 인터랙션', () => {
       screen.getByPlaceholderText('이메일 주소를 입력하세요'),
       'newuser@company.com'
     );
-    await userEvent.selectOptions(screen.getByDisplayValue('부서를 선택하세요'), '개발팀');
-    await userEvent.selectOptions(screen.getByDisplayValue('권한을 선택하세요'), '일반 사용자');
+    await userEvent.click(screen.getByText('부서를 선택하세요'));
+    await userEvent.click(screen.getAllByText('개발팀').find(el => el.tagName === 'LI'));
+    await userEvent.click(screen.getByText('권한을 선택하세요'));
+    await userEvent.click(screen.getAllByText('일반 사용자').find(el => el.tagName === 'LI'));
     await userEvent.type(screen.getByPlaceholderText('초기 비밀번호를 입력하세요'), 'Temp1234!');
     await userEvent.click(screen.getByRole('button', { name: '저장' }));
 
