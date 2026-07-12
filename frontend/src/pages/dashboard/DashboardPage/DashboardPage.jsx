@@ -233,15 +233,13 @@ function DashboardPage() {
     return [...company, ...personal].sort((a, b) => a.time.localeCompare(b.time));
   }, [scheduleRes, userScheduleRes]);
 
-  const docs = Array.isArray(docRes?.data) ? docRes.data : [];
-  const qnaRaw = qnaRes?.data;
-  const qnas = Array.isArray(qnaRaw?.content)
-    ? qnaRaw.content
-    : Array.isArray(qnaRaw)
-      ? qnaRaw
-      : [];
-  const eduList = Array.isArray(eduRes?.data) ? eduRes.data : [];
-  const faqs = Array.isArray(faqRes?.data) ? faqRes.data : [];
+  const docs = useMemo(() => (Array.isArray(docRes?.data) ? docRes.data : []), [docRes]);
+  const qnas = useMemo(() => {
+    const raw = qnaRes?.data;
+    return Array.isArray(raw?.content) ? raw.content : Array.isArray(raw) ? raw : [];
+  }, [qnaRes]);
+  const eduList = useMemo(() => (Array.isArray(eduRes?.data) ? eduRes.data : []), [eduRes]);
+  const faqs = useMemo(() => (Array.isArray(faqRes?.data) ? faqRes.data : []), [faqRes]);
   const notices = Array.isArray(noticeRes?.data) ? noticeRes.data : [];
 
   const recentDocs = useMemo(
