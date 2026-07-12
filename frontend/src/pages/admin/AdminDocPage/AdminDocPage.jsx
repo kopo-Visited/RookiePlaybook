@@ -4,7 +4,13 @@ import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
-import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../../../api/docApi';
+import {
+  getAdminDocuments,
+  getFaqs,
+  deleteDocument,
+  updateDocument,
+  reviewDocument,
+} from '../../../api/docApi';
 import Badge from '../../../components/Badge/Badge';
 import Dropdown from '../../../components/Dropdown/Dropdown';
 import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
@@ -87,20 +93,16 @@ function AdminDocPage() {
 
   const staleDocs = useMemo(() => {
     const now = Date.now();
+    const lastActivity = d => new Date(d.lastReviewedAt ?? d.updatedAt ?? d.createdAt).getTime();
     return docs
-      .filter(d => {
-        const last = new Date(d.updatedAt ?? d.createdAt).getTime();
-        return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
-      })
-      .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
-      .slice(0, 5)
+      .filter(d => (now - lastActivity(d)) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS)
+      .sort((a, b) => lastActivity(a) - lastActivity(b))
+      .slice(0, 3)
       .map(d => ({
         id: d.id,
         title: d.title,
         dept: d.categoryName,
-        daysAgo: Math.floor(
-          (now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        ),
+        daysAgo: Math.floor((now - lastActivity(d)) / (1000 * 60 * 60 * 24)),
       }));
   }, [docs]);
 
@@ -203,6 +205,15 @@ function AdminDocPage() {
       setRefreshKey(k => k + 1);
     } catch {
       useToastStore.getState().show('공개 상태 변경에 실패했습니다.');
+    }
+  }, []);
+
+  const handleReview = useCallback(async doc => {
+    try {
+      await reviewDocument(doc.id);
+      setRefreshKey(k => k + 1);
+    } catch {
+      useToastStore.getState().show('검토 완료 처리에 실패했습니다.');
     }
   }, []);
 
@@ -457,7 +468,13 @@ function AdminDocPage() {
                     {doc.dept} · 마지막 검토 {doc.daysAgo}일 전
                   </span>
                 </div>
-                <span className={styles.staleBadge}>검토필요</span>
+                <button
+                  type="button"
+                  className={styles.reviewBtn}
+                  onClick={() => handleReview(doc)}
+                >
+                  검토 완료
+                </button>
               </div>
             ))}
           </div>

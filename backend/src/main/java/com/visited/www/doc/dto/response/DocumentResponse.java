@@ -22,6 +22,7 @@ public class DocumentResponse {
     private List<String> tags;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime lastReviewedAt;
 
     public static DocumentResponse from(Document document) {
         List<String> tags = document.getDocumentTags() == null
@@ -43,6 +44,7 @@ public class DocumentResponse {
                 .tags(tags)
                 .createdAt(document.getCreatedAt())
                 .updatedAt(document.getUpdatedAt())
+                .lastReviewedAt(document.getLastReviewedAt())
                 .build();
     }
 }

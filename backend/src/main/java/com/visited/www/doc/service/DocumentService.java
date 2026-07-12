@@ -21,4 +21,6 @@ public interface DocumentService {
     DocumentResponse updateDocument(Long id, DocumentUpdateRequest request);
 
     void deleteDocument(Long id);
+
+    DocumentResponse reviewDocument(Long id);
 }
