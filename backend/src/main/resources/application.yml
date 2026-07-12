@@ -32,6 +32,7 @@ spring:
       - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
       - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
 
   ai:
     openai:
@@ -46,12 +47,6 @@ spring:
         embedding:
           options:
             model: text-embedding-004
-    vectorstore:
-      pgvector:
-        initialize-schema: true
-        dimensions: 768
-        index-type: HNSW
-        distance-type: COSINE_DISTANCE
 
 mybatis:
   mapper-locations: classpath*:mapper/**/*.xml

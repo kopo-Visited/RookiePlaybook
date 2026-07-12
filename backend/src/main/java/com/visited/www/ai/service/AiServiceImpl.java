@@ -11,6 +11,9 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +23,8 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class AiServiceImpl implements AiService {
+public
+class AiServiceImpl implements AiService {
 
     private final ChatClient chatClient;
     private final DocumentRepository documentRepository;
@@ -34,6 +38,13 @@ public class AiServiceImpl implements AiService {
     }
 
     private static final String ACTIVE = "ACTIVE";
+
+    @Async
+    @EventListener(ApplicationReadyEvent.class)
+    @Transactional(readOnly = true)
+    public void onApplicationReady() {
+        indexAllDocuments();
+    }
 
     @Override
     public AiAnswerResponse ask(AiAskRequest request) {
