@@ -12,11 +12,47 @@ import { getSchedules, getUserSchedules } from '../../../api/scheduleApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 
+// 내 질문 현황 상태 아이콘 — 모두 동일한 원형 라인 스타일로 통일하되 내부 글리프만 다르게
+function IconStWaiting() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M12 7.5V12l3 1.8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function IconStProgress() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="8.5" cy="12" r="1.1" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" />
+      <circle cx="15.5" cy="12" r="1.1" fill="currentColor" />
+    </svg>
+  );
+}
+function IconStDone() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M8.4 12.4l2.4 2.4 4.8-5.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function IconStHold() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M10 9v6M14 9v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const STATUS_STYLE = {
-  RECEIVED: { label: '답변 대기', color: '#6F7B91' },
-  IN_PROGRESS: { label: '처리 중', color: '#2288FF' },
-  ANSWERED: { label: '답변 완료', color: '#20C997' },
-  ON_HOLD: { label: '보류', color: '#F08C00' },
+  RECEIVED: { label: '답변 대기', color: '#6F7B91', bg: '#EEF1F5', Icon: IconStWaiting },
+  IN_PROGRESS: { label: '처리 중', color: '#2288FF', bg: '#E7F1FF', Icon: IconStProgress },
+  ANSWERED: { label: '답변 완료', color: '#20C997', bg: '#E7F8F3', Icon: IconStDone },
+  ON_HOLD: { label: '보류', color: '#F08C00', bg: '#FFF4E6', Icon: IconStHold },
 };
 
 const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
@@ -395,14 +431,14 @@ function DashboardPage() {
             {myQnas.length === 0 && <li className={styles.emptyText}>등록한 질문이 없습니다.</li>}
             {myQnas.map((q, i) => {
               const st = STATUS_STYLE[q.status] ?? STATUS_STYLE.RECEIVED;
-              const isDone = q.status === 'ANSWERED';
+              const StIcon = st.Icon;
               return (
                 <li key={q.questionId ?? i} className={styles.qnaItem}>
                   <div
                     className={styles.qnaIcon}
-                    style={{ background: isDone ? '#E7F8F3' : '#FFF0F6' }}
+                    style={{ background: st.bg, color: st.color }}
                   >
-                    <span style={{ fontSize: 18 }}>{isDone ? '✅' : '❓'}</span>
+                    <StIcon />
                   </div>
                   <div className={styles.qnaBody}>
                     <span className={styles.qnaTitle}>{q.title}</span>
