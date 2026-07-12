@@ -80,17 +80,20 @@ function AdminDocStalePage() {
     <div className={styles.page}>
       <header className={styles.topbar}>
         <div className={styles.titleBlock}>
-          <button type="button" className={styles.backBtn} onClick={() => navigate(ROUTES.ADMIN.DOC)}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={() => navigate(ROUTES.ADMIN.DOC)}
+          >
             ← 콘텐츠 관리
           </button>
           <h1 className={styles.pageTitle}>미갱신 문서 전체 목록</h1>
           <p className={styles.pageSubtitle}>
-            {STALE_THRESHOLD_DAYS}일 이상 업데이트되지 않은 문서입니다. 우선순위가 높은 순으로 정렬됩니다.
+            {STALE_THRESHOLD_DAYS}일 이상 업데이트되지 않은 문서입니다. 우선순위가 높은 순으로
+            정렬됩니다.
           </p>
         </div>
-        {!loading && (
-          <span className={styles.countBadge}>{staleDocs.length}건</span>
-        )}
+        {!loading && <span className={styles.countBadge}>{staleDocs.length}건</span>}
       </header>
 
       <div className={styles.tableCard}>

@@ -152,7 +152,7 @@ function AdminDocPage() {
         iconText: 'FAQ',
       },
     ],
-    [docs, publicDocs, privateDocs, totalFaqs]
+    [docs, publicDocs, privateDocs, staleDocs, totalFaqs]
   );
 
   const filtered = useMemo(
