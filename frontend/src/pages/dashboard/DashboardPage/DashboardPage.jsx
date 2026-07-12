@@ -17,7 +17,13 @@ function IconStWaiting() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
-      <path d="M12 7.5V12l3 1.8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M12 7.5V12l3 1.8"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -35,7 +41,13 @@ function IconStDone() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
-      <path d="M8.4 12.4l2.4 2.4 4.8-5.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M8.4 12.4l2.4 2.4 4.8-5.2"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -434,10 +446,7 @@ function DashboardPage() {
               const StIcon = st.Icon;
               return (
                 <li key={q.questionId ?? i} className={styles.qnaItem}>
-                  <div
-                    className={styles.qnaIcon}
-                    style={{ background: st.bg, color: st.color }}
-                  >
+                  <div className={styles.qnaIcon} style={{ background: st.bg, color: st.color }}>
                     <StIcon />
                   </div>
                   <div className={styles.qnaBody}>
