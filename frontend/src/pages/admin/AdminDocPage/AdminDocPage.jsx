@@ -7,6 +7,7 @@ import useToastStore from '../../../stores/toastStore';
 import {
   getAdminDocuments,
   getFaqs,
+  createAdminFaq,
   deleteDocument,
   updateDocument,
   reviewDocument,
@@ -18,6 +19,102 @@ import { ROUTES } from '../../../constants/routes';
 
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
+
+const CATEGORY_OPTIONS = [
+  { label: '공통', value: 1 },
+  { label: '개발', value: 2 },
+  { label: '인프라', value: 3 },
+  { label: '보안', value: 4 },
+  { label: '네트워크', value: 5 },
+];
+
+function AdminFaqCreateModal({ onClose, onCreated }) {
+  const [form, setForm] = useState({ categoryId: 1, question: '', answer: '', isPublic: true });
+  const [saving, setSaving] = useState(false);
+
+  function handleChange(field, value) {
+    setForm(prev => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.question.trim() || !form.answer.trim()) return;
+    setSaving(true);
+    try {
+      await createAdminFaq(form);
+      onCreated();
+      onClose();
+    } catch {
+      useToastStore.getState().show('FAQ 등록에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalBox} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>FAQ 등록</h2>
+          <button className={styles.modalClose} onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <form className={styles.modalForm} onSubmit={handleSubmit}>
+          <label className={styles.formLabel}>카테고리</label>
+          <select
+            className={styles.formInput}
+            value={form.categoryId}
+            onChange={e => handleChange('categoryId', Number(e.target.value))}
+          >
+            {CATEGORY_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          <label className={styles.formLabel}>질문</label>
+          <input
+            className={styles.formInput}
+            placeholder="질문을 입력하세요"
+            value={form.question}
+            onChange={e => handleChange('question', e.target.value)}
+            required
+          />
+
+          <label className={styles.formLabel}>답변</label>
+          <textarea
+            className={styles.formTextarea}
+            placeholder="답변을 입력하세요"
+            value={form.answer}
+            onChange={e => handleChange('answer', e.target.value)}
+            rows={5}
+            required
+          />
+
+          <label className={styles.formCheckLabel}>
+            <input
+              type="checkbox"
+              checked={form.isPublic}
+              onChange={e => handleChange('isPublic', e.target.checked)}
+            />
+            공개
+          </label>
+
+          <div className={styles.modalFooter}>
+            <button type="button" className={styles.btnOutline} onClick={onClose}>
+              취소
+            </button>
+            <button type="submit" className={styles.btnPrimary} disabled={saving}>
+              {saving ? '저장 중...' : '등록'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 const STATUS_COLOR = {
   공개: COLOR_KEYS.BLUE2,
@@ -78,6 +175,7 @@ function AdminDocPage() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [faqModalOpen, setFaqModalOpen] = useState(false);
   const [editDoc, setEditDoc] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [page, setPage] = useState(1);
@@ -264,7 +362,9 @@ function AdminDocPage() {
             <p className={styles.sectionSubtitle}>사내 지식문서, 파일, 공개 상태를 관리하세요.</p>
           </div>
           <div className={styles.headerBtns}>
-            <button className={styles.btnOutline}>+ FAQ 등록</button>
+            <button className={styles.btnOutline} onClick={() => setFaqModalOpen(true)}>
+              + FAQ 등록
+            </button>
             <button
               className={styles.btnPrimary}
               onClick={() => {
@@ -488,6 +588,12 @@ function AdminDocPage() {
           }}
           onCreated={handleCreated}
           editDoc={editDoc}
+        />
+      )}
+      {faqModalOpen && (
+        <AdminFaqCreateModal
+          onClose={() => setFaqModalOpen(false)}
+          onCreated={() => setRefreshKey(k => k + 1)}
         />
       )}
     </div>

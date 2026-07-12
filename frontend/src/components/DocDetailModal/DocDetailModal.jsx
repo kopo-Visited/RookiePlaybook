@@ -73,12 +73,14 @@ function DocDetailModal({ doc, onClose, onBookmark, isBookmarked }) {
         </div>
 
         <div className={styles.modalActions}>
-          <button
-            className={isBookmarked ? styles.btnOutlineActive : styles.btnOutline}
-            onClick={() => onBookmark?.(doc)}
-          >
-            {isBookmarked ? '북마크 해제' : '북마크 저장'}
-          </button>
+          {onBookmark && (
+            <button
+              className={isBookmarked ? styles.btnOutlineActive : styles.btnOutline}
+              onClick={() => onBookmark(doc)}
+            >
+              {isBookmarked ? '북마크 해제' : '북마크 저장'}
+            </button>
+          )}
           <button className={styles.btnPrimary} onClick={() => navigate(`/doc/${doc.id}`)}>
             문서 열기
           </button>

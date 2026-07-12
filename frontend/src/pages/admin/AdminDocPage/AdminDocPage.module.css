@@ -520,3 +520,110 @@
   color: var(--color-primary);
   font-weight: 900;
 }
+
+/* ── FAQ 등록 모달 ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.36);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalBox {
+  width: 480px;
+  background: #ffffff;
+  box-shadow: 0px 30px 80px rgba(23, 32, 51, 0.24);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modalTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.4px;
+}
+.modalClose {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background: #f4f6f9;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-label);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.formLabel {
+  font-size: 13px;
+  font-weight: 900;
+  color: #526078;
+  margin-top: 8px;
+}
+.formInput {
+  height: 44px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+.formInput::placeholder {
+  color: var(--color-text-label);
+}
+.formTextarea {
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+.formTextarea::placeholder {
+  color: var(--color-text-label);
+}
+.formCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #526078;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
