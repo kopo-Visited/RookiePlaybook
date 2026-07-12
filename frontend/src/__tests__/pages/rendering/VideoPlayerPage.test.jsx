@@ -86,6 +86,7 @@ function renderPage(stageId = 1) {
     <MemoryRouter initialEntries={[`/edu/1/stages/${stageId}`]}>
       <Routes>
         <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
+        <Route path="/edu/:id" element={<div>교육 상세 페이지</div>} />
       </Routes>
     </MemoryRouter>
   );
@@ -333,21 +334,26 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
   });
 
-  it('현재 영상을 95% 이상 시청하면 다음 영상 버튼이 활성화된다', async () => {
+  it('현재 단계를 완료해야 다음 영상 버튼이 활성화된다 (시청만으로는 불가)', async () => {
     // given
     mockSuccess();
     renderPage(1);
     await screen.findByText('[신입사원 온보딩 교육]');
     const video = document.querySelector('video');
     stubVideoTime(video, { duration: 30 });
-    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
 
-    // when — 96% 지점까지 재생
+    // when — 96% 지점까지 재생 (단계 완료 버튼만 활성, 다음 영상은 아직 잠김)
     video.currentTime = 29;
     fireEvent.timeUpdate(video);
 
-    // then
-    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
+    // then — 순차 잠금: 시청만으로는 다음으로 넘어갈 수 없다
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
+
+    // when — 단계 완료 처리
+    await userEvent.click(screen.getByRole('button', { name: '단계 완료' }));
+
+    // then — 완료 후 다음 영상 활성화
+    await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
   });
 
   it('과정을 이미 수료한 사용자는 미시청이어도 다음 영상 버튼이 활성화된다', async () => {
@@ -369,6 +375,27 @@ describe('VideoPlayerPage 렌더링', () => {
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
     });
+  });
+
+  it('잠긴 단계로 URL 직접 진입하면(403) 교육 상세로 리다이렉트된다', async () => {
+    // given — 직전 단계 미완료로 백엔드가 자료 조회를 403으로 막는 상황
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json(
+          { success: false, message: '이전 단계를 먼저 완료해야 합니다.' },
+          { status: 403 }
+        )
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: detail })
+      )
+    );
+
+    // when
+    renderPage(2);
+
+    // then
+    expect(await screen.findByText('교육 상세 페이지')).toBeInTheDocument();
   });
 
   it('첫 단계가 아니면 미시청이어도 이전 영상 버튼은 활성화된다', async () => {
