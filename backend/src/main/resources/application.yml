@@ -45,8 +45,8 @@ spring:
           model: llama-3.3-70b-versatile
     google:
       genai:
-        api-key: ${GOOGLE_API_KEY}
         embedding:
+          api-key: ${GOOGLE_API_KEY}
           options:
             model: text-embedding-004
 
