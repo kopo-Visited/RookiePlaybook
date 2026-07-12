@@ -1,86 +1,40 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './DocFilterResultPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
-import { COLOR_KEYS, BADGE_SIZES, DOC_TYPE_COLOR, DEPT_COLOR } from '../../../constants/styles';
+import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
-import { ALL_DOCS } from '../../../constants/docData';
+import { getDocuments, getFaqs } from '../../../api/docApi';
+import useFetch from '../../../hooks/useFetch';
+import Spinner from '../../../components/Spinner/Spinner';
 
 const DEPT_OPTIONS = ['전체 부서', '개발', '인프라', '보안', '네트워크', '공통'];
-const CONTENT_TYPE_OPTIONS = ['전체', '문서', 'FAQ'];
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
+const PAGE_SIZE = 10;
 
-const faqItems = [
-  {
-    id: 1,
-    colorKey: COLOR_KEYS.BLUE,
-    question: 'Git 충돌이 나면 어떻게 하나요?',
-    tags: '개발 · Git · PR',
-  },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.GREEN,
-    question: '서버 접속 권한은 어디서 요청하나요?',
-    tags: '인프라 · 권한',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    question: '개인정보 파일은 어떻게 공유하나요?',
-    tags: '보안 · 개인정보',
-  },
-  {
-    id: 4,
-    colorKey: COLOR_KEYS.ORANGE,
-    question: 'VPN이 안 될 때 무엇을 확인하나요?',
-    tags: '네트워크 · VPN',
-  },
-];
+const CATEGORY_COLOR_MAP = {
+  개발: COLOR_KEYS.BLUE,
+  인프라: COLOR_KEYS.GREEN,
+  보안: COLOR_KEYS.PINK,
+  네트워크: COLOR_KEYS.ORANGE,
+  공통: COLOR_KEYS.PURPLE,
+};
 
-const summaryCards = [
-  {
-    id: 'dev',
-    dept: '개발',
-    colorKey: COLOR_KEYS.BLUE,
-    icon: 'Dev',
-    count: 48,
-    label: '개발 · 환경 세팅 · Git · PR',
-  },
-  {
-    id: 'infra',
-    dept: '인프라',
-    colorKey: COLOR_KEYS.GREEN,
-    icon: 'Infra',
-    count: 36,
-    label: '인프라 · 서버 · 배포 · 로그',
-  },
-  {
-    id: 'sec',
-    dept: '보안',
-    colorKey: COLOR_KEYS.PINK,
-    icon: 'Sec',
-    count: 32,
-    label: '보안 · 계정 · 권한 · 사고 신고',
-  },
-  {
-    id: 'net',
-    dept: '네트워크',
-    colorKey: COLOR_KEYS.ORANGE,
-    icon: 'Net',
-    count: 28,
-    label: '네트워크 · VPN · IP · 방화벽',
-  },
-  {
-    id: 'all',
-    dept: '공통',
-    colorKey: COLOR_KEYS.PURPLE,
-    icon: 'All',
-    count: 64,
-    label: '공통 · 회사 소개 · 협업툴',
-  },
-];
+const CATEGORY_ICON = {
+  개발: 'Dev',
+  인프라: 'Infra',
+  보안: 'Sec',
+  네트워크: 'Net',
+  공통: 'All',
+};
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 
 function IconSearch() {
   return (
@@ -109,49 +63,74 @@ function DocFilterResultPage() {
   const { dept: selectedDept } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [contentType, setContentType] = useState('전체');
   const [sort, setSort] = useState('최신순');
-  const [requiredOnly, setRequiredOnly] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const deptRef = useRef(null);
-  const contentTypeRef = useRef(null);
-  const sortRef = useRef(null);
   const [deptOpen, setDeptOpen] = useState(false);
-  const [contentTypeOpen, setContentTypeOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [questionOpen, setQuestionOpen] = useState(false);
 
-  const filteredData = useMemo(() => {
-    let list = ALL_DOCS.filter(d => d.dept === selectedDept);
-    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
-    if (contentType === '문서') list = list.filter(d => d.category !== 'FAQ');
-    if (contentType === 'FAQ') list = list.filter(d => d.category === 'FAQ');
-    if (requiredOnly) list = list.filter(d => d.required);
-    if (sort === '오래된순') list = [...list].sort((a, b) => a.date.localeCompare(b.date));
-    else if (sort === '조회순') list = [...list].sort((a, b) => b.views - a.views);
-    else list = [...list].sort((a, b) => b.date.localeCompare(a.date));
-    return list;
-  }, [selectedDept, search, contentType, sort, requiredOnly]);
+  const { data: docRes, loading } = useFetch(() => getDocuments().catch(() => null), []);
+  const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
 
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (deptRef.current && !deptRef.current.contains(e.target)) setDeptOpen(false);
-      if (contentTypeRef.current && !contentTypeRef.current.contains(e.target))
-        setContentTypeOpen(false);
-      if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const allDocs = useMemo(() => (Array.isArray(docRes?.data) ? docRes.data : []), [docRes]);
+
+  const summaryCards = useMemo(() => {
+    const countMap = {};
+    allDocs.forEach(d => {
+      countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1;
+    });
+    return DEPT_OPTIONS.filter(d => d !== '전체 부서').map(dept => ({
+      dept,
+      colorKey: CATEGORY_COLOR_MAP[dept] ?? COLOR_KEYS.BLUE,
+      icon: CATEGORY_ICON[dept] ?? dept,
+      count: countMap[dept] ?? 0,
+    }));
+  }, [allDocs]);
+
+  const filteredDocs = useMemo(() => {
+    let list = allDocs.filter(d => d.categoryName === selectedDept);
+    if (search.trim()) list = list.filter(d => d.title.includes(search.trim()));
+    if (sort === '오래된순')
+      list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    else if (sort === '조회순') list = [...list].sort((a, b) => b.viewCount - a.viewCount);
+    else list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return list;
+  }, [allDocs, selectedDept, search, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredDocs.length / PAGE_SIZE));
+  const pagedDocs = filteredDocs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const faqItems = useMemo(() => {
+    const list = Array.isArray(faqRes?.data) ? faqRes.data : [];
+    return list
+      .filter(f => f.categoryName === selectedDept)
+      .slice(0, 4)
+      .map(f => ({
+        id: f.id,
+        colorKey: CATEGORY_COLOR_MAP[f.categoryName] ?? COLOR_KEYS.BLUE,
+        question: f.question,
+        tags: f.categoryName,
+      }));
+  }, [faqRes, selectedDept]);
 
   function handleDeptSelect(option) {
     setDeptOpen(false);
-    if (option === '전체 부서') {
-      navigate(ROUTES.DOC.LIST);
-    } else {
-      navigate(ROUTES.DOC.DEPT_PATH(option));
-    }
+    setPage(1);
+    if (option === '전체 부서') navigate(ROUTES.DOC.LIST);
+    else navigate(ROUTES.DOC.DEPT_PATH(option));
+  }
+
+  function handleSearch(e) {
+    setSearch(e.target.value);
+    setPage(1);
+  }
+
+  function handleSort(opt) {
+    setSort(opt);
+    setSortOpen(false);
+    setPage(1);
   }
 
   return (
@@ -163,7 +142,6 @@ function DocFilterResultPage() {
         </p>
       </div>
 
-      {/* 필터 카드 */}
       <section className={styles.filterCard}>
         <div className={styles.filterRow}>
           <div className={`${styles.filterField} ${styles.filterFieldWide}`}>
@@ -173,7 +151,7 @@ function DocFilterResultPage() {
                 className={styles.input}
                 placeholder="검색어를 입력하세요"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={handleSearch}
               />
               <span className={styles.inputIcon}>
                 <IconSearch />
@@ -181,7 +159,7 @@ function DocFilterResultPage() {
             </div>
           </div>
 
-          <div className={styles.filterField} ref={deptRef}>
+          <div className={styles.filterField}>
             <label className={styles.filterLabel}>부서</label>
             <div
               className={`${styles.select} ${deptOpen ? styles.selectOpen : ''}`}
@@ -207,40 +185,7 @@ function DocFilterResultPage() {
             )}
           </div>
 
-          {/* 콘텐츠 유형 */}
-          <div className={styles.filterField} ref={contentTypeRef}>
-            <label className={styles.filterLabel}>콘텐츠 유형</label>
-            <div
-              className={`${styles.select} ${contentTypeOpen ? styles.selectOpen : ''}`}
-              onClick={() => setContentTypeOpen(o => !o)}
-            >
-              <span>{contentType}</span>
-              <span
-                className={`${styles.selectArrow} ${contentTypeOpen ? styles.selectArrowUp : ''}`}
-              >
-                <IconChevronDown />
-              </span>
-            </div>
-            {contentTypeOpen && (
-              <ul className={styles.dropdown}>
-                {CONTENT_TYPE_OPTIONS.map(opt => (
-                  <li
-                    key={opt}
-                    className={`${styles.dropdownItem} ${opt === contentType ? styles.dropdownItemActive : ''}`}
-                    onClick={() => {
-                      setContentType(opt);
-                      setContentTypeOpen(false);
-                    }}
-                  >
-                    {opt}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* 정렬 */}
-          <div className={styles.filterField} ref={sortRef}>
+          <div className={styles.filterField}>
             <label className={styles.filterLabel}>정렬</label>
             <div
               className={`${styles.select} ${sortOpen ? styles.selectOpen : ''}`}
@@ -257,10 +202,7 @@ function DocFilterResultPage() {
                   <li
                     key={opt}
                     className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
-                    onClick={() => {
-                      setSort(opt);
-                      setSortOpen(false);
-                    }}
+                    onClick={() => handleSort(opt)}
                   >
                     {opt}
                   </li>
@@ -268,125 +210,143 @@ function DocFilterResultPage() {
               </ul>
             )}
           </div>
-
-          <div className={styles.checkboxWrap}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={requiredOnly}
-                onChange={e => setRequiredOnly(e.target.checked)}
-              />
-              <span className={styles.checkboxBox} />
-              <span>필독만 보기</span>
-            </label>
-          </div>
         </div>
 
         <div className={styles.summaryRow}>
-          {summaryCards.map(({ id, dept: cardDept, colorKey, icon, count, label }) => (
+          {summaryCards.map(({ dept, colorKey, icon, count }) => (
             <div
-              key={id}
-              className={`${styles.summaryCard} ${cardDept === selectedDept ? styles.summaryCardActive : ''}`}
-              onClick={() => navigate(ROUTES.DOC.DEPT_PATH(cardDept))}
+              key={dept}
+              className={`${styles.summaryCard} ${dept === selectedDept ? styles.summaryCardActive : ''}`}
+              onClick={() => {
+                setPage(1);
+                navigate(ROUTES.DOC.DEPT_PATH(dept));
+              }}
             >
               <div className={`${styles.summaryIcon} ${styles[colorKey]}`}>{icon}</div>
               <div className={styles.summaryText}>
                 <span className={styles.summaryCount}>{count}</span>
-                <span className={styles.summaryLabel}>{label}</span>
+                <span className={styles.summaryLabel}>{dept}</span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 콘텐츠 그리드 */}
       <div className={styles.contentGrid}>
-        {/* 문서 테이블 */}
         <section className={styles.docSection}>
           <div className={styles.sectionHead}>
             <div className={styles.sectionHeadLeft}>
               <span className={styles.sectionTitle}>{selectedDept} 문서</span>
-              <Badge colorKey={DEPT_COLOR[selectedDept] ?? COLOR_KEYS.BLUE}>
-                총 {filteredData.length}건
+              <Badge colorKey={CATEGORY_COLOR_MAP[selectedDept] ?? COLOR_KEYS.BLUE}>
+                총 {filteredDocs.length}건
               </Badge>
             </div>
-            <button className={styles.linkBtn}>전체보기 ›</button>
           </div>
 
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>문서명</th>
-                <th>부서</th>
-                <th>핵심 방향</th>
-                <th>유형</th>
-                <th>최근 검토</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map(doc => (
-                <tr key={doc.id} className={styles.tableRow} onClick={() => setSelectedDoc(doc)}>
-                  <td>
-                    <div className={styles.titleCell}>
-                      <Badge colorKey={DOC_TYPE_COLOR[doc.type]}>{doc.type}</Badge>
-                      <span className={styles.titleText}>{doc.title}</span>
-                      {doc.required && (
-                        <Badge colorKey={COLOR_KEYS.RED} size={BADGE_SIZES.SM}>
-                          필수
+          {loading ? (
+            <Spinner />
+          ) : (
+            <>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>문서명</th>
+                    <th>부서</th>
+                    <th>조회수</th>
+                    <th>등록일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagedDocs.map(doc => (
+                    <tr
+                      key={doc.id}
+                      className={styles.tableRow}
+                      onClick={() => setSelectedDoc(doc)}
+                    >
+                      <td>
+                        <span className={styles.titleText}>{doc.title}</span>
+                      </td>
+                      <td>
+                        <Badge
+                          colorKey={CATEGORY_COLOR_MAP[doc.categoryName] ?? COLOR_KEYS.BLUE}
+                          size={BADGE_SIZES.SM}
+                        >
+                          {doc.categoryName}
                         </Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <Badge colorKey={DEPT_COLOR[doc.dept]} size={BADGE_SIZES.SM}>
-                      {doc.dept}
-                    </Badge>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.direction}</span>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.category}</span>
-                  </td>
-                  <td>
-                    <span className={styles.secondary}>{doc.date}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </td>
+                      <td>
+                        <span className={styles.secondary}>{doc.viewCount ?? 0}</span>
+                      </td>
+                      <td>
+                        <span className={styles.secondary}>{formatDate(doc.createdAt)}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          {filteredData.length === 0 && (
-            <p className={styles.empty}>해당 부서의 문서가 없습니다.</p>
+              {filteredDocs.length === 0 && (
+                <p className={styles.empty}>해당 부서의 문서가 없습니다.</p>
+              )}
+
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    className={styles.pageArrow}
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                  >
+                    ‹
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      className={`${styles.pageNum} ${p === page ? styles.pageNumActive : ''}`}
+                      onClick={() => setPage(p)}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    className={styles.pageArrow}
+                    disabled={page === totalPages}
+                    onClick={() => setPage(p => p + 1)}
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </>
           )}
-
-          <div className={styles.pagination}>
-            <button className={styles.pageArrow}>‹</button>
-            <button className={`${styles.pageNum} ${styles.pageNumActive}`}>1</button>
-            <button className={styles.pageArrow}>›</button>
-          </div>
         </section>
 
-        {/* 사이드 패널 */}
         <aside className={styles.sideStack}>
           <section className={styles.sideCard}>
             <div className={styles.sectionHead}>
-              <span className={styles.sectionTitle}>최근 FAQ</span>
-              <button className={styles.linkBtn}>전체보기 ›</button>
+              <span className={styles.sectionTitle}>관련 FAQ</span>
+              <button className={styles.linkBtn} onClick={() => navigate(ROUTES.DOC.LIST)}>
+                전체보기 ›
+              </button>
             </div>
-            <ul className={styles.faqList}>
-              {faqItems.map(({ id, colorKey, question, tags }) => (
-                <li key={id} className={styles.faqItem}>
-                  <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
-                  <div className={styles.faqBody}>
-                    <span className={styles.faqQuestion}>{question}</span>
-                    <span className={styles.faqTags}>{tags}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {faqItems.length > 0 ? (
+              <ul className={styles.faqList}>
+                {faqItems.map(({ id, colorKey, question, tags }) => (
+                  <li key={id} className={styles.faqItem}>
+                    <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
+                    <div className={styles.faqBody}>
+                      <span className={styles.faqQuestion}>{question}</span>
+                      <span className={styles.faqTags}>{tags}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.empty}>관련 FAQ가 없습니다.</p>
+            )}
             <div className={styles.faqActions}>
-              <button className={styles.btnPrimary}>AI에게 물어보기</button>
+              <button className={styles.btnPrimary} onClick={() => navigate(ROUTES.DOC.LIST)}>
+                AI에게 물어보기
+              </button>
               <button className={styles.btnOutline} onClick={() => setQuestionOpen(true)}>
                 질문하기
               </button>
