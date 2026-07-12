@@ -37,6 +37,10 @@ spring:
       - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
 
   ai:
+    # AiConfig(ChatClient/VectorStore Bean)를 로딩할지 여부. 기본 false — GOOGLE_API_KEY 등
+    # 임베딩 모델 자격증명이 없는 환경(운영 등)에서 ApplicationContext 기동 실패를 막기 위함.
+    # AI 기능이 준비된 환경(GROQ_API_KEY, GOOGLE_API_KEY 설정됨)에서만 true로 켠다.
+    enabled: ${SPRING_AI_ENABLED:false}
     openai:
       api-key: ${GROQ_API_KEY}
       base-url: https://api.groq.com/openai/v1

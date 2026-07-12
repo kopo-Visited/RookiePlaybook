@@ -26,14 +26,15 @@ import java.util.stream.Collectors;
 public
 class AiServiceImpl implements AiService {
 
-    private final ChatClient chatClient;
     private final DocumentRepository documentRepository;
+
+    @Autowired(required = false)
+    private ChatClient chatClient;
 
     @Autowired(required = false)
     private VectorStore vectorStore;
 
-    public AiServiceImpl(ChatClient chatClient, DocumentRepository documentRepository) {
-        this.chatClient = chatClient;
+    public AiServiceImpl(DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
 
@@ -52,6 +53,12 @@ class AiServiceImpl implements AiService {
 
     @Override
     public AiAnswerResponse ask(AiAskRequest request) {
+        if (chatClient == null) {
+            throw new AiResponseException(
+                    new IllegalStateException("AI 기능이 비활성화되어 있습니다 (spring.ai.enabled=false).")
+            );
+        }
+
         String userMessage = buildUserMessage(request.getQuestion());
 
         String answer;

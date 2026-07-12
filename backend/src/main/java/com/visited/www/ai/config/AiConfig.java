@@ -7,9 +7,16 @@ import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * spring.ai.enabled=true 일 때만 로딩된다 (기본값 false).
+ * EmbeddingModel Bean이 없는 환경에서 vectorStore() 파라미터 해석에 실패해
+ * ApplicationContext 자체가 못 뜨는 걸 막기 위함 — AI 기능이 준비된 환경에서만 켠다.
+ */
+@ConditionalOnProperty(name = "spring.ai.enabled", havingValue = "true")
 @Configuration
 public class AiConfig {
 
