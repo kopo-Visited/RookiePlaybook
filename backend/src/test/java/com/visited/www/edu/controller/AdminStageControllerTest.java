@@ -98,6 +98,27 @@ class AdminStageControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/admin/stages - 영상 URL이 http(s):// 형식이 아니면 400 반환")
+    void createStage_invalidVideoUrl() throws Exception {
+        // when & then (videoUrl이 http(s):// 로 시작하지 않음)
+        mockMvc.perform(post("/api/admin/stages")
+                        .with(authentication(adminAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "educationId": 1,
+                                  "title": "새 단계",
+                                  "orderNumber": 2,
+                                  "videoTitle": "영상 제목",
+                                  "videoUrl": "www.example.com/video.mp4"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    @Test
     @DisplayName("POST /api/admin/stages - 일반 사용자면 403 반환")
     void createStage_forbidden() throws Exception {
         // when & then
@@ -131,6 +152,26 @@ class AdminStageControllerTest {
                                 }
                                 """))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("PUT /api/admin/stages/{id} - 영상 URL이 http(s):// 형식이 아니면 400 반환")
+    void updateStage_invalidVideoUrl() throws Exception {
+        // when & then (videoUrl이 http(s):// 로 시작하지 않음)
+        mockMvc.perform(put("/api/admin/stages/{stageId}", 1L)
+                        .with(authentication(adminAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "수정",
+                                  "orderNumber": 1,
+                                  "videoTitle": "영상",
+                                  "videoUrl": "ftp://videos.example.com/y.mp4"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andDo(print());
     }

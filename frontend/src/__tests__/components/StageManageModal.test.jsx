@@ -141,6 +141,56 @@ describe('StageManageModal', () => {
     );
   });
 
+  it('영상 URL이 http(s):// 형식이 아니면 저장이 비활성화되고 안내 문구가 표시된다', async () => {
+    // given
+    mockDetail();
+    renderModal();
+    await screen.findByText('1단계 오리엔테이션');
+    await userEvent.click(screen.getByRole('button', { name: '+ 단계 추가' }));
+
+    // when — 필수값은 채우되 URL만 형식이 잘못된 값 입력
+    await userEvent.type(
+      screen.getByPlaceholderText('단계명을 입력하세요 (최대 100자)'),
+      '3단계 실습'
+    );
+    await userEvent.type(screen.getByPlaceholderText('영상 제목을 입력하세요'), '실습 영상');
+    await userEvent.type(
+      screen.getByPlaceholderText('mp4 등 재생 가능한 영상 파일 URL'),
+      'www.example.com/c.mp4'
+    );
+
+    // then
+    expect(
+      screen.getByText('영상 URL은 http:// 또는 https://로 시작해야 합니다.')
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '저장' })).toBeDisabled();
+  });
+
+  it('올바른 http(s) URL을 입력하면 안내 문구가 사라지고 저장이 활성화된다', async () => {
+    // given
+    mockDetail();
+    renderModal();
+    await screen.findByText('1단계 오리엔테이션');
+    await userEvent.click(screen.getByRole('button', { name: '+ 단계 추가' }));
+
+    // when
+    await userEvent.type(
+      screen.getByPlaceholderText('단계명을 입력하세요 (최대 100자)'),
+      '3단계 실습'
+    );
+    await userEvent.type(screen.getByPlaceholderText('영상 제목을 입력하세요'), '실습 영상');
+    await userEvent.type(
+      screen.getByPlaceholderText('mp4 등 재생 가능한 영상 파일 URL'),
+      'https://x/c.mp4'
+    );
+
+    // then
+    expect(
+      screen.queryByText('영상 URL은 http:// 또는 https://로 시작해야 합니다.')
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '저장' })).toBeEnabled();
+  });
+
   it('삭제 확인 시 삭제 API가 호출된다', async () => {
     // given
     mockDetail();
