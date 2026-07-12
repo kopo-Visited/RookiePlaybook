@@ -75,6 +75,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.content[0].educationId").value(1L))
                 .andExpect(jsonPath("$.data.content[0].title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.content[0].progressRate").value(40))
+                .andExpect(jsonPath("$.data.content[0].contentYear").value(2024))
                 .andDo(print());
     }
 
@@ -109,6 +110,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.progressRate").value(40))
                 .andExpect(jsonPath("$.data.isCompleted").value(false))
+                .andExpect(jsonPath("$.data.contentYear").value(2024))
                 .andDo(print());
     }
 
