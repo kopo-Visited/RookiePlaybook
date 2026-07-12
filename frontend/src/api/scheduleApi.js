@@ -1,6 +1,6 @@
 import axiosInstance from './axiosInstance';
 
-export const getSchedules = (date) =>
+export const getSchedules = date =>
   axiosInstance.get('/api/schedules', { params: date ? { date } : {} });
 
 export const getAdminSchedules = () => axiosInstance.get('/api/admin/schedules');

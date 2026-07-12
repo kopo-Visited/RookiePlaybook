@@ -22,7 +22,6 @@ const STATUS_STYLE = {
 const EDU_COLORS = ['#EAF4FF', '#FFF0F6', '#FFF5E6', '#E6F8F2', '#F3EEFF'];
 const EDU_ICON_COLORS = ['#2288FF', '#FF4D94', '#FFAD33', '#12B886', '#845EF7'];
 
-
 const shortcuts = [
   { colorKey: 'blue', icon: <IconSearch />, label: '문서 검색', route: ROUTES.DOC.LIST },
   { colorKey: 'green', icon: <IconBook />, label: '교육 찾기', route: ROUTES.EDU.LIST },
