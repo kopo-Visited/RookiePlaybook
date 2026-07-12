@@ -6,7 +6,7 @@ import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
 import Toast from '../../../components/Toast/Toast';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
-import { getDocuments } from '../../../api/docApi';
+import { getDocuments, getFaqs } from '../../../api/docApi';
 import useFetch from '../../../hooks/useFetch';
 
 const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
@@ -17,33 +17,6 @@ function formatDate(dateStr) {
   const d = new Date(dateStr);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
-
-const faqItems = [
-  {
-    id: 1,
-    colorKey: COLOR_KEYS.BLUE,
-    question: 'Git 충돌이 나면 어떻게 하나요?',
-    tags: '개발 · Git · PR',
-  },
-  {
-    id: 2,
-    colorKey: COLOR_KEYS.GREEN,
-    question: '서버 접속 권한은 어디서 요청하나요?',
-    tags: '인프라 · 권한',
-  },
-  {
-    id: 3,
-    colorKey: COLOR_KEYS.PINK,
-    question: '개인정보 파일은 어떻게 공유하나요?',
-    tags: '보안 · 개인정보',
-  },
-  {
-    id: 4,
-    colorKey: COLOR_KEYS.ORANGE,
-    question: 'VPN이 안 될 때 무엇을 확인하나요?',
-    tags: '네트워크 · VPN',
-  },
-];
 
 const CATEGORY_COLOR_MAP = {
   개발: COLOR_KEYS.BLUE,
@@ -116,7 +89,18 @@ function DocListPage() {
   const [bookmarkView, setBookmarkView] = useState(false);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
-  const docs = apiRes?.data ?? [];
+  const docs = useMemo(() => apiRes?.data ?? [], [apiRes]);
+
+  const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
+  const faqItems = useMemo(() => {
+    const list = faqRes?.data ?? [];
+    return list.slice(0, 4).map(f => ({
+      id: f.id,
+      colorKey: CATEGORY_COLOR_MAP[f.categoryName] ?? COLOR_KEYS.BLUE,
+      question: f.question,
+      tags: f.categoryName,
+    }));
+  }, [faqRes]);
 
   const categoryDD = useDropdown();
   const sortDD = useDropdown();
