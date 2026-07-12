@@ -9,6 +9,7 @@ import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
+import { pageWindow } from '../../../utils/pageWindow';
 
 const PAGE_SIZE = 10;
 
@@ -55,7 +56,7 @@ function QnaAllPage() {
   useEffect(() => {
     let ignore = false;
     setLoading(true);
-    getAllQnas({ size: 100 })
+    getAllQnas({ size: 1000 })
       .then(res => {
         if (!ignore) setRows(res?.data?.content ?? []);
       })
@@ -146,15 +147,21 @@ function QnaAllPage() {
             <button className={styles.pageArrow} onClick={() => setPage(p => Math.max(1, p - 1))}>
               ‹
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-              <button
-                key={n}
-                className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
-                onClick={() => setPage(n)}
-              >
-                {n}
-              </button>
-            ))}
+            {pageWindow(page, totalPages).map((n, i) =>
+              n === '…' ? (
+                <span key={`e${i}`} className={styles.pageNum} style={{ pointerEvents: 'none' }}>
+                  …
+                </span>
+              ) : (
+                <button
+                  key={n}
+                  className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
+                  onClick={() => setPage(n)}
+                >
+                  {n}
+                </button>
+              )
+            )}
             <button
               className={styles.pageArrow}
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
