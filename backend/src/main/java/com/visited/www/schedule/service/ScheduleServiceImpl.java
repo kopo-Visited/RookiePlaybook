@@ -1,10 +1,12 @@
 package com.visited.www.schedule.service;
 
+import com.visited.www.entity.User;
 import com.visited.www.schedule.dto.request.ScheduleRequest;
 import com.visited.www.schedule.dto.response.ScheduleResponse;
 import com.visited.www.schedule.entity.Schedule;
 import com.visited.www.schedule.exception.ScheduleNotFoundException;
 import com.visited.www.schedule.repository.ScheduleRepository;
+import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +20,14 @@ import java.util.List;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final UserRepository userRepository;
 
     @Override
-    public List<ScheduleResponse> getSchedulesByDate(LocalDate date) {
-        return scheduleRepository.findByScheduleDateOrderByStartTimeAsc(date)
+    public List<ScheduleResponse> getSchedulesByDate(LocalDate date, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        Long departmentId = user.getDepartment().getId();
+        return scheduleRepository.findByDateForUser(date, departmentId)
                 .stream()
                 .map(ScheduleResponse::from)
                 .toList();
@@ -45,6 +51,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .dotColor(request.getDotColor() != null ? request.getDotColor() : "#2288FF")
+                .departmentId(request.getDepartmentId())
                 .build();
 
         return ScheduleResponse.from(scheduleRepository.save(schedule));
@@ -58,7 +65,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         schedule.update(request.getTitle(), request.getPlace(), request.getScheduleDate(),
                 request.getStartTime(), request.getEndTime(),
-                request.getDotColor() != null ? request.getDotColor() : schedule.getDotColor());
+                request.getDotColor() != null ? request.getDotColor() : schedule.getDotColor(),
+                request.getDepartmentId());
 
         return ScheduleResponse.from(schedule);
     }

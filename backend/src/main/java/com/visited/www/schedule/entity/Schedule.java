@@ -36,13 +36,17 @@ public class Schedule {
     @Column(name = "dot_color", length = 20)
     private String dotColor;
 
+    @Column(name = "department_id")
+    private Long departmentId;
+
     public void update(String title, String place, LocalDate scheduleDate,
-                       LocalTime startTime, LocalTime endTime, String dotColor) {
+                       LocalTime startTime, LocalTime endTime, String dotColor, Long departmentId) {
         this.title = title;
         this.place = place;
         this.scheduleDate = scheduleDate;
         this.startTime = startTime;
         this.endTime = endTime;
         this.dotColor = dotColor;
+        this.departmentId = departmentId;
     }
 }

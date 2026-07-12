@@ -9,12 +9,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/departments")
 @RequiredArgsConstructor
 public class AdminDepartmentController {
 
     private final AdminUserService adminUserService;
+
+    @GetMapping
+    public ApiResponse<List<DepartmentResponse>> getDepartments() {
+        return ApiResponse.success(adminUserService.getDepartments());
+    }
 
     @PostMapping
     public ApiResponse<DepartmentResponse> createDepartment(

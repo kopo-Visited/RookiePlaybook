@@ -14,4 +14,5 @@ public class ScheduleRequest {
     private LocalTime startTime;
     private LocalTime endTime;
     private String dotColor;
+    private Long departmentId;
 }

@@ -18,6 +18,7 @@ public class ScheduleResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private String dotColor;
+    private Long departmentId;
 
     public static ScheduleResponse from(Schedule schedule) {
         return ScheduleResponse.builder()
@@ -28,6 +29,7 @@ public class ScheduleResponse {
                 .startTime(schedule.getStartTime())
                 .endTime(schedule.getEndTime())
                 .dotColor(schedule.getDotColor())
+                .departmentId(schedule.getDepartmentId())
                 .build();
     }
 }

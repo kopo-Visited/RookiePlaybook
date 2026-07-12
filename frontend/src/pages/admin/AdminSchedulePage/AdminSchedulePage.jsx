@@ -7,6 +7,7 @@ import {
   createSchedule,
   updateSchedule,
   deleteSchedule,
+  getDepartments,
 } from '../../../api/scheduleApi';
 
 const DOT_COLORS = ['#2288FF', '#7C8CFF', '#4DABF7', '#9775FA', '#FF4D94', '#12B886', '#FFAD33'];
@@ -62,9 +63,10 @@ const EMPTY_FORM = {
   startTime: '09:00',
   endTime: '',
   dotColor: '#2288FF',
+  departmentId: null,
 };
 
-function ScheduleModal({ initial, onClose, onSave }) {
+function ScheduleModal({ initial, departments, onClose, onSave }) {
   const [form, setForm] = useState(initial ?? EMPTY_FORM);
 
   function handleChange(e) {
@@ -132,6 +134,26 @@ function ScheduleModal({ initial, onClose, onSave }) {
             </div>
           </div>
 
+          <label className={styles.label}>대상 부서</label>
+          <select
+            className={styles.input}
+            name="departmentId"
+            value={form.departmentId ?? ''}
+            onChange={e =>
+              setForm(f => ({
+                ...f,
+                departmentId: e.target.value === '' ? null : Number(e.target.value),
+              }))
+            }
+          >
+            <option value="">공통 (전체)</option>
+            {departments.map(d => (
+              <option key={d.departmentId} value={d.departmentId}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+
           <label className={styles.label}>색상</label>
           <div className={styles.colorRow}>
             {DOT_COLORS.map(c => (
@@ -166,6 +188,9 @@ function AdminSchedulePage() {
 
   const { data: apiRes, loading } = useFetch(() => getAdminSchedules(), [refreshKey]);
   const schedules = useMemo(() => apiRes?.data ?? [], [apiRes]);
+
+  const { data: deptRes } = useFetch(() => getDepartments(), []);
+  const departments = useMemo(() => deptRes?.data ?? [], [deptRes]);
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -217,6 +242,7 @@ function AdminSchedulePage() {
       startTime: s.startTime?.slice(0, 5) ?? '',
       endTime: s.endTime?.slice(0, 5) ?? '',
       dotColor: s.dotColor ?? '#2288FF',
+      departmentId: s.departmentId ?? null,
     });
     setModalOpen(true);
   }
@@ -255,6 +281,11 @@ function AdminSchedulePage() {
                   <span className={styles.time}>{s.startTime?.slice(0, 5)}</span>
                   <span className={styles.title}>{s.title}</span>
                   <span className={styles.place}>{s.place}</span>
+                  <span className={styles.deptBadge}>
+                    {s.departmentId
+                      ? (departments.find(d => d.departmentId === s.departmentId)?.name ?? '부서')
+                      : '공통'}
+                  </span>
                   <div className={styles.actions}>
                     <button type="button" className={styles.actionBtn} onClick={() => openEdit(s)}>
                       수정
@@ -276,6 +307,7 @@ function AdminSchedulePage() {
       {modalOpen && (
         <ScheduleModal
           initial={editItem}
+          departments={departments}
           onClose={() => {
             setModalOpen(false);
             setEditItem(null);
