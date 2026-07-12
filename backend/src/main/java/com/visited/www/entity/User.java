@@ -122,6 +122,10 @@ public class User {
         this.failedLoginCount++;
     }
 
+    public void resetFailedLoginCount() {
+        this.failedLoginCount = 0;
+    }
+
     public void lock() {
         this.status = UserStatus.LOCKED;
     }
