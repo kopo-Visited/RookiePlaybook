@@ -10,6 +10,7 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    // eslint-disable-next-line no-console
     console.error('예상치 못한 렌더링 오류', error, errorInfo);
   }
 

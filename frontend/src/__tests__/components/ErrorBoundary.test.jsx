@@ -21,6 +21,7 @@ describe('ErrorBoundary', () => {
 
   it('자식 컴포넌트에서 렌더링 오류가 발생하면 대체 UI를 보여준다', () => {
     // given
+
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // when
@@ -34,11 +35,13 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('예상치 못한 오류가 발생했습니다.')).toBeInTheDocument();
     expect(screen.queryByText('정상 콘텐츠')).not.toBeInTheDocument();
 
+    // eslint-disable-next-line no-console
     console.error.mockRestore();
   });
 
   it('새로고침 버튼을 클릭하면 페이지를 새로고침한다', () => {
     // given
+
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const reloadSpy = vi.fn();
     Object.defineProperty(window, 'location', {
@@ -58,6 +61,7 @@ describe('ErrorBoundary', () => {
     // then
     expect(reloadSpy).toHaveBeenCalledTimes(1);
 
+    // eslint-disable-next-line no-console
     console.error.mockRestore();
   });
 });
