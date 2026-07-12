@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from './EducationDetailPage.module.css';
 import useFetch from '../../../hooks/useFetch';
-import { getEducationDetail } from '../../../api/eduApi';
+import { getEducationDetail, enroll } from '../../../api/eduApi';
 import { ROUTES } from '../../../constants/routes';
+import { BUTTON_VARIANTS } from '../../../constants/styles';
+import Button from '../../../components/Button/Button';
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 
@@ -25,10 +28,33 @@ function EducationDetailPage() {
   const navigate = useNavigate();
   const { data: apiRes, loading, error } = useFetch(() => getEducationDetail(id), [id]);
   const edu = apiRes?.data;
+  const [starting, setStarting] = useState(false);
 
   const courseChip = edu?.isCompleted
     ? { label: '완료', bg: 'var(--color-green-bg)', color: 'var(--color-green)' }
     : { label: '진행중', bg: '#DFF1FF', color: '#2288FF' };
+
+  // 첫 미완료 단계(없으면 첫 단계)로 이동. 미수강이면 이동 전에 수강 처리한다.
+  const firstIncomplete = (edu?.stages ?? []).find(s => !s.isCompleted) ?? edu?.stages?.[0];
+  const startLabel = edu?.isCompleted
+    ? '다시 보기'
+    : edu?.enrolled
+      ? '이어서 학습하기'
+      : '수강하기';
+
+  async function handleStart() {
+    if (!firstIncomplete || starting) return;
+    setStarting(true);
+    if (!edu.enrolled) {
+      // 안전망: enroll 실패해도 이동은 진행(영상 진입 시 재시도)
+      try {
+        await enroll(edu.educationId);
+      } catch {
+        /* noop */
+      }
+    }
+    navigate(ROUTES.EDU.VIDEO(edu.educationId, firstIncomplete.stageId));
+  }
 
   return (
     <div className={styles.page}>
@@ -65,6 +91,11 @@ function EducationDetailPage() {
               </div>
               <span className={styles.progressPct}>{edu.progressRate ?? 0}%</span>
             </div>
+            {firstIncomplete && (
+              <Button variant={BUTTON_VARIANTS.PRIMARY} onClick={handleStart} disabled={starting}>
+                {startLabel}
+              </Button>
+            )}
           </div>
 
           <hr className={styles.divider} />

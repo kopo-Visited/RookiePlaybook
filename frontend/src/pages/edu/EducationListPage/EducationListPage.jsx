@@ -19,8 +19,8 @@ const EDU_ICON_COLORS = ['#2288FF', '#FF4D94', '#FFAD33', '#12B886', '#845EF7'];
 function statusChip(edu) {
   if (edu.isCompleted)
     return { label: '완료', bg: 'var(--color-green-bg)', color: 'var(--color-green)' };
-  if (edu.progressRate > 0) return { label: '진행중', bg: '#DFF1FF', color: '#2288FF' };
-  return { label: '미시작', bg: '#EEF1F6', color: 'var(--color-text-secondary)' };
+  if (edu.enrolled) return { label: '수강중', bg: '#DFF1FF', color: '#2288FF' };
+  return { label: '미수강', bg: '#EEF1F6', color: 'var(--color-text-secondary)' };
 }
 
 function EducationListPage() {

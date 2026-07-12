@@ -6,6 +6,7 @@ export const getMaterial = stageId => axiosInstance.get(`/api/stages/${stageId}/
 export const saveVideoProgress = data => axiosInstance.post('/api/progress/video', data);
 export const completeStage = stageId => axiosInstance.post('/api/progress/stage', { stageId });
 export const getMyProgress = () => axiosInstance.get('/api/progress/me');
+export const enroll = id => axiosInstance.post(`/api/educations/${id}/enroll`);
 
 export const createEducation = data => axiosInstance.post('/api/admin/educations', data);
 export const updateEducation = (id, data) => axiosInstance.put(`/api/admin/educations/${id}`, data);
