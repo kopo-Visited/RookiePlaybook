@@ -13,6 +13,7 @@ import DocDetailPage from './pages/doc/DocDetailPage/DocDetailPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
+import AdminDocStalePage from './pages/admin/AdminDocPage/AdminDocStalePage';
 import AdminQnaPage from './pages/admin/AdminQnaPage/AdminQnaPage';
 import QnaListPage from './pages/qna/QnaListPage/QnaListPage';
 import QnaAllPage from './pages/qna/QnaAllPage/QnaAllPage';
@@ -68,6 +69,7 @@ function App() {
             <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
             <Route path={ROUTES.ADMIN.USERS} element={<AdminUsersPage />} />
             <Route path={ROUTES.ADMIN.DOC} element={<AdminDocPage />} />
+            <Route path={ROUTES.ADMIN.DOC_STALE} element={<AdminDocStalePage />} />
             <Route path={ROUTES.ADMIN.QNA} element={<AdminQnaPage />} />
             <Route path={ROUTES.ADMIN.EDU} element={<AdminEduPage />} />
             <Route path={ROUTES.ADMIN.INQUIRY} element={<AdminInquiryPage />} />
