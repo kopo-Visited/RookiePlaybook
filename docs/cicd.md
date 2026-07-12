@@ -78,12 +78,28 @@ GitHub 브랜치 보호 룰셋의 **Status Check** 항목에 TeamCity 빌드를 
 ### 배포 흐름
 
 ```
-develop → main PR merge → TeamCity 감지 → 백엔드/프론트엔드 빌드 → 각각 배포
+develop 브랜치에 push(=PR merge 포함) → TeamCity CI(Backend/Frontend Build) 통과
+  → Finish Build Trigger로 TeamCity `Deploy to EC2` 자동 실행
+  → Docker 이미지 빌드/푸시 → EC2 SSH 배포
 ```
 
-- `main` 브랜치에 merge될 때만 자동 배포 트리거
-- `develop` 브랜치는 CI만 실행, 배포 안 함
-- 백엔드와 프론트엔드는 독립적으로 배포된다
+- **자동 배포 경로는 TeamCity Cloud 하나뿐이다.** `develop`에 push될 때마다 TeamCity CI(`RookiePlaybook CI/CD`)가 먼저 돌고, 그게 성공하면 Finish Build Trigger로 `Deploy to EC2` Build Configuration이 이어서 자동 실행되어 EC2까지 배포된다
+- **`.github/workflows/deploy.yml`(GitHub Actions)은 더 이상 자동 실행되지 않는다.** `push` 트리거를 제거하고 `workflow_dispatch`만 남겨, TeamCity 장애 등 비상 상황에서만 수동으로 실행하는 fallback 용도로 유지한다
+  - ⚠️ **두 배포 시스템을 동시에 켜두면 안 된다.** TeamCity 자동 배포가 정상 동작 중일 때 GitHub Actions의 수동 배포까지 같이 돌리면 같은 EC2에 두 배포가 겹쳐 충돌하거나 산출물이 뒤섞일 수 있다. GitHub Actions 수동 배포는 TeamCity가 실패했거나 사용 불가능할 때만 실행한다
+  - GitHub Actions에서 수동 실행하는 방법: 저장소 Actions 탭 → `CI/CD Deploy (Manual Fallback)` 워크플로우 선택 → **Run workflow** 버튼
+- 백엔드와 프론트엔드는 각각 별도 Docker 이미지로 빌드되지만, 배포(EC2 `docker-compose up -d`)는 두 이미지를 함께 갱신하는 한 번의 배포 스텝으로 묶는다
+
+### TeamCity `Deploy to EC2` Build Configuration 구성
+
+| Step | 내용 |
+|------|------|
+| 트리거 | Finish Build Trigger — `RookiePlaybook CI/CD` 성공 시에만 실행 (Snapshot Dependency로 연결) |
+| 1 | Docker Hub 로그인 |
+| 2 | 프론트엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-frontend:latest`) |
+| 3 | 백엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-backend:latest`) |
+| 4 | SSH Exec으로 EC2(`13.125.15.58`, `ec2-user`, `/home/ec2-user/rookie-playbook`) 접속 → `docker pull` ×2 + `docker-compose up -d --force-recreate` |
+
+Docker Hub 자격증명, EC2 SSH 프라이빗 키는 TeamCity Build Configuration → Parameters에 **Password 타입**으로 등록되어 있다 (기존 GitHub Actions Secrets와 동일한 값).
 
 ### 배포 전 체크리스트
 
