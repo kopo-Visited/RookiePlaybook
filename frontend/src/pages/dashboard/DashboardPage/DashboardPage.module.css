@@ -473,6 +473,13 @@
   margin-left: 8px;
   padding-left: 16px;
 }
+.scheduleEmpty {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 20px 0;
+  text-align: center;
+  list-style: none;
+}
 .scheduleItem {
   display: flex;
   gap: 12px;
