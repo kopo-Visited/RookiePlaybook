@@ -2,8 +2,18 @@
 
 ## CI/CD 도구
 
-- **CI/CD**: TeamCity
+- **CI/CD**: TeamCity **Cloud** (JetBrains 관리형 SaaS — 서버를 직접 호스팅하지 않는다)
 - **형상 관리**: GitHub (브랜치 전략은 [branch-strategy.md](./branch-strategy.md) 참조)
+
+> TeamCity Cloud 무료 티어는 빌드 시간·동시 빌드 수에 제한이 있다. PR이 몰리는 시기엔 대기열이 생길 수 있으니, 한도에 자주 걸리면 유료 플랜 전환을 검토한다.
+
+### TeamCity Cloud 최초 설정
+
+1. [cloud.teamcity.com](https://cloud.teamcity.com) 가입 → 프로젝트 생성
+2. "Connect GitHub"에서 TeamCity Cloud GitHub App을 `kopo-Visited/RookiePlaybook`에 설치 (VCS 접근 + PR 빌드 상태 게시 권한)
+3. 이 레포를 가리키는 VCS Root 등록
+4. 아래 "CI 파이프라인 구성"대로 Build Configuration 생성
+5. GitHub 브랜치 보호 룰셋(`develop`, `main`)의 **Required status checks**에 TeamCity가 게시하는 빌드 상태(백엔드/프론트 각각) 등록
 
 ## CI (Continuous Integration) — 자동 빌드 및 테스트
 
@@ -87,19 +97,25 @@ develop 브랜치에 push(=PR merge 포함) → TeamCity CI(Backend/Frontend Bui
 - **`.github/workflows/deploy.yml`(GitHub Actions)은 더 이상 자동 실행되지 않는다.** `push` 트리거를 제거하고 `workflow_dispatch`만 남겨, TeamCity 장애 등 비상 상황에서만 수동으로 실행하는 fallback 용도로 유지한다
   - ⚠️ **두 배포 시스템을 동시에 켜두면 안 된다.** TeamCity 자동 배포가 정상 동작 중일 때 GitHub Actions의 수동 배포까지 같이 돌리면 같은 EC2에 두 배포가 겹쳐 충돌하거나 산출물이 뒤섞일 수 있다. GitHub Actions 수동 배포는 TeamCity가 실패했거나 사용 불가능할 때만 실행한다
   - GitHub Actions에서 수동 실행하는 방법: 저장소 Actions 탭 → `CI/CD Deploy (Manual Fallback)` 워크플로우 선택 → **Run workflow** 버튼
-- 백엔드와 프론트엔드는 각각 별도 Docker 이미지로 빌드되지만, 배포(EC2 `docker-compose up -d`)는 두 이미지를 함께 갱신하는 한 번의 배포 스텝으로 묶는다
+- 백엔드와 프론트엔드는 각각 별도 Docker 이미지로 빌드되지만, 배포(EC2 `docker-compose up -d`)는 두 이미지를 함께 갱신하는 한 번의 배포 스텝으로 묶는다 (`docker-compose.yml`이 두 서비스를 함께 관리하기 때문)
 
 ### TeamCity `Deploy to EC2` Build Configuration 구성
 
 | Step | 내용 |
 |------|------|
 | 트리거 | Finish Build Trigger — `RookiePlaybook CI/CD` 성공 시에만 실행 (Snapshot Dependency로 연결) |
-| 1 | Docker Hub 로그인 |
+| 1 | Docker Hub 로그인 (`%docker.hub.username%` / `%docker.hub.password%` 파라미터) |
 | 2 | 프론트엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-frontend:latest`) |
 | 3 | 백엔드 이미지 빌드 & 푸시 (`jeongyoni/rookie-playbook-backend:latest`) |
 | 4 | SSH Exec으로 EC2(`13.125.15.58`, `ec2-user`, `/home/ec2-user/rookie-playbook`) 접속 → `docker pull` ×2 + `docker-compose up -d --force-recreate` |
 
-Docker Hub 자격증명, EC2 SSH 프라이빗 키는 TeamCity Build Configuration → Parameters에 **Password 타입**으로 등록되어 있다 (기존 GitHub Actions Secrets와 동일한 값).
+기존 GitHub Actions Secrets에 있던 값을 TeamCity Build Configuration → Parameters(Password 타입)로 동일하게 옮겨서 쓰고 있다:
+
+| GitHub Secret | TeamCity Parameter |
+|---|---|
+| `DOCKER_HUB_USERNAME` | `docker.hub.username` |
+| `DOCKER_HUB_PASSWORD` | `docker.hub.password` |
+| `EC2_SSH_KEY` | `ec2.ssh.key` |
 
 ### 배포 전 체크리스트
 
