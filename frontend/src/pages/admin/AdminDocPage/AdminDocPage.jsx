@@ -93,7 +93,7 @@ function AdminDocPage() {
         return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
       })
       .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
-      .slice(0, 5)
+      .slice(0, 3)
       .map(d => ({
         id: d.id,
         title: d.title,
