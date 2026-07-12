@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -21,7 +22,7 @@ public class ScheduleController {
     @GetMapping("/schedules")
     public ApiResponse<List<ScheduleResponse>> getSchedules(
             @RequestParam(required = false) LocalDate date) {
-        LocalDate target = date != null ? date : LocalDate.now();
+        LocalDate target = date != null ? date : LocalDate.now(ZoneId.of("Asia/Seoul"));
         return ApiResponse.success(scheduleService.getSchedulesByDate(target));
     }
 
