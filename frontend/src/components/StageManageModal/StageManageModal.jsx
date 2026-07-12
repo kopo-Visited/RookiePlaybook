@@ -22,6 +22,9 @@ function IconX() {
 
 const EMPTY_FORM = { title: '', description: '', orderNumber: '', videoTitle: '', videoUrl: '' };
 
+// 백엔드 @Pattern과 동일: http:// 또는 https://로 시작하는 URL만 허용
+const VIDEO_URL_PATTERN = /^https?:\/\/.+/;
+
 function StageManageModal({ education, onClose }) {
   const [mode, setMode] = useState('list'); // 'list' | 'form'
   const [editStage, setEditStage] = useState(null);
@@ -85,8 +88,9 @@ function StageManageModal({ education, onClose }) {
     }
   }
 
-  // 백엔드 검증과 동일: 단계명 필수·100자, 순서 정수 1 이상, 영상 제목·URL 필수
+  // 백엔드 검증과 동일: 단계명 필수·100자, 순서 정수 1 이상, 영상 제목 필수, URL은 http(s):// 형식
   const orderNum = Number(form.orderNumber);
+  const videoUrlValid = VIDEO_URL_PATTERN.test(form.videoUrl.trim());
   const canSubmit =
     Boolean(form.title.trim()) &&
     form.title.trim().length <= 100 &&
@@ -94,7 +98,7 @@ function StageManageModal({ education, onClose }) {
     Number.isInteger(orderNum) &&
     orderNum >= 1 &&
     Boolean(form.videoTitle.trim()) &&
-    Boolean(form.videoUrl.trim()) &&
+    videoUrlValid &&
     !submitting;
 
   async function handleSubmit() {
@@ -234,6 +238,11 @@ function StageManageModal({ education, onClose }) {
                   value={form.videoUrl}
                   onChange={e => setField('videoUrl', e.target.value)}
                 />
+                {form.videoUrl.trim() && !videoUrlValid && (
+                  <p className={styles.formError}>
+                    영상 URL은 http:// 또는 https://로 시작해야 합니다.
+                  </p>
+                )}
               </div>
             </div>
 
