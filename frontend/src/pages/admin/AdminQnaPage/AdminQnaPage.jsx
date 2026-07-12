@@ -99,7 +99,7 @@ function AdminQnaPage() {
   useEffect(() => {
     let ignore = false;
     setLoading(true);
-    getAdminQnas({ size: 100 })
+    getAdminQnas({ size: 1000 })
       .then(res => {
         if (ignore) return;
         setRows((res?.data?.content ?? []).map(mapRow));

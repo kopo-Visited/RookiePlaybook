@@ -26,7 +26,7 @@ const shortcuts = [
   { colorKey: 'blue', icon: <IconSearch />, label: '문서 검색', route: ROUTES.DOC.LIST },
   { colorKey: 'green', icon: <IconBook />, label: '교육 찾기', route: ROUTES.EDU.LIST },
   { colorKey: 'pink', icon: <IconChat />, label: '질문하기', route: null, action: 'qna' },
-  { colorKey: 'purple', icon: <IconList />, label: 'FAQ 전체', route: ROUTES.QNA.ALL },
+  { colorKey: 'purple', icon: <IconList />, label: 'FAQ 전체', route: ROUTES.DOC.LIST },
   { colorKey: 'orange', icon: <IconDocText />, label: '최근 문서', route: ROUTES.DOC.LIST },
 ];
 
@@ -454,7 +454,7 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>자주 묻는 질문</span>
-            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.ALL)}>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.DOC.LIST)}>
               전체보기 ›
             </button>
           </div>

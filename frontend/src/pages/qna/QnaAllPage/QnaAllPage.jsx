@@ -55,7 +55,7 @@ function QnaAllPage() {
   useEffect(() => {
     let ignore = false;
     setLoading(true);
-    getAllQnas({ size: 100 })
+    getAllQnas({ size: 1000 })
       .then(res => {
         if (!ignore) setRows(res?.data?.content ?? []);
       })
