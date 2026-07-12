@@ -1,5 +1,6 @@
 package com.visited.www.edu.service;
 
+import com.visited.www.edu.EducationNotFoundException;
 import com.visited.www.edu.MaterialNotFoundException;
 import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.MyProgressResponseDto;
@@ -10,8 +11,10 @@ import com.visited.www.edu.entity.EducationProgress;
 import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.StageCompletion;
 import com.visited.www.edu.entity.VideoProgress;
+import com.visited.www.edu.enums.ProgressStatus;
 import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
+import com.visited.www.edu.repository.EducationRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
@@ -20,6 +23,7 @@ import com.visited.www.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,6 +60,9 @@ class ProgressServiceTest {
 
     @Mock
     private VideoProgressRepository videoProgressRepository;
+
+    @Mock
+    private EducationRepository educationRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -226,6 +233,58 @@ class ProgressServiceTest {
         // when & then
         assertThatThrownBy(() -> progressService.saveVideoProgress(userId, materialId, 120))
                 .isInstanceOf(MaterialNotFoundException.class);
+    }
+
+    // ==================== 수강 시작(enroll) ====================
+
+    @Test
+    @DisplayName("수강 시작 - 진도 레코드가 없으면 진행중(IN_PROGRESS)으로 생성한다")
+    void enroll_createsProgress() {
+        // given
+        Long userId = 1L;
+        Long educationId = 10L;
+        given(educationRepository.findById(educationId)).willReturn(Optional.of(mock(Education.class)));
+        given(educationProgressRepository.findByUserIdAndEducationId(userId, educationId))
+                .willReturn(Optional.empty());
+        given(userRepository.getReferenceById(userId)).willReturn(mock(User.class));
+
+        // when
+        progressService.enroll(userId, educationId);
+
+        // then
+        ArgumentCaptor<EducationProgress> captor = ArgumentCaptor.forClass(EducationProgress.class);
+        verify(educationProgressRepository, times(1)).save(captor.capture());
+        assertThat(captor.getValue().getStatus()).isEqualTo(ProgressStatus.IN_PROGRESS);
+    }
+
+    @Test
+    @DisplayName("수강 시작 - 이미 진도 레코드가 있으면 새로 저장하지 않는다 (멱등)")
+    void enroll_idempotent() {
+        // given
+        Long userId = 1L;
+        Long educationId = 10L;
+        given(educationRepository.findById(educationId)).willReturn(Optional.of(mock(Education.class)));
+        given(educationProgressRepository.findByUserIdAndEducationId(userId, educationId))
+                .willReturn(Optional.of(mock(EducationProgress.class)));
+
+        // when
+        progressService.enroll(userId, educationId);
+
+        // then
+        verify(educationProgressRepository, never()).save(any(EducationProgress.class));
+    }
+
+    @Test
+    @DisplayName("수강 시작 - 존재하지 않는 과정이면 EducationNotFoundException이 발생한다")
+    void enroll_educationNotFound() {
+        // given
+        Long userId = 1L;
+        Long educationId = 999L;
+        given(educationRepository.findById(educationId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> progressService.enroll(userId, educationId))
+                .isInstanceOf(EducationNotFoundException.class);
     }
 
     // ==================== EDU-FR-005: 내 진도 조회 ====================
