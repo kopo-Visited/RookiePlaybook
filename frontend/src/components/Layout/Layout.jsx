@@ -131,6 +131,35 @@ function IconMail() {
   );
 }
 
+function IconCalendar() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect
+        x="3"
+        y="4"
+        width="18"
+        height="18"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 2v4M8 2v4M3 10h18"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function IconLogout() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -171,6 +200,7 @@ const NAV_ITEMS = [
   { to: ROUTES.DOC.LIST, label: '지식문서', icon: <IconDoc /> },
   { to: ROUTES.QNA.LIST, label: '질문·답변', icon: <IconChat /> },
   { to: ROUTES.EDU.LIST, label: '온보딩 교육', icon: <IconGraduate /> },
+  { to: ROUTES.SCHEDULE, label: '내 일정', icon: <IconCalendar /> },
   { to: ROUTES.INQUIRY, label: '문의하기', icon: <IconMail /> },
 ];
 

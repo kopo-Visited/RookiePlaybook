@@ -8,7 +8,7 @@ import { getQnas } from '../../../api/qnaApi';
 import { getMyProgress } from '../../../api/eduApi';
 import { getFaqs } from '../../../api/docApi';
 import { getNotices } from '../../../api/noticeApi';
-import { getSchedules } from '../../../api/scheduleApi';
+import { getSchedules, getUserSchedules } from '../../../api/scheduleApi';
 import { ROUTES } from '../../../constants/routes';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 
@@ -171,17 +171,19 @@ function DashboardPage() {
   const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
   const { data: noticeRes } = useFetch(() => getNotices().catch(() => null), []);
   const { data: scheduleRes } = useFetch(() => getSchedules().catch(() => null), []);
-  const schedules = useMemo(
-    () =>
-      (scheduleRes?.data ?? []).map(s => ({
-        id: s.id,
-        time: s.startTime?.slice(0, 5) ?? '',
-        title: s.title,
-        place: s.place ?? '',
-        dotColor: s.dotColor ?? '#2288FF',
-      })),
-    [scheduleRes]
-  );
+  const { data: userScheduleRes } = useFetch(() => getUserSchedules().catch(() => null), []);
+  const schedules = useMemo(() => {
+    const toItem = s => ({
+      id: s.id,
+      time: s.startTime?.slice(0, 5) ?? '',
+      title: s.title,
+      place: s.place ?? '',
+      dotColor: s.dotColor ?? '#2288FF',
+    });
+    const company = (scheduleRes?.data ?? []).map(toItem);
+    const personal = (userScheduleRes?.data ?? []).map(toItem);
+    return [...company, ...personal].sort((a, b) => a.time.localeCompare(b.time));
+  }, [scheduleRes, userScheduleRes]);
 
   const docs = Array.isArray(docRes?.data) ? docRes.data : [];
   const qnaRaw = qnaRes?.data;
