@@ -82,6 +82,25 @@ function AdminDocPage() {
   const publicDocs = useMemo(() => docs.filter(d => d.isPublic).length, [docs]);
   const privateDocs = useMemo(() => docs.filter(d => !d.isPublic).length, [docs]);
 
+  const staleDocs = useMemo(() => {
+    const now = Date.now();
+    return docs
+      .filter(d => {
+        const last = new Date(d.updatedAt ?? d.createdAt).getTime();
+        return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
+      })
+      .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
+      .slice(0, 5)
+      .map(d => ({
+        id: d.id,
+        title: d.title,
+        dept: d.categoryName,
+        daysAgo: Math.floor(
+          (now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        ),
+      }));
+  }, [docs]);
+
   const statCards = useMemo(
     () => [
       {
@@ -114,8 +133,8 @@ function AdminDocPage() {
       {
         key: 'review',
         label: '검토 필요',
-        value: '0건',
-        sub: '6개월 이상 미검토',
+        value: `${staleDocs.length}건`,
+        sub: `${STALE_THRESHOLD_DAYS}일 이상 미갱신`,
         subColor: '#FF4D94',
         colorKey: 'pink',
         iconText: 'Rev',
@@ -198,25 +217,6 @@ function AdminDocPage() {
     const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
     const max = sorted[0]?.[1] ?? 1;
     return sorted.map(([label, count]) => ({ label, count, ratio: count / max }));
-  }, [docs]);
-
-  const staleDocs = useMemo(() => {
-    const now = Date.now();
-    return docs
-      .filter(d => {
-        const last = new Date(d.updatedAt ?? d.createdAt).getTime();
-        return (now - last) / (1000 * 60 * 60 * 24) >= STALE_THRESHOLD_DAYS;
-      })
-      .sort((a, b) => new Date(a.updatedAt ?? a.createdAt) - new Date(b.updatedAt ?? b.createdAt))
-      .slice(0, 5)
-      .map(d => ({
-        id: d.id,
-        title: d.title,
-        dept: d.categoryName,
-        daysAgo: Math.floor(
-          (now - new Date(d.updatedAt ?? d.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        ),
-      }));
   }, [docs]);
 
   const handleReset = () => {
