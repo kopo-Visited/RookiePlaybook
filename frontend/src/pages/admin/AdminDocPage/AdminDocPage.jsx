@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './AdminDocPage.module.css';
 import AdminDocModal from './AdminDocModal';
 import useFetch from '../../../hooks/useFetch';
@@ -7,6 +8,7 @@ import { getAdminDocuments, getFaqs, deleteDocument, updateDocument } from '../.
 import Badge from '../../../components/Badge/Badge';
 import Dropdown from '../../../components/Dropdown/Dropdown';
 import { COLOR_KEYS, BADGE_SIZES, DEPT_COLOR } from '../../../constants/styles';
+import { ROUTES } from '../../../constants/routes';
 
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
@@ -65,6 +67,7 @@ function formatDate(dateStr) {
 }
 
 function AdminDocPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -149,7 +152,7 @@ function AdminDocPage() {
         iconText: 'FAQ',
       },
     ],
-    [docs, publicDocs, privateDocs, totalFaqs]
+    [docs, publicDocs, privateDocs, staleDocs, totalFaqs]
   );
 
   const filtered = useMemo(
@@ -432,7 +435,13 @@ function AdminDocPage() {
               <h2 className={styles.sectionTitle}>문서 신선도 관리</h2>
               <p className={styles.sectionSubtitle}>오래된 문서를 우선 검토하세요.</p>
             </div>
-            <button className={styles.resetBtn}>전체보기</button>
+            <button
+              type="button"
+              className={styles.resetBtn}
+              onClick={() => navigate(ROUTES.ADMIN.DOC_STALE)}
+            >
+              전체보기
+            </button>
           </div>
           <div className={styles.staleList}>
             {staleDocs.length === 0 && (

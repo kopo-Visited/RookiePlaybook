@@ -26,6 +26,7 @@ export const ROUTES = {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
     DOC: '/admin/doc',
+    DOC_STALE: '/admin/doc/stale',
     QNA: '/admin/qna',
     EDU: '/admin/edu',
     INQUIRY: '/admin/inquiry',
