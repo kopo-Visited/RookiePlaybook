@@ -435,7 +435,7 @@ function DocListPage() {
             </ul>
           </section>
 
-          <section className={styles.sideCard}>
+          <section className={`${styles.sideCard} ${styles.sideCardBookmark}`}>
             <div className={styles.sectionHead}>
               <span className={styles.sectionTitle}>내 북마크</span>
               {bookmarks.length > 0 && (

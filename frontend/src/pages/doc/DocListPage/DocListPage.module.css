@@ -398,6 +398,9 @@
   composes: card from '../../../styles/common.module.css';
   padding: 21px;
 }
+.sideCardBookmark {
+  flex: 1;
+}
 
 /* ── FAQ ── */
 .faqList {
