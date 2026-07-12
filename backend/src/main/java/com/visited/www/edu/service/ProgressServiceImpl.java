@@ -39,6 +39,7 @@ public class ProgressServiceImpl implements ProgressService {
     private final VideoProgressRepository videoProgressRepository;
     private final EducationRepository educationRepository;
     private final UserRepository userRepository;
+    private final StageAccessPolicy stageAccessPolicy;
 
     // EDU-FR-004: 단계 완료 처리 (완료 기록 저장 → 진도율 재계산 → 과정 진도 갱신)
     @Override
@@ -49,6 +50,9 @@ public class ProgressServiceImpl implements ProgressService {
                     log.warn("존재하지 않는 단계 완료 시도. userId={}, stageId={}", userId, stageId);
                     return new StageNotFoundException();
                 });
+
+        // 순차 잠금: 직전 단계를 완료하지 않았으면 이 단계를 완료할 수 없다 (URL 직접 호출 차단)
+        stageAccessPolicy.assertUnlocked(userId, stage);
 
         Education education = stage.getEducation();
         User user = userRepository.getReferenceById(userId);
