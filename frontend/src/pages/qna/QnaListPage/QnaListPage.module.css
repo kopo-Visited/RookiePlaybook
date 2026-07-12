@@ -216,14 +216,13 @@
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 20px;
-  border: 1px solid var(--color-border);
+  /* 카테고리 배지(공용 Badge md)와 크기·모양 통일: height 24 / padding 0 8 / radius-sm */
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
 }
 
 /* ── Text ── */

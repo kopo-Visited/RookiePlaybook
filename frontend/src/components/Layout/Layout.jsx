@@ -198,7 +198,7 @@ function IconBell() {
 const NAV_ITEMS = [
   { to: ROUTES.DASHBOARD, label: '대시보드', icon: <IconHome /> },
   { to: ROUTES.DOC.LIST, label: '지식문서', icon: <IconDoc /> },
-  { to: ROUTES.QNA.LIST, label: '질문·답변', icon: <IconChat /> },
+  { to: ROUTES.QNA.ALL, label: '질문·답변', icon: <IconChat /> },
   { to: ROUTES.EDU.LIST, label: '온보딩 교육', icon: <IconGraduate /> },
   { to: ROUTES.SCHEDULE, label: '내 일정', icon: <IconCalendar /> },
   { to: ROUTES.INQUIRY, label: '문의하기', icon: <IconMail /> },
@@ -283,7 +283,9 @@ function Layout() {
             // 공지사항(/notice)은 사이드바에 자체 메뉴가 없어 대시보드에서
             // 들어온 하위 화면으로 취급해 대시보드 메뉴를 계속 활성 상태로 보여준다.
             const forcedActive =
-              to === ROUTES.DASHBOARD && location.pathname === ROUTES.NOTICE.LIST;
+              (to === ROUTES.DASHBOARD && location.pathname === ROUTES.NOTICE.LIST) ||
+              // 질문·답변 메뉴는 전체 QNA(/qna/all)로 가지만, 내 질문(/qna) 화면에서도 계속 활성 표시
+              (to === ROUTES.QNA.ALL && location.pathname === ROUTES.QNA.LIST);
             return (
               <NavLink
                 key={to}
