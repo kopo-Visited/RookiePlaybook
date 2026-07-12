@@ -136,6 +136,25 @@ describe('AdminEduPage 렌더링', () => {
     expect(screen.getByText('백엔드 기초 교육')).toBeInTheDocument();
   });
 
+  it('과정 목록에 콘텐츠 기준연도가 "2024 과정" 형태로 표시된다', async () => {
+    // given & when
+    mockListSuccess([
+      {
+        educationId: 1,
+        title: '백엔드 기초 교육',
+        totalStages: 2,
+        completedStages: 0,
+        progressRate: 0,
+        contentYear: 2024,
+      },
+    ]);
+    render(<AdminEduPage />);
+
+    // then
+    expect(await screen.findByText('백엔드 기초 교육')).toBeInTheDocument();
+    expect(screen.getByText('2024 과정')).toBeInTheDocument();
+  });
+
   it('과정 추가 버튼을 누르면 등록 모달이 열린다', async () => {
     // given
     mockListSuccess();

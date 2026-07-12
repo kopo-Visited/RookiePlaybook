@@ -109,6 +109,7 @@ function EducationSection() {
           <thead>
             <tr>
               <th>제목</th>
+              <th>기준연도</th>
               <th>단계 수</th>
               <th>관리</th>
             </tr>
@@ -118,6 +119,11 @@ function EducationSection() {
               <tr key={edu.educationId}>
                 <td>
                   <span className={styles.titleText}>{edu.title}</span>
+                </td>
+                <td>
+                  <span className={styles.secondary}>
+                    {edu.contentYear ? `${edu.contentYear} 과정` : '—'}
+                  </span>
                 </td>
                 <td>
                   <span className={styles.secondary}>{edu.totalStages}단계</span>

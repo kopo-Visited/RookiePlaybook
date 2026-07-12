@@ -90,7 +90,8 @@ public class EducationServiceImpl implements EducationService {
                             completedStages,
                             progressRate,
                             isCompleted,
-                            completedAt
+                            completedAt,
+                            education.getContentYear()
                     );
                 })
                 .collect(Collectors.toList());
@@ -143,7 +144,8 @@ public class EducationServiceImpl implements EducationService {
                 education.getCompletionCriteria(),
                 progressRate,
                 isCompleted,
-                stageDtos
+                stageDtos,
+                education.getContentYear()
         );
     }
 
@@ -172,7 +174,8 @@ public class EducationServiceImpl implements EducationService {
     @Transactional
     public EducationCreateResponseDto createEducation(EducationCreateRequestDto request) {
         Education education = educationRepository.save(Education.create(
-                request.getTitle(), request.getDescription(), request.getCompletionCriteria()));
+                request.getTitle(), request.getDescription(), request.getCompletionCriteria(),
+                request.getContentYear()));
         return new EducationCreateResponseDto(education.getId(), education.getTitle());
     }
 
@@ -182,7 +185,8 @@ public class EducationServiceImpl implements EducationService {
     public void updateEducation(Long educationId, EducationUpdateRequestDto request) {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(EducationNotFoundException::new);
-        education.update(request.getTitle(), request.getDescription(), request.getCompletionCriteria());
+        education.update(request.getTitle(), request.getDescription(),
+                request.getCompletionCriteria(), request.getContentYear());
     }
 
     // EDU-FR-007: 관리자 교육 과정 삭제 (단계/진도가 있으면 삭제 불가)

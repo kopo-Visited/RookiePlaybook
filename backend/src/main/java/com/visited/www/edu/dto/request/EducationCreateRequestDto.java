@@ -22,4 +22,8 @@ public class EducationCreateRequestDto {
     @Min(value = 0, message = "수료 기준은 0 이상이어야 합니다.")
     @Max(value = 100, message = "수료 기준은 100 이하여야 합니다.")
     private Integer completionCriteria;
+
+    // 콘텐츠 기준 연도 (선택)
+    @Min(value = 2000, message = "콘텐츠 기준 연도는 2000 이상이어야 합니다.")
+    private Integer contentYear;
 }

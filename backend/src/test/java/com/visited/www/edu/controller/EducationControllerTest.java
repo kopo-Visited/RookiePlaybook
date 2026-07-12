@@ -56,7 +56,7 @@ class EducationControllerTest {
         );
 
         EducationListResponseDto dto = new EducationListResponseDto(
-                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null
+                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null, 2024
         );
         Page<EducationListResponseDto> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
 
@@ -75,6 +75,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.content[0].educationId").value(1L))
                 .andExpect(jsonPath("$.data.content[0].title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.content[0].progressRate").value(40))
+                .andExpect(jsonPath("$.data.content[0].contentYear").value(2024))
                 .andDo(print());
     }
 
@@ -92,7 +93,7 @@ class EducationControllerTest {
         );
 
         EducationDetailResponseDto mockDetail = new EducationDetailResponseDto(
-                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of()
+                educationId, "신입사원 온보딩 교육", "온보딩 과정 설명", 80, 40, false, List.of(), 2024
         );
 
         given(educationService.getEducationDetail(userId, educationId))
@@ -109,6 +110,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.progressRate").value(40))
                 .andExpect(jsonPath("$.data.isCompleted").value(false))
+                .andExpect(jsonPath("$.data.contentYear").value(2024))
                 .andDo(print());
     }
 

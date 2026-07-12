@@ -2,10 +2,12 @@ package com.visited.www.edu.controller;
 
 import com.visited.www.edu.EducationInUseException;
 import com.visited.www.edu.EducationNotFoundException;
+import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
 import com.visited.www.edu.service.EducationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,10 +20,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -70,6 +74,40 @@ class AdminEducationControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.educationId").value(10L))
                 .andExpect(jsonPath("$.data.title").value("새 과정"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /api/admin/educations - contentYear가 서비스로 전달된다")
+    void createEducation_withContentYear() throws Exception {
+        // given
+        given(educationService.createEducation(any()))
+                .willReturn(new EducationCreateResponseDto(11L, "2024 과정"));
+
+        // when
+        mockMvc.perform(post("/api/admin/educations")
+                        .with(authentication(adminAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"2024 과정\", \"completionCriteria\": 80, \"contentYear\": 2024}"))
+                .andExpect(status().isOk());
+
+        // then
+        ArgumentCaptor<EducationCreateRequestDto> captor =
+                ArgumentCaptor.forClass(EducationCreateRequestDto.class);
+        verify(educationService).createEducation(captor.capture());
+        assertThat(captor.getValue().getContentYear()).isEqualTo(2024);
+    }
+
+    @Test
+    @DisplayName("POST /api/admin/educations - contentYear가 2000 미만이면 400 반환")
+    void createEducation_invalidContentYear() throws Exception {
+        // when & then
+        mockMvc.perform(post("/api/admin/educations")
+                        .with(authentication(adminAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"과정\", \"completionCriteria\": 80, \"contentYear\": 1999}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
                 .andDo(print());
     }
 

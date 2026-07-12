@@ -9,5 +9,6 @@ public record EducationDetailResponseDto(
         Integer completionCriteria,
         Integer progressRate,
         Boolean isCompleted,
-        List<StageResponseDto> stages
+        List<StageResponseDto> stages,
+        Integer contentYear
 ) {}

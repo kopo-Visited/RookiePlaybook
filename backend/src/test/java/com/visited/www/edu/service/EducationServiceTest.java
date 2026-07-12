@@ -347,6 +347,7 @@ class EducationServiceTest {
         given(request.getTitle()).willReturn("수정 과정");
         given(request.getDescription()).willReturn("수정 설명");
         given(request.getCompletionCriteria()).willReturn(90);
+        given(request.getContentYear()).willReturn(2024);
 
         Education education = mock(Education.class);
         given(educationRepository.findById(educationId)).willReturn(Optional.of(education));
@@ -355,7 +356,7 @@ class EducationServiceTest {
         educationService.updateEducation(educationId, request);
 
         // then
-        verify(education).update("수정 과정", "수정 설명", 90);
+        verify(education).update("수정 과정", "수정 설명", 90, 2024);
     }
 
     @Test
