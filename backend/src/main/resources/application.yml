@@ -30,9 +30,8 @@ spring:
     exclude:
       - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
       - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
       - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
-      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiTextEmbeddingAutoConfiguration
-      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingConnectionAutoConfiguration
 
   ai:
     openai:
@@ -41,15 +40,16 @@ spring:
       chat:
         options:
           model: llama-3.3-70b-versatile
-      embedding:
-        api-key: ${OPENAI_API_KEY}
-        base-url: https://api.openai.com
-        options:
-          model: text-embedding-3-small
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY}
+        embedding:
+          options:
+            model: text-embedding-004
     vectorstore:
       pgvector:
         initialize-schema: true
-        dimensions: 1536
+        dimensions: 768
         index-type: HNSW
         distance-type: COSINE_DISTANCE
 
