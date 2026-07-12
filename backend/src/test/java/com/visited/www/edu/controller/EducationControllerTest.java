@@ -62,7 +62,7 @@ class EducationControllerTest {
         );
 
         EducationListResponseDto dto = new EducationListResponseDto(
-                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null, 2024
+                1L, "신입사원 온보딩 교육", 5, 2, 40, false, null, 2024, true
         );
         Page<EducationListResponseDto> mockPage = new PageImpl<>(List.of(dto), PageRequest.of(0, 10), 1);
 
@@ -82,6 +82,7 @@ class EducationControllerTest {
                 .andExpect(jsonPath("$.data.content[0].title").value("신입사원 온보딩 교육"))
                 .andExpect(jsonPath("$.data.content[0].progressRate").value(40))
                 .andExpect(jsonPath("$.data.content[0].contentYear").value(2024))
+                .andExpect(jsonPath("$.data.content[0].enrolled").value(true))
                 .andDo(print());
     }
 
