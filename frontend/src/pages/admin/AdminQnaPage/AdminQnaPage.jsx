@@ -51,6 +51,7 @@ function mapRow(q) {
     dept: q.departmentName ?? '-',
     category: q.categoryName,
     status: q.status,
+    isPublic: true,
     createdAt: formatYYMMDD(q.createdAt),
   };
 }
@@ -82,18 +83,35 @@ function StatCard({ label, count, color, sub, iconText }) {
   );
 }
 
+// 관리 컬럼: 콘텐츠관리(AdminDocPage)와 동일한 수정/삭제/비공개 액션
+function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
+  return (
+    <div className={styles.actionRow} onClick={e => e.stopPropagation()}>
+      <button className={styles.actionBtn} onClick={() => onEdit(row)}>
+        수정
+      </button>
+      <button
+        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+        onClick={() => onDelete(row)}
+      >
+        삭제
+      </button>
+      <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
+        {row.isPublic ? '비공개' : '공개'}
+      </button>
+    </div>
+  );
+}
+
 function AdminQnaPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
-  // 입력 중(draft) 필터 값 — '검색' 버튼을 눌러야 실제 필터에 반영된다
+  // 필터: 입력/선택 즉시 자동 반영(검색 버튼 없음)
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [dateFilter, setDateFilter] = useState(''); // yyyy-mm-dd (달력 선택값)
-  // 실제 적용된 필터 — '검색' 클릭 시점의 스냅샷
-  const [applied, setApplied] = useState({ search: '', status: '', category: '', date: '' });
-  const [selectedIds, setSelectedIds] = useState([]);
   const [page, setPage] = useState(1);
   const [detailId, setDetailId] = useState(null);
 
@@ -132,49 +150,35 @@ function AdminQnaPage() {
       const { year, month, day } = parseCreatedAt(row.createdAt);
       const rowDate = `${year}-${month}-${day}`;
       const matchSearch =
-        !applied.search ||
-        row.title.includes(applied.search) ||
-        (row.author ?? '').includes(applied.search);
-      const matchStatus = !applied.status || row.status === applied.status;
-      const matchCategory = !applied.category || row.category === applied.category;
-      const matchDate = !applied.date || rowDate === applied.date;
+        !search || row.title.includes(search) || (row.author ?? '').includes(search);
+      const matchStatus = !statusFilter || row.status === statusFilter;
+      const matchCategory = !categoryFilter || row.category === categoryFilter;
+      const matchDate = !dateFilter || rowDate === dateFilter;
       return matchSearch && matchStatus && matchCategory && matchDate;
     });
-  }, [rows, applied]);
-
-  // '검색' 클릭(또는 검색창 Enter) 시에만 필터 적용
-  const runSearch = () => {
-    setApplied({
-      search,
-      status: statusFilter,
-      category: categoryFilter,
-      date: dateFilter,
-    });
-    setPage(1);
-  };
+  }, [rows, search, statusFilter, categoryFilter, dateFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const allChecked = paged.length > 0 && paged.every(r => selectedIds.includes(r.id));
+  // 필터로 페이지 수가 줄면 현재 페이지를 범위 안으로 되돌린다
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
-  const toggleAll = () => {
-    if (allChecked) {
-      setSelectedIds(ids => ids.filter(id => !paged.some(r => r.id === id)));
-    } else {
-      setSelectedIds(ids => [...new Set([...ids, ...paged.map(r => r.id)])]);
-    }
+  const handleReset = () => {
+    setSearch('');
+    setStatusFilter('');
+    setCategoryFilter('');
+    setDateFilter('');
+    setPage(1);
   };
 
-  const toggleRow = id => {
-    setSelectedIds(ids => (ids.includes(id) ? ids.filter(i => i !== id) : [...ids, id]));
-  };
-
-  const handleDelete = () => {
-    if (selectedIds.length === 0) return;
-    setRows(rs => rs.filter(r => !selectedIds.includes(r.id)));
-    setSelectedIds([]);
-  };
+  const handleEdit = row => setDetailId(row.id);
+  // QNA 질문 삭제/공개토글 백엔드 API 미제공 → 화면 로컬 처리(기존 삭제 동작과 동일)
+  const handleDelete = row => setRows(rs => rs.filter(r => r.id !== row.id));
+  const handleTogglePublic = row =>
+    setRows(rs => rs.map(r => (r.id === row.id ? { ...r, isPublic: !r.isPublic } : r)));
 
   if (detailId != null) {
     return (
@@ -218,14 +222,19 @@ function AdminQnaPage() {
               className={styles.filterSearch}
               placeholder="제목, 작성자 검색"
               value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && runSearch()}
+              onChange={e => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
           <Dropdown
             className={styles.filterSelect}
             value={statusFilter}
-            onChange={setStatusFilter}
+            onChange={v => {
+              setStatusFilter(v);
+              setPage(1);
+            }}
             options={[
               { value: '', label: '전체 상태' },
               ...STAT_CARDS.map(s => ({ value: s.key, label: s.label })),
@@ -234,7 +243,10 @@ function AdminQnaPage() {
           <Dropdown
             className={styles.filterSelect}
             value={categoryFilter}
-            onChange={setCategoryFilter}
+            onChange={v => {
+              setCategoryFilter(v);
+              setPage(1);
+            }}
             options={[
               { value: '', label: '전체 카테고리' },
               ...categories.map(c => ({ value: c, label: c })),
@@ -244,33 +256,27 @@ function AdminQnaPage() {
             type="date"
             className={styles.filterDate}
             value={dateFilter}
-            onChange={e => setDateFilter(e.target.value)}
+            onChange={e => {
+              setDateFilter(e.target.value);
+              setPage(1);
+            }}
           />
           <div className={styles.filterSpacer} />
-          <button
-            className={styles.btnDelete}
-            onClick={handleDelete}
-            disabled={selectedIds.length === 0}
-          >
-            삭제
-          </button>
-          <button className={styles.btnSearch} onClick={runSearch}>
-            검색
+          <button className={styles.resetBtn} onClick={handleReset}>
+            초기화
           </button>
         </div>
 
         <table className={styles.table}>
           <thead>
             <tr>
-              <th className={styles.checkCol}>
-                <input type="checkbox" checked={allChecked} onChange={toggleAll} />
-              </th>
               <th>제목</th>
               <th>작성자</th>
               <th>부서</th>
               <th>카테고리</th>
               <th>상태</th>
               <th>등록일</th>
+              <th>관리</th>
             </tr>
           </thead>
           <tbody>
@@ -284,13 +290,6 @@ function AdminQnaPage() {
             {!loading &&
               paged.map(row => (
                 <tr key={row.id} className={styles.tableRow} onClick={() => setDetailId(row.id)}>
-                  <td className={styles.checkCol} onClick={e => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(row.id)}
-                      onChange={() => toggleRow(row.id)}
-                    />
-                  </td>
                   <td>
                     <span className={styles.qTitle}>{row.title}</span>
                   </td>
@@ -308,6 +307,14 @@ function AdminQnaPage() {
                     <StatusBadge status={row.status} />
                   </td>
                   <td className={styles.textCell}>{row.createdAt}</td>
+                  <td>
+                    <ActionButtons
+                      row={row}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onTogglePublic={handleTogglePublic}
+                    />
+                  </td>
                 </tr>
               ))}
           </tbody>
