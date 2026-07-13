@@ -506,7 +506,12 @@ function DashboardPage() {
               <li className={styles.emptyText}>등록된 FAQ가 없습니다.</li>
             )}
             {recentFaqs.map(faq => (
-              <li key={faq.id} className={styles.noticeItem} onClick={() => navigate(ROUTES.QNA.ALL)} style={{ cursor: 'pointer' }}>
+              <li
+                key={faq.id}
+                className={styles.noticeItem}
+                onClick={() => navigate(ROUTES.QNA.ALL)}
+                style={{ cursor: 'pointer' }}
+              >
                 <span className={styles.noticeTitle}>
                   <span style={{ color: '#2288FF', fontWeight: 900, marginRight: 6 }}>Q.</span>
                   {faq.question}
