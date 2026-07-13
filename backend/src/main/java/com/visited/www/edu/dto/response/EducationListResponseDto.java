@@ -11,5 +11,7 @@ public record EducationListResponseDto(
         Boolean isCompleted,
         LocalDateTime completedAt,
         Integer contentYear,
-        Boolean enrolled
+        Boolean enrolled,
+        Long departmentId,
+        String departmentName
 ) {}

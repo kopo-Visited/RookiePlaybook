@@ -3,6 +3,7 @@ package com.visited.www.edu.controller;
 import com.visited.www.edu.dto.request.EducationCreateRequestDto;
 import com.visited.www.edu.dto.request.EducationUpdateRequestDto;
 import com.visited.www.edu.dto.response.EducationCreateResponseDto;
+import com.visited.www.edu.dto.response.EducationListResponseDto;
 import com.visited.www.edu.service.EducationService;
 import com.visited.www.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,6 +30,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminEducationController {
 
     private final EducationService educationService;
+
+    /**
+     * 관리자 교육 과정 전체 목록 조회 (부서 필터 없이 전체 - 관리 페이지 전용, 페이징)
+     */
+    @Operation(summary = "교육 과정 전체 목록 조회",
+            description = "관리 페이지용으로 부서 구분 없이 모든 교육 과정을 페이징 조회한다")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한 없음")
+    })
+    @GetMapping
+    public ApiResponse<Page<EducationListResponseDto>> getAllEducations(
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<EducationListResponseDto> response = educationService.getAllEducations(pageable);
+        return ApiResponse.success(response);
+    }
 
     /**
      * EDU-FR-007: 교육 과정 등록

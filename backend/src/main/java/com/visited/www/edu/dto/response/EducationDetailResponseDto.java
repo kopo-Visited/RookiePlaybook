@@ -11,5 +11,7 @@ public record EducationDetailResponseDto(
         Boolean isCompleted,
         List<StageResponseDto> stages,
         Integer contentYear,
-        Boolean enrolled
+        Boolean enrolled,
+        Long departmentId,
+        String departmentName
 ) {}

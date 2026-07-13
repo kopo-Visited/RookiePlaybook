@@ -44,10 +44,11 @@ class EducationSeedLoadIntegrationTest {
     private UserRepository userRepository;
 
     @Test
-    @DisplayName("H2 시드의 교육 과정 3건이 목록 조회로 반환된다")
-    void getEducations_returnsSeededCourses() {
+    @DisplayName("H2 시드의 교육 과정 3건이 관리자 전체 목록 조회로 반환된다")
+    void getAllEducations_returnsSeededCourses() {
+        // 사용자 목록(getEducations)은 부서 필터가 걸리므로, 시드 3건 로드 검증은 전체 조회로 확인한다
         Page<EducationListResponseDto> page =
-                educationService.getEducations(1L, PageRequest.of(0, 10));
+                educationService.getAllEducations(PageRequest.of(0, 10));
 
         assertThat(page.getTotalElements()).isEqualTo(3);
         assertThat(page.getContent())

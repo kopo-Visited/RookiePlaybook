@@ -1,5 +1,6 @@
 package com.visited.www.edu.entity;
 
+import com.visited.www.entity.Department;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +34,11 @@ public class Education {
     // 콘텐츠 기준 연도 (예: 2024) — 실제 등록일(createdAt)과 별개인 콘텐츠 연식
     private Integer contentYear;
 
+    // 대상 부서. null이면 공통(전체 부서에 노출)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -43,23 +49,29 @@ public class Education {
     @OrderBy("orderNumber ASC")
     private List<EducationStage> stages = new ArrayList<>();
 
-    private Education(String title, String description, Integer completionCriteria, Integer contentYear) {
+    private Education(String title, String description, Integer completionCriteria,
+                     Integer contentYear, Department department) {
         this.title = title;
         this.description = description;
         this.completionCriteria = completionCriteria;
         this.contentYear = contentYear;
+        this.department = department;
     }
 
+    // department가 null이면 공통 과정(전체 부서 노출)
     public static Education create(
-            String title, String description, Integer completionCriteria, Integer contentYear) {
-        return new Education(title, description, completionCriteria, contentYear);
+            String title, String description, Integer completionCriteria,
+            Integer contentYear, Department department) {
+        return new Education(title, description, completionCriteria, contentYear, department);
     }
 
     public void update(
-            String title, String description, Integer completionCriteria, Integer contentYear) {
+            String title, String description, Integer completionCriteria,
+            Integer contentYear, Department department) {
         this.title = title;
         this.description = description;
         this.completionCriteria = completionCriteria;
         this.contentYear = contentYear;
+        this.department = department;
     }
 }

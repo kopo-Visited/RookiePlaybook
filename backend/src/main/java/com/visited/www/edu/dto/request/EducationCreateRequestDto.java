@@ -26,4 +26,7 @@ public class EducationCreateRequestDto {
     // 콘텐츠 기준 연도 (선택)
     @Min(value = 2000, message = "콘텐츠 기준 연도는 2000 이상이어야 합니다.")
     private Integer contentYear;
+
+    // 대상 부서 (선택). null이면 공통 과정으로 전체 부서에 노출된다
+    private Long departmentId;
 }

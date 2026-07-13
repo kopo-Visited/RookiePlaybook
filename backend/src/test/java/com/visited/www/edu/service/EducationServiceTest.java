@@ -32,6 +32,10 @@ import com.visited.www.edu.repository.EducationRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
+import com.visited.www.entity.Department;
+import com.visited.www.entity.User;
+import com.visited.www.user.repository.DepartmentRepository;
+import com.visited.www.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -88,6 +92,12 @@ class EducationServiceTest {
     @Mock
     private StageAccessPolicy stageAccessPolicy;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private DepartmentRepository departmentRepository;
+
     // ==================== EDU-FR-001: 교육 과정 목록 조회 ====================
 
     @Test
@@ -95,7 +105,14 @@ class EducationServiceTest {
     void getEducations_success() {
         // given
         Long userId = 1L;
+        Long departmentId = 10L;
         Pageable pageable = PageRequest.of(0, 10);
+
+        User user = mock(User.class);
+        Department department = mock(Department.class);
+        given(user.getDepartment()).willReturn(department);
+        given(department.getId()).willReturn(departmentId);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         Education education = mock(Education.class);
         given(education.getId()).willReturn(1L);
@@ -103,7 +120,7 @@ class EducationServiceTest {
         given(education.getStages()).willReturn(List.of(mock(EducationStage.class), mock(EducationStage.class)));
 
         Page<Education> educationPage = new PageImpl<>(List.of(education));
-        given(educationRepository.findAll(pageable)).willReturn(educationPage);
+        given(educationRepository.findVisibleForDepartment(departmentId, pageable)).willReturn(educationPage);
 
         EducationProgressDto progressDto = new EducationProgressDto();
         progressDto.setEducationId(1L);
@@ -132,15 +149,22 @@ class EducationServiceTest {
     void getEducations_noProgress() {
         // given
         Long userId = 1L;
+        Long departmentId = 10L;
 
         Pageable pageable = PageRequest.of(0, 10);
+
+        User user = mock(User.class);
+        Department department = mock(Department.class);
+        given(user.getDepartment()).willReturn(department);
+        given(department.getId()).willReturn(departmentId);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         Education education = mock(Education.class);
         given(education.getId()).willReturn(1L);
         given(education.getTitle()).willReturn("신입사원 온보딩 교육");
         given(education.getStages()).willReturn(List.of());
 
-        given(educationRepository.findAll(pageable))
+        given(educationRepository.findVisibleForDepartment(departmentId, pageable))
                 .willReturn(new PageImpl<>(List.of(education)));
         given(educationMapper.findProgressByUserIdAndEducationIds(eq(userId), anyList()))
                 .willReturn(List.of());
@@ -352,6 +376,7 @@ class EducationServiceTest {
         given(request.getTitle()).willReturn("새 과정");
         given(request.getDescription()).willReturn("설명");
         given(request.getCompletionCriteria()).willReturn(80);
+        given(request.getDepartmentId()).willReturn(null);  // 부서 미지정(공통)
 
         Education saved = mock(Education.class);
         given(saved.getId()).willReturn(10L);
@@ -376,6 +401,7 @@ class EducationServiceTest {
         given(request.getDescription()).willReturn("수정 설명");
         given(request.getCompletionCriteria()).willReturn(90);
         given(request.getContentYear()).willReturn(2024);
+        given(request.getDepartmentId()).willReturn(null);  // 부서 미지정(공통)
 
         Education education = mock(Education.class);
         given(educationRepository.findById(educationId)).willReturn(Optional.of(education));
@@ -383,8 +409,8 @@ class EducationServiceTest {
         // when
         educationService.updateEducation(educationId, request);
 
-        // then
-        verify(education).update("수정 과정", "수정 설명", 90, 2024);
+        // then — departmentId 미지정(null)이면 공통 과정으로 저장
+        verify(education).update("수정 과정", "수정 설명", 90, 2024, null);
     }
 
     @Test
