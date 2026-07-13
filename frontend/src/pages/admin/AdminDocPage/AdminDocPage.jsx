@@ -690,6 +690,7 @@ function AdminDocPage() {
           }}
           onCreated={handleCreated}
           editDoc={editDoc}
+          faqCategoryOptions={faqCategoryOptions}
         />
       )}
       <div className={styles.tableCard}>

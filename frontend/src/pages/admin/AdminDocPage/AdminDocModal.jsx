@@ -5,7 +5,6 @@ import Dropdown from '../../../components/Dropdown/Dropdown';
 
 const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
-const CATEGORY_ID = { 공통: 1, 개발: 2, 인프라: 3, 보안: 4, 네트워크: 5 };
 
 function IconX() {
   return (
@@ -20,9 +19,12 @@ function IconX() {
   );
 }
 
-function AdminDocFaqModal({ doc, onClose, onSuccess }) {
+function AdminDocFaqModal({ doc, onClose, onSuccess, faqCategoryOptions }) {
+  const initCategoryId = faqCategoryOptions.find(o => o.label === doc?.categoryName)?.value
+    ?? faqCategoryOptions[0]?.value
+    ?? null;
   const [form, setForm] = useState({
-    category: doc?.categoryName ?? '',
+    categoryId: initCategoryId,
     question: doc?.title ?? '',
     answer: doc?.content ?? '',
     visibility: '공개',
@@ -45,8 +47,7 @@ function AdminDocFaqModal({ doc, onClose, onSuccess }) {
       setError('답변 내용을 입력하세요.');
       return;
     }
-    const categoryId = CATEGORY_ID[form.category];
-    if (!categoryId) {
+    if (!form.categoryId) {
       setError('유효하지 않은 카테고리입니다.');
       return;
     }
@@ -55,7 +56,7 @@ function AdminDocFaqModal({ doc, onClose, onSuccess }) {
     setError('');
     try {
       await createAdminFaq({
-        categoryId,
+        categoryId: form.categoryId,
         question: form.question.trim(),
         answer: form.answer.trim(),
         isPublic: form.visibility === '공개',
@@ -96,9 +97,9 @@ function AdminDocFaqModal({ doc, onClose, onSuccess }) {
           <div className={styles.field}>
             <label className={styles.label}>카테고리</label>
             <Dropdown
-              value={form.category}
-              onChange={val => handleChange('category', val)}
-              options={CATEGORIES.map(c => ({ value: c, label: c }))}
+              value={form.categoryId}
+              onChange={val => handleChange('categoryId', val)}
+              options={faqCategoryOptions}
               placeholder="카테고리 선택"
             />
           </div>
@@ -139,7 +140,7 @@ function AdminDocFaqModal({ doc, onClose, onSuccess }) {
   );
 }
 
-function AdminDocModal({ onClose, onCreated, editDoc }) {
+function AdminDocModal({ onClose, onCreated, editDoc, faqCategoryOptions = [] }) {
   const isEdit = !!editDoc;
 
   const [form, setForm] = useState({
@@ -288,6 +289,7 @@ function AdminDocModal({ onClose, onCreated, editDoc }) {
           }}
           onClose={() => setShowFaqModal(false)}
           onSuccess={() => setShowFaqModal(false)}
+          faqCategoryOptions={faqCategoryOptions}
         />
       )}
     </>

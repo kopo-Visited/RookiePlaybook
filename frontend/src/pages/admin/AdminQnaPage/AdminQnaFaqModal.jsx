@@ -1,10 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './AdminQnaFaqModal.module.css';
 import { convertQnaToFaq } from '../../../api/qnaApi';
-
-// QNA/DOC 공통 카테고리 → DOC categories 테이블 id (시드 순서 고정: 공통1/개발2/인프라3/보안4/네트워크5)
-const CATEGORY_ID = { 공통: 1, 개발: 2, 인프라: 3, 보안: 4, 네트워크: 5 };
-const CATEGORIES = Object.keys(CATEGORY_ID);
+import { getAdminFaqs } from '../../../api/docApi';
 
 function IconChevronDown() {
   return (
@@ -21,15 +18,32 @@ function IconChevronDown() {
 }
 
 function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) {
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     title: question?.title ?? '',
-    dept: question?.category ?? '',
+    categoryId: null,
     content: answer || question?.content || '',
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [catOpen, setCatOpen] = useState(false);
   const catRef = useRef(null);
+
+  useEffect(() => {
+    getAdminFaqs()
+      .then(res => {
+        const faqs = Array.isArray(res?.data) ? res.data : [];
+        const seen = new Map();
+        faqs.forEach(f => { if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName); });
+        const opts = Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
+        setCategories(opts);
+        if (opts.length > 0) {
+          const matched = opts.find(o => o.name === question?.category);
+          setForm(f => ({ ...f, categoryId: matched?.id ?? opts[0].id }));
+        }
+      })
+      .catch(() => {});
+  }, [question?.category]);
 
   useEffect(() => {
     function onOutside(e) {
@@ -42,8 +56,7 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
   const handleChange = (key, value) => setForm(f => ({ ...f, [key]: value }));
 
   const handleSubmit = async () => {
-    const faqCategoryId = CATEGORY_ID[form.dept];
-    if (!form.title.trim() || !faqCategoryId || !form.content.trim()) {
+    if (!form.title.trim() || !form.categoryId || !form.content.trim()) {
       setError('제목·카테고리·내용을 모두 입력해 주세요.');
       return;
     }
@@ -51,7 +64,7 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
     setError('');
     try {
       await convertQnaToFaq(questionId, {
-        faqCategoryId,
+        faqCategoryId: form.categoryId,
         question: form.title.trim(),
         answer: form.content.trim(),
       });
@@ -93,8 +106,8 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
               className={`${styles.select} ${catOpen ? styles.selectOpen : ''}`}
               onClick={() => setCatOpen(o => !o)}
             >
-              <span className={form.dept ? styles.selectValue : styles.selectPlaceholder}>
-                {form.dept || '카테고리 선택'}
+              <span className={form.categoryId ? styles.selectValue : styles.selectPlaceholder}>
+                {categories.find(c => c.id === form.categoryId)?.name || '카테고리 선택'}
               </span>
               <span className={`${styles.selectArrow} ${catOpen ? styles.selectArrowUp : ''}`}>
                 <IconChevronDown />
@@ -102,16 +115,16 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
             </div>
             {catOpen && (
               <ul className={styles.dropdown}>
-                {CATEGORIES.map(d => (
+                {categories.map(c => (
                   <li
-                    key={d}
-                    className={`${styles.dropdownItem} ${d === form.dept ? styles.dropdownItemActive : ''}`}
+                    key={c.id}
+                    className={`${styles.dropdownItem} ${c.id === form.categoryId ? styles.dropdownItemActive : ''}`}
                     onClick={() => {
-                      handleChange('dept', d);
+                      handleChange('categoryId', c.id);
                       setCatOpen(false);
                     }}
                   >
-                    {d}
+                    {c.name}
                   </li>
                 ))}
               </ul>
