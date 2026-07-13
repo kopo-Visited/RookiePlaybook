@@ -1,6 +1,10 @@
 package com.visited.www.global.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
+import com.visited.www.global.exception.ErrorCode;
+import com.visited.www.global.response.ApiResponse;
 import com.visited.www.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -16,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -24,8 +29,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String HEADER_NAME = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
 
+    /*
+     * 초기/임시 비밀번호(User.passwordChangeRequired=true) 상태에서도 반드시 열려있어야
+     * 하는 경로. SecurityConfig의 permitAll 경로(인증 자체가 필요없는 요청 - 예: 재로그인
+     * 시도)와, 비밀번호를 실제로 바꾸기 위한 경로/로그아웃을 포함한다. SecurityConfig의
+     * permitAll 목록이 바뀌면 이 목록도 함께 맞춰야 한다.
+     */
+    private static final Set<String> PASSWORD_CHANGE_EXEMPT_PATHS = Set.of(
+            "/api/health",
+            "/api/auth/login",
+            "/api/notices",
+            "/api/account-unlock-requests",
+            "/api/users/me/password",
+            "/api/auth/logout"
+    );
+
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(
@@ -42,11 +63,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 토큰 발급 이후 계정이 잠기거나(LOCKED) 비활성화돼도 만료 전까지 계속
             // 인증되는 것을 막기 위해 매 요청마다 현재 계정 상태를 확인한다.
-            boolean isActive = userRepository.findById(userId)
-                    .map(user -> user.getStatus() == UserStatus.ACTIVE)
-                    .orElse(false);
+            User user = userRepository.findById(userId).orElse(null);
 
-            if (isActive) {
+            if (user != null && user.getStatus() == UserStatus.ACTIVE) {
+                if (user.isPasswordChangeRequired() && !PASSWORD_CHANGE_EXEMPT_PATHS.contains(request.getRequestURI())) {
+                    respondPasswordChangeRequired(response);
+                    return;
+                }
+
                 var authentication = new UsernamePasswordAuthenticationToken(
                         userId,
                         null,
@@ -57,6 +81,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void respondPasswordChangeRequired(HttpServletResponse response) throws IOException {
+        response.setStatus(ErrorCode.PASSWORD_CHANGE_REQUIRED.getStatus().value());
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(
+                objectMapper.writeValueAsString(ApiResponse.fail(ErrorCode.PASSWORD_CHANGE_REQUIRED))
+        );
     }
 
     private String resolveToken(HttpServletRequest request) {
