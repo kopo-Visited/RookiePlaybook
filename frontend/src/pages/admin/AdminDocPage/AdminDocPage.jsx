@@ -469,20 +469,15 @@ function AdminDocPage() {
             <h2 className={styles.sectionTitle}>문서 관리</h2>
             <p className={styles.sectionSubtitle}>사내 지식문서, 파일, 공개 상태를 관리하세요.</p>
           </div>
-          <div className={styles.headerBtns}>
-            <button className={styles.btnOutline} onClick={() => setFaqModalOpen(true)}>
-              + FAQ 등록
-            </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => {
-                setEditDoc(null);
-                setModalOpen(true);
-              }}
-            >
-              + 문서 등록
-            </button>
-          </div>
+          <button
+            className={styles.btnPrimary}
+            onClick={() => {
+              setEditDoc(null);
+              setModalOpen(true);
+            }}
+          >
+            + 문서 등록
+          </button>
         </div>
 
         <div className={styles.filters}>
