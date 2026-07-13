@@ -552,6 +552,7 @@ function AdminUsersPage() {
     editUser,
     changeUserRole,
     changeUserStatus,
+    deleteUser,
   } = useAdminUsers();
   const currentUserId = useAuthStore(state => state.user?.userId);
 
@@ -658,7 +659,7 @@ function AdminUsersPage() {
   async function handleDeleteUser(user) {
     if (!window.confirm(`"${user.name}" 계정을 삭제하시겠습니까?`)) return;
     try {
-      await changeUserStatus(user.userId, 'DELETED');
+      await deleteUser(user.userId);
     } catch (err) {
       useToastStore.getState().show(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
     }

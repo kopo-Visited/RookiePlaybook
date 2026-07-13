@@ -84,3 +84,12 @@ export const updateAdminUserStatus = async (userId, status) => {
   });
   return response.data;
 };
+
+/**
+ * 관리자 사용자 삭제
+ * DELETE /api/admin/users/{userId}
+ */
+export const deleteAdminUser = async userId => {
+  const response = await axiosInstance.delete(`/api/admin/users/${userId}`);
+  return response.data;
+};

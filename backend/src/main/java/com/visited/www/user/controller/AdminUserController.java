@@ -9,6 +9,7 @@ import com.visited.www.user.dto.response.UserResponse;
 import com.visited.www.user.service.AdminUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,5 +58,15 @@ public class AdminUserController {
     ) {
         UserResponse response = adminUserService.updateUserStatus(userId, request);
         return ApiResponse.success(response);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ApiResponse<UserResponse> deleteUser(
+            @PathVariable Long userId,
+            Authentication authentication
+    ) {
+        Long currentUserId = (Long) authentication.getPrincipal();
+        UserResponse response = adminUserService.deleteUser(userId, currentUserId);
+        return ApiResponse.success(response, "사용자가 삭제되었습니다.");
     }
 }

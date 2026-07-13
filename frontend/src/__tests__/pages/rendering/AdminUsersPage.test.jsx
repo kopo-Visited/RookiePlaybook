@@ -170,16 +170,16 @@ describe('AdminUsersPage 인터랙션', () => {
     expect(screen.getByRole('dialog', { name: '사용자 정보 수정' })).toBeInTheDocument();
   });
 
-  it('삭제 버튼을 누르고 확인하면 상태변경 API를 DELETED로 호출한다', async () => {
+  it('삭제 버튼을 누르고 확인하면 삭제 API를 호출하고 목록을 재조회한다', async () => {
     // given
     mockDefaultHandlers();
-    let statusRequestBody = null;
+    let deletedUserId = null;
     server.use(
-      http.patch('/api/admin/users/:userId/status', async ({ request }) => {
-        statusRequestBody = await request.json();
+      http.delete('/api/admin/users/:userId', ({ params }) => {
+        deletedUserId = params.userId;
         return HttpResponse.json({
           success: true,
-          message: '',
+          message: '사용자가 삭제되었습니다.',
           data: { ...mockUsers[0], status: 'DELETED' },
         });
       })
@@ -193,7 +193,7 @@ describe('AdminUsersPage 인터랙션', () => {
     await userEvent.click(firstDeleteButton);
 
     // then
-    await waitFor(() => expect(statusRequestBody).toMatchObject({ status: 'DELETED' }));
+    await waitFor(() => expect(deletedUserId).toBe('1'));
     expect(confirmSpy).toHaveBeenCalled();
     confirmSpy.mockRestore();
   });
