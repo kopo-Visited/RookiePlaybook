@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../QnaListPage/QnaListPage.module.css';
 import { getAllQnas } from '../../../api/qnaApi';
@@ -9,6 +9,7 @@ import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
 import QnaDetailModal from '../../../components/QnaDetailModal/QnaDetailModal';
+import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
 import { pageWindow } from '../../../utils/pageWindow';
 import { displayWriter } from '../../../utils/maskName';
 import useAuthStore from '../../../stores/authStore';
@@ -28,6 +29,33 @@ const QNA_STATUS_STYLE = {
   ANSWERED: { color: '#12B886', background: '#E6F8F2' },
   ON_HOLD: { color: '#FFAD33', background: '#FFF5E6' },
 };
+
+function IconChevronDown() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function useDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return { open, setOpen, ref };
+}
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -55,6 +83,11 @@ function QnaAllPage() {
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [detailId, setDetailId] = useState(null);
+  const [category, setCategory] = useState('전체 카테고리');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const categoryDD = useDropdown();
 
   useEffect(() => {
     let ignore = false;
@@ -72,14 +105,30 @@ function QnaAllPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [refreshKey]);
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const paged = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const categories = useMemo(() => {
+    const set = new Set(rows.map(r => r.categoryName).filter(Boolean));
+    return ['전체 카테고리', ...set];
+  }, [rows]);
+
+  const filtered = useMemo(() => {
+    if (category === '전체 카테고리') return rows;
+    return rows.filter(r => r.categoryName === category);
+  }, [rows, category]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
+
+  function handleCategorySelect(opt) {
+    setCategory(opt);
+    categoryDD.setOpen(false);
+    setPage(1);
+  }
 
   return (
     <div className={styles.page}>
@@ -89,9 +138,41 @@ function QnaAllPage() {
       </div>
 
       <div className={styles.actionBar}>
-        <button className={styles.btnAsk} onClick={() => navigate(ROUTES.QNA.LIST)}>
-          내 질문 확인하기
-        </button>
+        <div className={styles.categoryDDWrap} ref={categoryDD.ref}>
+          <div
+            className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
+            onClick={() => categoryDD.setOpen(o => !o)}
+          >
+            <span>{category}</span>
+            <span
+              className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
+            >
+              <IconChevronDown />
+            </span>
+          </div>
+          {categoryDD.open && (
+            <ul className={styles.dropdown}>
+              {categories.map(opt => (
+                <li
+                  key={opt}
+                  className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
+                  onClick={() => handleCategorySelect(opt)}
+                >
+                  {opt}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className={styles.actionBtns}>
+          <button className={styles.btnAllQna} onClick={() => navigate(ROUTES.QNA.LIST)}>
+            내 질문 확인하기
+          </button>
+          <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
+            + 질문하기
+          </button>
+        </div>
       </div>
 
       <section className={styles.tableCard}>
@@ -179,6 +260,17 @@ function QnaAllPage() {
 
       {detailId != null && (
         <QnaDetailModal questionId={detailId} publicView onClose={() => setDetailId(null)} />
+      )}
+
+      {modalOpen && (
+        <QnaQuestionModal
+          onClose={() => setModalOpen(false)}
+          onSuccess={() => {
+            setRefreshKey(k => k + 1);
+            setCategory('전체 카테고리');
+            setPage(1);
+          }}
+        />
       )}
     </div>
   );
