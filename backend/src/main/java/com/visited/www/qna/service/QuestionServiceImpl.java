@@ -90,8 +90,10 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    @Transactional
     public QuestionDetailResponseDto getQuestion(Long userId, Long questionId) {
         Question question = findMyQuestion(userId, questionId);
+        question.increaseViewCount();
         Answer answer = answerRepository.findByQuestionId(questionId).orElse(null);
         return QuestionDetailResponseDto.of(question, answer);
     }
@@ -111,9 +113,11 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    @Transactional
     public PublicQuestionDetailResponseDto getPublicQuestion(Long questionId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException(questionId));
+        question.increaseViewCount();
         Answer answer = answerRepository.findByQuestionId(questionId).orElse(null);
         String writerName = userRepository.findById(question.getUserId())
                 .map(User::getName).orElse(null);

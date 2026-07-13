@@ -12,6 +12,7 @@ public record PublicQuestionListResponseDto(
         String writerName,
         Long writerId,
         QuestionStatus status,
+        Long viewCount,
         LocalDateTime createdAt
 ) {
     public static PublicQuestionListResponseDto from(Question question, String writerName) {
@@ -22,6 +23,7 @@ public record PublicQuestionListResponseDto(
                 writerName,
                 question.getUserId(),
                 question.getStatus(),
+                question.getViewCount(),
                 question.getCreatedAt()
         );
     }

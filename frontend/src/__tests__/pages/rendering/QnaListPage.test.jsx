@@ -69,17 +69,15 @@ describe('QnaListPage 렌더링', () => {
     expect(screen.getByText('내 질문 및 답변을 확인할 수 있어요.')).toBeInTheDocument();
   });
 
-  it('상태 필터 칩(전체/접수/처리중/답변완료/보류)이 모두 렌더링된다', () => {
+  it('지식문서식 필터 박스(검색어·카테고리·정렬)가 렌더링된다', () => {
     // given & when
     mockQnasSuccess();
     renderPage();
 
     // then
-    expect(screen.getByRole('button', { name: /전체/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /접수/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /처리중/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /답변완료/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /보류/ })).toBeInTheDocument();
+    expect(screen.getByText('검색어')).toBeInTheDocument();
+    expect(screen.getByText('정렬')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('제목을 입력하세요')).toBeInTheDocument();
   });
 
   it('질문하기 버튼이 렌더링된다', () => {
@@ -151,14 +149,14 @@ describe('QnaListPage 렌더링', () => {
 });
 
 describe('QnaListPage 인터랙션', () => {
-  it('상태 칩 클릭 시 해당 상태 항목만 테이블에 표시된다', async () => {
+  it('검색어 입력 시 제목이 일치하는 항목만 테이블에 표시된다', async () => {
     // given
     mockQnasSuccess();
     renderPage();
     await screen.findByText('VPN 연결 오류 문의');
 
     // when
-    await userEvent.click(screen.getByRole('button', { name: /접수/ }));
+    await userEvent.type(screen.getByPlaceholderText('제목을 입력하세요'), 'VPN');
 
     // then
     expect(screen.getByText('VPN 연결 오류 문의')).toBeInTheDocument();
