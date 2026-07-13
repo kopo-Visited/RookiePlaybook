@@ -343,3 +343,67 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 900px) {
+  .page {
+    gap: 14px;
+  }
+  .statGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .statCard {
+    height: auto;
+    padding: 16px 18px;
+    gap: 16px;
+  }
+  .statIcon {
+    width: 52px;
+    height: 52px;
+  }
+  .statValue {
+    font-size: 22px;
+  }
+  .midGrid,
+  .bottomGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .usersPanel {
+    grid-column: span 1;
+  }
+  .panel {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .statGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .statCard {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+  .statIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .statLabel {
+    font-size: 13px;
+  }
+  .statValue {
+    font-size: 20px;
+  }
+  .panel {
+    padding: 14px;
+  }
+  .panelTitle {
+    font-size: 14px;
+  }
+  .legendList {
+    grid-template-columns: 1fr;
+  }
+}
