@@ -68,11 +68,14 @@ public class EducationServiceImpl implements EducationService {
                 .map(Education::getId)
                 .collect(Collectors.toList());
 
-        // MyBatis로 진도 정보 한 번에 조회
-        Map<Long, EducationProgressDto> progressMap = educationMapper
-                .findProgressByUserIdAndEducationIds(userId, educationIds)
-                .stream()
-                .collect(Collectors.toMap(EducationProgressDto::getEducationId, p -> p));
+        // MyBatis로 진도 정보 한 번에 조회 (수강 레코드가 있는 과정만 반환됨)
+        // 조회할 과정이 없으면 IN () 로 인한 SQL 오류를 피하려 쿼리를 건너뛴다
+        Map<Long, EducationProgressDto> progressMap = educationIds.isEmpty()
+                ? Map.of()
+                : educationMapper
+                        .findProgressByUserIdAndEducationIds(userId, educationIds)
+                        .stream()
+                        .collect(Collectors.toMap(EducationProgressDto::getEducationId, p -> p));
 
         List<EducationListResponseDto> content = educations.getContent().stream()
                 .map(education -> {

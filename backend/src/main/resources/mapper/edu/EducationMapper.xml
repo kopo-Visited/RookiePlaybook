@@ -5,26 +5,28 @@
 <mapper namespace="com.visited.www.edu.mapper.EducationMapper">
 
     <!-- EDU-FR-001: 과정별 진도 정보 한 번에 조회 -->
+    <!-- 실제 수강(education_progress) 레코드가 있는 과정만 반환한다. 과거 educations를 기준으로
+         LEFT JOIN + COALESCE 하면 미수강 과정도 NOT_STARTED 행이 생겨 목록에서 '수강중'으로 오인된다.
+         education_progress를 기준으로 조회해 미수강 과정은 결과에서 아예 빠지도록 한다. -->
     <select id="findProgressByUserIdAndEducationIds"
             resultType="com.visited.www.edu.dto.mapper.EducationProgressDto">
         SELECT
-        e.id AS educationId,
-        COALESCE(ep.progress_rate, 0) AS progressRate,
-        COALESCE(ep.status, 'NOT_STARTED') AS status,
+        ep.education_id AS educationId,
+        ep.progress_rate AS progressRate,
+        ep.status AS status,
         ep.completed_at AS completedAt,
         COUNT(DISTINCT sc.stage_id) AS completedStages
-        FROM educations e
-        LEFT JOIN education_progress ep
-        ON ep.education_id = e.id AND ep.user_id = #{userId}
+        FROM education_progress ep
         LEFT JOIN education_stages es
-        ON es.education_id = e.id
+        ON es.education_id = ep.education_id
         LEFT JOIN stage_completions sc
-        ON sc.stage_id = es.id AND sc.user_id = #{userId}
-        WHERE e.id IN
+        ON sc.stage_id = es.id AND sc.user_id = ep.user_id
+        WHERE ep.user_id = #{userId}
+        AND ep.education_id IN
         <foreach collection="educationIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
-        GROUP BY e.id, ep.progress_rate, ep.status, ep.completed_at
+        GROUP BY ep.education_id, ep.progress_rate, ep.status, ep.completed_at
     </select>
 
     <!-- EDU-FR-002: 단계 목록 + 완료 여부 + 영상 시청 위치 한 번에 조회 -->
