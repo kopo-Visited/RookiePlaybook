@@ -242,6 +242,13 @@ function AdminQnaPage() {
       </header>
 
       <div className={styles.statsGrid}>
+        <StatCard
+          label="전체"
+          count={rows.length}
+          color="purple"
+          sub="전체 질문"
+          iconText="전체"
+        />
         {STAT_CARDS.map(card => (
           <StatCard
             key={card.key}

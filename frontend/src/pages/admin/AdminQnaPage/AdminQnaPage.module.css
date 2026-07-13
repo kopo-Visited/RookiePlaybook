@@ -29,16 +29,15 @@
   color: var(--color-text-secondary);
   line-height: 20px;
 }
-/* ── stats (콘텐츠관리 카드 스타일 · 보라색 제외 4색, 상태 고유색 유지) ── */
-/* 카드를 내용 폭으로 좁혀 4개가 서로 가깝게 붙도록(꽉 찬 1fr은 내용이 왼쪽에 뭉쳐 멀어 보임) */
+/* ── stats (콘텐츠관리 카드 스타일 · 전체 + 상태 4색) ── */
+/* 전체+상태 5개를 가로 꽉 채움(오른쪽 빈 공간 제거) */
 .statsGrid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
 }
 .statCard {
-  flex: 0 0 auto;
-  width: 230px;
+  min-width: 0;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
@@ -100,6 +99,10 @@
 .statIcon.green {
   background: #e6f8f2;
   color: #12b886;
+}
+.statIcon.purple {
+  background: #f1edff;
+  color: #8b6cff;
 }
 .statIcon.orange {
   background: #fff5e6;
@@ -358,7 +361,16 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 1100px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .tableCard {
     padding: 16px;
   }
@@ -368,9 +380,10 @@
 }
 
 @media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
   .statCard {
-    flex: 1 1 100%;
-    width: auto;
     height: auto;
     padding: 16px;
   }
