@@ -28,27 +28,26 @@ public class AccountUnlockRequestService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AccountUnlockRequestResponseDto create(AccountUnlockRequestCreateDto request) {
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new BusinessException("일치하는 계정을 찾을 수 없습니다.", ErrorCode.NOT_FOUND));
-
-        if (user.getStatus() != UserStatus.LOCKED) {
-            throw new BusinessException("잠긴 계정이 아닙니다.", ErrorCode.INVALID_REQUEST);
-        }
-
-        AccountUnlockRequest saved = accountUnlockRequestRepository.save(
-                AccountUnlockRequest.builder()
-                        .user(user)
-                        .name(request.name())
-                        .email(request.email())
-                        .employeeNo(request.employeeNo())
-                        .departmentName(request.departmentName())
-                        .phone(request.phone())
-                        .memo(request.memo())
-                        .build()
-        );
-
-        return AccountUnlockRequestResponseDto.from(saved);
+    /*
+     * 이메일 미존재 / 잠금 아님 / 정상 접수 세 경우 모두 호출자에게는 동일하게 반환한다.
+     * 인증 없이 호출 가능한 공개 엔드포인트라, 경우별로 다른 예외를 던지면 계정 존재 여부와
+     * 잠금 상태가 응답 코드/메시지로 그대로 노출되어 계정 열거(account enumeration)에 악용된다.
+     * 실제 요청 레코드는 이메일이 존재하고 잠금 상태일 때만 조용히 생성한다.
+     */
+    public void create(AccountUnlockRequestCreateDto request) {
+        userRepository.findByEmail(request.email())
+                .filter(user -> user.getStatus() == UserStatus.LOCKED)
+                .ifPresent(user -> accountUnlockRequestRepository.save(
+                        AccountUnlockRequest.builder()
+                                .user(user)
+                                .name(request.name())
+                                .email(request.email())
+                                .employeeNo(request.employeeNo())
+                                .departmentName(request.departmentName())
+                                .phone(request.phone())
+                                .memo(request.memo())
+                                .build()
+                ));
     }
 
     @Transactional(readOnly = true)
