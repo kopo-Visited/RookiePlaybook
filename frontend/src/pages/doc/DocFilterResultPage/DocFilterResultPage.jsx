@@ -72,6 +72,7 @@ function DocFilterResultPage() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [questionOpen, setQuestionOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [expandedFaqId, setExpandedFaqId] = useState(null);
 
   const { data: docRes, loading } = useFetch(() => getDocuments().catch(() => null), []);
   const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
@@ -113,6 +114,7 @@ function DocFilterResultPage() {
         id: f.id,
         colorKey: CATEGORY_COLOR_MAP[f.categoryName] ?? COLOR_KEYS.BLUE,
         question: f.question,
+        answer: f.answer,
         tags: f.categoryName,
       }));
   }, [faqRes, selectedDept]);
@@ -332,13 +334,22 @@ function DocFilterResultPage() {
             </div>
             {faqItems.length > 0 ? (
               <ul className={styles.faqList}>
-                {faqItems.map(({ id, colorKey, question, tags }) => (
-                  <li key={id} className={styles.faqItem}>
-                    <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
-                    <div className={styles.faqBody}>
-                      <span className={styles.faqQuestion}>{question}</span>
-                      <span className={styles.faqTags}>{tags}</span>
+                {faqItems.map(({ id, colorKey, question, answer, tags }) => (
+                  <li
+                    key={id}
+                    className={styles.faqItem}
+                    onClick={() => setExpandedFaqId(prev => (prev === id ? null : id))}
+                  >
+                    <div className={styles.faqRow}>
+                      <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
+                      <div className={styles.faqBody}>
+                        <span className={styles.faqQuestion}>{question}</span>
+                        <span className={styles.faqTags}>{tags}</span>
+                      </div>
                     </div>
+                    {expandedFaqId === id && answer && (
+                      <div className={styles.faqAnswer}>{answer}</div>
+                    )}
                   </li>
                 ))}
               </ul>

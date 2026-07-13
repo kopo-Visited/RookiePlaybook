@@ -87,6 +87,7 @@ function DocListPage() {
   const [bookmarks, setBookmarks] = useState([]);
   const [toast, setToast] = useState(null);
   const [bookmarkView, setBookmarkView] = useState(false);
+  const [expandedFaqId, setExpandedFaqId] = useState(null);
 
   const { data: apiRes, loading, error } = useFetch(() => getDocuments(), []);
   const docs = useMemo(() => apiRes?.data ?? [], [apiRes]);
@@ -98,6 +99,7 @@ function DocListPage() {
       id: f.id,
       colorKey: CATEGORY_COLOR_MAP[f.categoryName] ?? COLOR_KEYS.BLUE,
       question: f.question,
+      answer: f.answer,
       tags: f.categoryName,
     }));
   }, [faqRes]);
@@ -407,13 +409,22 @@ function DocListPage() {
               </button>
             </div>
             <ul className={styles.faqList}>
-              {faqItems.map(({ id, colorKey, question, tags }) => (
-                <li key={id} className={styles.faqItem}>
-                  <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
-                  <div className={styles.faqBody}>
-                    <span className={styles.faqQuestion}>{question}</span>
-                    <span className={styles.faqTags}>{tags}</span>
+              {faqItems.map(({ id, colorKey, question, answer, tags }) => (
+                <li
+                  key={id}
+                  className={styles.faqItem}
+                  onClick={() => setExpandedFaqId(prev => (prev === id ? null : id))}
+                >
+                  <div className={styles.faqRow}>
+                    <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
+                    <div className={styles.faqBody}>
+                      <span className={styles.faqQuestion}>{question}</span>
+                      <span className={styles.faqTags}>{tags}</span>
+                    </div>
                   </div>
+                  {expandedFaqId === id && answer && (
+                    <div className={styles.faqAnswer}>{answer}</div>
+                  )}
                 </li>
               ))}
             </ul>
