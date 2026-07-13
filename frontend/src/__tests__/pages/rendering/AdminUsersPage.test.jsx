@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
+import { vi } from 'vitest';
 import AdminUsersPage from '../../../pages/admin/AdminUsersPage/AdminUsersPage';
 
 const mockUsers = [
@@ -167,6 +168,34 @@ describe('AdminUsersPage 인터랙션', () => {
 
     // then
     expect(screen.getByRole('dialog', { name: '사용자 정보 수정' })).toBeInTheDocument();
+  });
+
+  it('삭제 버튼을 누르고 확인하면 삭제 API를 호출하고 목록을 재조회한다', async () => {
+    // given
+    mockDefaultHandlers();
+    let deletedUserId = null;
+    server.use(
+      http.delete('/api/admin/users/:userId', ({ params }) => {
+        deletedUserId = params.userId;
+        return HttpResponse.json({
+          success: true,
+          message: '사용자가 삭제되었습니다.',
+          data: { ...mockUsers[0], status: 'DELETED' },
+        });
+      })
+    );
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<AdminUsersPage />);
+    await screen.findByText('user1@company.com');
+
+    // when
+    const [firstDeleteButton] = screen.getAllByRole('button', { name: '삭제' });
+    await userEvent.click(firstDeleteButton);
+
+    // then
+    await waitFor(() => expect(deletedUserId).toBe('1'));
+    expect(confirmSpy).toHaveBeenCalled();
+    confirmSpy.mockRestore();
   });
 
   it('사용자 등록 시 입력한 정보로 등록 API를 호출하고 목록을 재조회한다', async () => {

@@ -7,6 +7,7 @@ import {
   updateAdminUser,
   updateAdminUserRole,
   updateAdminUserStatus,
+  deleteAdminUser,
 } from '../../api/adminUserApi';
 import { ERROR_MESSAGES } from '../../constants/message';
 
@@ -60,6 +61,11 @@ const useAdminUsers = () => {
     await fetchUsers();
   };
 
+  const deleteUser = async userId => {
+    await deleteAdminUser(userId);
+    await fetchUsers();
+  };
+
   return {
     users,
     departments,
@@ -70,6 +76,7 @@ const useAdminUsers = () => {
     editUser,
     changeUserRole,
     changeUserStatus,
+    deleteUser,
     refetch: fetchUsers,
   };
 };

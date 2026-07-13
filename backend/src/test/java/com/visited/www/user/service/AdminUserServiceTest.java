@@ -1,15 +1,19 @@
 package com.visited.www.user.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 import com.visited.www.entity.Department;
+import com.visited.www.entity.Role;
 import com.visited.www.entity.User;
 import com.visited.www.entity.UserStatus;
+import com.visited.www.global.exception.BusinessException;
 import com.visited.www.user.dto.request.DepartmentCreateRequest;
 import com.visited.www.user.dto.request.DepartmentUpdateRequest;
 import com.visited.www.user.dto.request.UserCreateRequest;
 import com.visited.www.user.dto.request.UserRoleUpdateRequest;
+import com.visited.www.user.dto.response.UserResponse;
 import com.visited.www.user.exception.DepartmentNotFoundException;
 import com.visited.www.user.exception.DuplicateDepartmentCodeException;
 import com.visited.www.user.exception.DuplicateEmailException;
@@ -53,7 +57,18 @@ class AdminUserServiceTest {
     }
 
     private User existingUser() {
-        User user = User.builder().name("홍길동").employeeNo("EMP001").status(UserStatus.ACTIVE).build();
+        Department department = Department.builder().name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+        Role role = Role.builder().code("ROLE_USER").name("일반 사용자").build();
+        ReflectionTestUtils.setField(role, "id", 1L);
+
+        User user = User.builder()
+                .name("홍길동")
+                .employeeNo("EMP001")
+                .status(UserStatus.ACTIVE)
+                .department(department)
+                .role(role)
+                .build();
         ReflectionTestUtils.setField(user, "id", 1L);
         return user;
     }
@@ -136,5 +151,43 @@ class AdminUserServiceTest {
 
         assertThatThrownBy(() -> adminUserService.updateUserRole(1L, new UserRoleUpdateRequest(1L)))
                 .isInstanceOf(RoleNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("사용자를 삭제하면 상태가 DELETED로 바뀐다")
+    void deleteUser_success() {
+        User user = existingUser();
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        UserResponse response = adminUserService.deleteUser(1L, 2L);
+
+        assertThat(response.status()).isEqualTo(UserStatus.DELETED.name());
+    }
+
+    @Test
+    @DisplayName("본인 계정을 삭제하려 하면 BusinessException이 발생한다")
+    void deleteUser_self() {
+        assertThatThrownBy(() -> adminUserService.deleteUser(1L, 1L))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 사용자를 다시 삭제하려 하면 BusinessException이 발생한다")
+    void deleteUser_alreadyDeleted() {
+        User user = User.builder().name("홍길동").employeeNo("EMP001").status(UserStatus.DELETED).build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> adminUserService.deleteUser(1L, 2L))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자를 삭제하려 하면 UserNotFoundException이 발생한다")
+    void deleteUser_userNotFound() {
+        given(userRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> adminUserService.deleteUser(999L, 1L))
+                .isInstanceOf(UserNotFoundException.class);
     }
 }

@@ -142,6 +142,27 @@ public class AdminUserService {
         return UserResponse.from(user);
     }
 
+    public UserResponse deleteUser(Long userId, Long currentUserId) {
+        if (userId.equals(currentUserId)) {
+            throw new BusinessException("본인 계정은 삭제할 수 없습니다.", ErrorCode.CONFLICT);
+        }
+
+        User user = getUserEntity(userId);
+
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new BusinessException("이미 삭제된 사용자입니다.", ErrorCode.CONFLICT);
+        }
+
+        user.updateInfo(
+                user.getName(),
+                user.getDepartment(),
+                user.getPosition(),
+                UserStatus.DELETED
+        );
+
+        return UserResponse.from(user);
+    }
+
     public void changePassword(Long userId, PasswordChangeRequest request) {
         User user = getUserEntity(userId);
 

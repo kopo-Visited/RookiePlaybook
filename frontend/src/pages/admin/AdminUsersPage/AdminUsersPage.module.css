@@ -197,7 +197,7 @@
 
 .usersTable {
   width: 100%;
-  min-width: 760px;
+  min-width: 960px;
   table-layout: fixed;
   border-collapse: collapse;
 }
@@ -318,6 +318,27 @@
 .rowActionBtn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
+}
+
+.rowActionBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rowActionBtn:disabled:hover {
+  border-color: var(--color-border-input);
+  color: #46556e;
+}
+
+.rowActionBtnDanger {
+  border-color: #ffc9d0;
+  color: var(--color-danger);
+}
+
+.rowActionBtnDanger:hover:not(:disabled) {
+  border-color: var(--color-danger);
+  background: #fff0f3;
+  color: var(--color-danger);
 }
 
 /* ── Bottom grid: dept / role distribution panels ── */
