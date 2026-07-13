@@ -126,11 +126,77 @@ class AdminUserServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 부서를 이름 변경하려 하면 DepartmentNotFoundException이 발생한다")
-    void renameDepartment_notFound() {
+    @DisplayName("존재하지 않는 부서를 수정하려 하면 DepartmentNotFoundException이 발생한다")
+    void updateDepartment_notFound() {
         given(departmentRepository.findById(999L)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> adminUserService.renameDepartment(999L, new DepartmentUpdateRequest("변경팀")))
+        assertThatThrownBy(() ->
+                        adminUserService.updateDepartment(999L, new DepartmentUpdateRequest("DEV", "변경팀")))
+                .isInstanceOf(DepartmentNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("다른 부서가 이미 쓰고 있는 코드로 변경하려 하면 DuplicateDepartmentCodeException이 발생한다")
+    void updateDepartment_duplicateCode() {
+        Department department = Department.builder().code("DEV").name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+        Department other = Department.builder().code("QA").name("품질팀").build();
+        ReflectionTestUtils.setField(other, "id", 2L);
+
+        given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
+        given(departmentRepository.findByCode("QA")).willReturn(Optional.of(other));
+
+        assertThatThrownBy(() -> adminUserService.updateDepartment(1L, new DepartmentUpdateRequest("QA", "개발팀")))
+                .isInstanceOf(DuplicateDepartmentCodeException.class);
+    }
+
+    @Test
+    @DisplayName("자기 자신의 코드로 그대로 수정하면 중복 예외 없이 정상 처리된다")
+    void updateDepartment_sameCodeAsSelf() {
+        Department department = Department.builder().code("DEV").name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+
+        given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
+        given(departmentRepository.findByCode("DEV")).willReturn(Optional.of(department));
+
+        adminUserService.updateDepartment(1L, new DepartmentUpdateRequest("DEV", "개발본부"));
+
+        assertThat(department.getName()).isEqualTo("개발본부");
+    }
+
+    @Test
+    @DisplayName("소속된 사용자가 있는 부서를 삭제하려 하면 BusinessException이 발생한다")
+    void deactivateDepartment_hasMembers() {
+        Department department = Department.builder().code("DEV").name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+
+        given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
+        given(userRepository.countByDepartment_IdAndStatusNot(1L, UserStatus.DELETED)).willReturn(1L);
+
+        assertThatThrownBy(() -> adminUserService.deactivateDepartment(1L))
+                .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("소속된 사용자가 없는 부서는 정상적으로 삭제(비활성화)된다")
+    void deactivateDepartment_success() {
+        Department department = Department.builder().code("DEV").name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+
+        given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
+        given(userRepository.countByDepartment_IdAndStatusNot(1L, UserStatus.DELETED)).willReturn(0L);
+
+        adminUserService.deactivateDepartment(1L);
+
+        assertThat(department.isActive()).isFalse();
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 부서를 삭제하려 하면 DepartmentNotFoundException이 발생한다")
+    void deactivateDepartment_notFound() {
+        given(departmentRepository.findById(999L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> adminUserService.deactivateDepartment(999L))
                 .isInstanceOf(DepartmentNotFoundException.class);
     }
 

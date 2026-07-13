@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import styles from './AdminSettingsPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
-import { getDepartments } from '../../../api/adminUserApi';
 import { getAdminNotices, deleteNotice } from '../../../api/noticeApi';
 import {
   getAccountUnlockRequests,
@@ -12,12 +11,10 @@ import {
 import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import EmptyState from '../../../components/EmptyState/EmptyState';
-import DepartmentFormModal from '../../../components/DepartmentFormModal/DepartmentFormModal';
 import NoticeFormModal from '../../../components/NoticeFormModal/NoticeFormModal';
 import UnlockRequestDetailModal from '../../../components/UnlockRequestDetailModal/UnlockRequestDetailModal';
 
 const TABS = [
-  { key: 'department', label: '부서 관리' },
   { key: 'notice', label: '공지사항 관리' },
   { key: 'unlock', label: '계정 잠금 해제' },
 ];
@@ -26,82 +23,6 @@ function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function DepartmentSection() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editDepartment, setEditDepartment] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const { data, loading, error } = useFetch(
-    () => getDepartments().then(r => r.data ?? r),
-    [refreshKey]
-  );
-  const items = data ?? [];
-
-  function openCreate() {
-    setEditDepartment(null);
-    setModalOpen(true);
-  }
-
-  function openEdit(dept) {
-    setEditDepartment(dept);
-    setModalOpen(true);
-  }
-
-  return (
-    <section className={styles.tableCard}>
-      <div className={styles.sectionHeader}>
-        <div>
-          <h2 className={styles.sectionTitle}>부서 목록</h2>
-          <p className={styles.sectionSubtitle}>부서를 추가하거나 이름을 변경하세요.</p>
-        </div>
-        <button className={styles.btnPrimary} onClick={openCreate}>
-          + 부서 추가
-        </button>
-      </div>
-
-      {loading && <Spinner />}
-      {!loading && error && <ErrorMessage />}
-      {!loading && !error && items.length === 0 && <EmptyState message="등록된 부서가 없습니다." />}
-      {!loading && !error && items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>부서 코드</th>
-              <th>부서명</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(dept => (
-              <tr key={dept.departmentId}>
-                <td>
-                  <span className={styles.secondary}>{dept.code}</span>
-                </td>
-                <td>
-                  <span className={styles.titleText}>{dept.name}</span>
-                </td>
-                <td>
-                  <button className={styles.actionBtn} onClick={() => openEdit(dept)}>
-                    이름 변경
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {modalOpen && (
-        <DepartmentFormModal
-          department={editDepartment}
-          onClose={() => setModalOpen(false)}
-          onSuccess={() => setRefreshKey(k => k + 1)}
-        />
-      )}
-    </section>
-  );
 }
 
 function NoticeSection() {
@@ -306,13 +227,13 @@ function UnlockRequestSection() {
 
 function AdminSettingsPage() {
   const location = useLocation();
-  const [tab, setTab] = useState(location.state?.tab ?? 'department');
+  const [tab, setTab] = useState(location.state?.tab ?? 'notice');
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>설정</h1>
-        <p className={styles.pageSubtitle}>부서, 공지사항, 계정 잠금해제 요청을 관리하세요.</p>
+        <p className={styles.pageSubtitle}>공지사항과 계정 잠금해제 요청을 관리하세요.</p>
       </div>
 
       <div className={styles.tabRow}>
@@ -327,7 +248,6 @@ function AdminSettingsPage() {
         ))}
       </div>
 
-      {tab === 'department' && <DepartmentSection />}
       {tab === 'notice' && <NoticeSection />}
       {tab === 'unlock' && <UnlockRequestSection />}
     </div>

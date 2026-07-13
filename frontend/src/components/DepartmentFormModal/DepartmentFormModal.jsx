@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './DepartmentFormModal.module.css';
-import { createDepartment, renameDepartment } from '../../api/adminUserApi';
+import { createDepartment, updateDepartment } from '../../api/adminUserApi';
 
 function IconX() {
   return (
@@ -35,12 +35,12 @@ function DepartmentFormModal({ department, onClose, onSuccess }) {
   }, [onClose]);
 
   async function handleSubmit() {
-    if (!name.trim() || (!isEdit && !code.trim()) || submitting) return;
+    if (!name.trim() || !code.trim() || submitting) return;
     setSubmitting(true);
     setError('');
     try {
       if (isEdit) {
-        await renameDepartment(department.departmentId, name.trim());
+        await updateDepartment(department.departmentId, { code: code.trim(), name: name.trim() });
       } else {
         await createDepartment({ code: code.trim(), name: name.trim() });
       }
@@ -57,7 +57,7 @@ function DepartmentFormModal({ department, onClose, onSuccess }) {
       <div className={styles.modal} onClick={e => e.stopPropagation()}>
         <div className={styles.modalTop}>
           <div className={styles.modalTitleWrap}>
-            <h2 className={styles.title}>{isEdit ? '부서 이름 변경' : '부서 추가'}</h2>
+            <h2 className={styles.title}>{isEdit ? '부서 수정' : '부서 추가'}</h2>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             <IconX />
@@ -65,17 +65,15 @@ function DepartmentFormModal({ department, onClose, onSuccess }) {
         </div>
 
         <div className={styles.formGrid}>
-          {!isEdit && (
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>부서 코드</label>
-              <input
-                className={styles.input}
-                placeholder="예: QA"
-                value={code}
-                onChange={e => setCode(e.target.value)}
-              />
-            </div>
-          )}
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>부서 코드</label>
+            <input
+              className={styles.input}
+              placeholder="예: QA"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+            />
+          </div>
 
           <div className={styles.field}>
             <label className={styles.fieldLabel}>부서명</label>
@@ -97,7 +95,7 @@ function DepartmentFormModal({ department, onClose, onSuccess }) {
           <button
             className={styles.btnPrimary}
             onClick={handleSubmit}
-            disabled={!name.trim() || (!isEdit && !code.trim()) || submitting}
+            disabled={!name.trim() || !code.trim() || submitting}
           >
             {submitting ? '저장 중...' : '저장'}
           </button>

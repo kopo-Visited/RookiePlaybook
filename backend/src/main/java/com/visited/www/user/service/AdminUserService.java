@@ -202,13 +202,31 @@ public class AdminUserService {
         return DepartmentResponse.from(departmentRepository.save(department));
     }
 
-    public DepartmentResponse renameDepartment(Long departmentId, DepartmentUpdateRequest request) {
+    public DepartmentResponse updateDepartment(Long departmentId, DepartmentUpdateRequest request) {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new DepartmentNotFoundException(departmentId));
 
-        department.rename(request.name());
+        departmentRepository.findByCode(request.code())
+                .filter(other -> !other.getId().equals(departmentId))
+                .ifPresent(other -> {
+                    throw new DuplicateDepartmentCodeException(request.code());
+                });
+
+        department.update(request.code(), request.name());
 
         return DepartmentResponse.from(department);
+    }
+
+    public void deactivateDepartment(Long departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new DepartmentNotFoundException(departmentId));
+
+        long memberCount = userRepository.countByDepartment_IdAndStatusNot(departmentId, UserStatus.DELETED);
+        if (memberCount > 0) {
+            throw new BusinessException("소속된 사용자가 있어 삭제할 수 없습니다.", ErrorCode.CONFLICT);
+        }
+
+        department.deactivate();
     }
 
     private User getUserEntity(Long userId) {
