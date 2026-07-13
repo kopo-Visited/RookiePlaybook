@@ -33,7 +33,7 @@
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
 }
 .statCard {
   background: var(--color-bg-white);
@@ -101,7 +101,7 @@
   color: #ffad33;
 }
 
-/* ── table card ── */
+/* ── table card (페이지 이동 시 흔들림 방지: 최소 높이 고정) ── */
 .tableCard {
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
@@ -112,6 +112,7 @@
   flex-direction: column;
   gap: var(--spacing-md);
   overflow: hidden;
+  min-height: 640px;
 }
 
 /* ── filters ── */
@@ -163,37 +164,55 @@
 .filterSpacer {
   flex: 1;
 }
-.btnDelete {
+.resetBtn {
   height: 44px;
-  padding: 0 24px;
-  background: var(--color-red);
-  border: none;
+  padding: 0 18px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-input);
   border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--color-bg-white);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-body);
   cursor: pointer;
   font-family: inherit;
   flex-shrink: 0;
   white-space: nowrap;
 }
-.btnDelete:disabled {
-  background: #f3b3bd;
-  cursor: not-allowed;
+.resetBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
-.btnSearch {
-  height: 44px;
-  padding: 0 24px;
-  background: var(--color-primary);
-  border: none;
+
+/* ── 관리 컬럼 액션 버튼 (콘텐츠관리 스타일) ── */
+.actionRow {
+  display: flex;
+  gap: 8px;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: var(--color-bg-white);
+  border: 1px solid #d7e1ef;
   border-radius: var(--radius-sm);
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--color-bg-white);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-body);
   cursor: pointer;
   font-family: inherit;
-  flex-shrink: 0;
   white-space: nowrap;
+}
+.actionBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  border-color: #f03e5c;
+  color: #f03e5c;
+  background: #fff0f3;
 }
 
 /* ── table ── */
@@ -293,7 +312,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin-top: var(--spacing-sm);
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
 }
 .pageArrow {
   font-size: 16px;
