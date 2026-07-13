@@ -27,5 +27,6 @@ export const updateQnaStatus = (id, data) =>
   axiosInstance.patch(`/api/admin/questions/${id}/status`, data);
 export const updateQnaVisibility = (id, isPublic) =>
   axiosInstance.patch(`/api/admin/questions/${id}/visibility`, { isPublic });
+export const deleteAdminQna = id => axiosInstance.delete(`/api/admin/questions/${id}`);
 export const convertQnaToFaq = (id, data) =>
   axiosInstance.post(`/api/admin/questions/${id}/faq`, data);

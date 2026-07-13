@@ -96,6 +96,33 @@
   min-width: 480px;
   border-collapse: collapse;
   font-size: 13px;
+  /* 관리자 표 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(관리자 표 전반 동일) — 제목/과정은 남은 폭 자동 */
+.colName {
+  width: 120px;
+}
+.colDept {
+  width: 100px;
+}
+.colYear {
+  width: 100px;
+}
+.colNum {
+  width: 90px;
+}
+.colProgress {
+  width: 140px;
+}
+.colStatus {
+  width: 108px;
+}
+.colDate {
+  width: 120px;
+}
+.colActions {
+  width: 160px;
 }
 .table thead tr th {
   text-align: left;
@@ -111,6 +138,8 @@
   padding: 14px 8px 14px 0;
   border-bottom: 1px solid #f5f7fa;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table tbody tr:last-child td {
   border-bottom: none;

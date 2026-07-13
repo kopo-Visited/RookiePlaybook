@@ -246,6 +246,12 @@ function EducationSection() {
         )}
         {!loading && !error && items.length > 0 && (
           <table className={styles.table}>
+            <colgroup>
+              <col />
+              <col className={styles.colYear} />
+              <col className={styles.colNum} />
+              <col className={styles.colActions} />
+            </colgroup>
             <thead>
               <tr>
                 <th>제목</th>
@@ -434,6 +440,14 @@ function ProgressView({ departments, educations }) {
       )}
       {!loading && !error && rows.length > 0 && (
         <table className={styles.table}>
+          <colgroup>
+            <col className={styles.colName} />
+            <col className={styles.colDept} />
+            <col />
+            <col className={styles.colProgress} />
+            <col className={styles.colStatus} />
+            <col className={styles.colDate} />
+          </colgroup>
           <thead>
             <tr>
               <th>이름</th>
@@ -523,6 +537,13 @@ function IncompleteView({ educations }) {
       )}
       {!loading && !error && rows.length > 0 && (
         <table className={styles.table}>
+          <colgroup>
+            <col className={styles.colName} />
+            <col className={styles.colDept} />
+            <col />
+            <col className={styles.colProgress} />
+            <col className={styles.colDate} />
+          </colgroup>
           <thead>
             <tr>
               <th>이름</th>
