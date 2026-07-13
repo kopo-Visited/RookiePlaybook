@@ -124,6 +124,25 @@
 .colActions {
   width: 160px;
 }
+/* 교육 과정 표(4컬럼): 폭 전체에 고르게 분배해 한 곳에 큰 간격/빈 공간이 몰리지 않게 한다.
+   관리 컬럼은 3버튼(단계 관리/수정/삭제)이 잘리지 않도록 충분히 확보한다. */
+.colEduTitle {
+  width: 40%;
+}
+.colEduYear {
+  width: 18%;
+}
+.colEduNum {
+  width: 16%;
+}
+.colEduActions {
+  width: 26%;
+}
+/* 교육 과정 표: 좁은 화면에서 컬럼이 과도하게 줄어 버튼이 잘리지 않도록 최소 폭 확보.
+   이 폭보다 좁아지면 tableCard(overflow-x:auto)에서 가로 스크롤된다. */
+.courseTable {
+  min-width: 780px;
+}
 .table thead tr th {
   text-align: left;
   font-size: 12px;

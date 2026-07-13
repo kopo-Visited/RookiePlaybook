@@ -245,12 +245,12 @@ function EducationSection() {
           />
         )}
         {!loading && !error && items.length > 0 && (
-          <table className={styles.table}>
+          <table className={`${styles.table} ${styles.courseTable}`}>
             <colgroup>
-              <col />
-              <col className={styles.colYear} />
-              <col className={styles.colNum} />
-              <col className={styles.colActions} />
+              <col className={styles.colEduTitle} />
+              <col className={styles.colEduYear} />
+              <col className={styles.colEduNum} />
+              <col className={styles.colEduActions} />
             </colgroup>
             <thead>
               <tr>
