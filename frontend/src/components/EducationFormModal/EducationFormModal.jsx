@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import styles from './EducationFormModal.module.css';
 import { createEducation, updateEducation } from '../../api/eduApi';
+import Dropdown from '../Dropdown/Dropdown';
+
+// 부서 미지정(공통) 선택지
+const COMMON_DEPARTMENT_VALUE = '';
 
 function IconX() {
   return (
@@ -15,7 +19,7 @@ function IconX() {
   );
 }
 
-function EducationFormModal({ education, onClose, onSuccess }) {
+function EducationFormModal({ education, departments = [], onClose, onSuccess }) {
   const isEdit = Boolean(education);
   const [title, setTitle] = useState(education?.title ?? '');
   const [description, setDescription] = useState(education?.description ?? '');
@@ -24,6 +28,10 @@ function EducationFormModal({ education, onClose, onSuccess }) {
   );
   const [contentYear, setContentYear] = useState(
     education?.contentYear != null ? String(education.contentYear) : ''
+  );
+  // 부서 미지정(공통)은 빈 문자열로 표현. 편집 시 기존 부서로 prefill
+  const [departmentId, setDepartmentId] = useState(
+    education?.departmentId != null ? String(education.departmentId) : COMMON_DEPARTMENT_VALUE
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -66,6 +74,7 @@ function EducationFormModal({ education, onClose, onSuccess }) {
         description: description.trim() || null,
         completionCriteria: criteriaNum,
         contentYear: contentYear === '' ? null : yearNum,
+        departmentId: departmentId === COMMON_DEPARTMENT_VALUE ? null : Number(departmentId),
       };
       if (isEdit) {
         await updateEducation(education.educationId, payload);
@@ -140,6 +149,21 @@ function EducationFormModal({ education, onClose, onSuccess }) {
             {!contentYearValid && (
               <p className={styles.formError}>콘텐츠 기준연도는 2000 이상이어야 합니다.</p>
             )}
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.fieldLabel}>대상 부서</label>
+            <Dropdown
+              value={departmentId}
+              onChange={setDepartmentId}
+              options={[
+                { value: COMMON_DEPARTMENT_VALUE, label: '공통 (전체 부서)' },
+                ...departments.map(dept => ({
+                  value: String(dept.departmentId),
+                  label: dept.name,
+                })),
+              ]}
+            />
           </div>
         </div>
 
