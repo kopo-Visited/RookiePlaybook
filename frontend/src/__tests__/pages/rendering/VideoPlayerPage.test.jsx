@@ -190,8 +190,8 @@ describe('VideoPlayerPage 렌더링', () => {
     video.currentTime = 29;
     fireEvent.timeUpdate(video);
 
-    // then
-    expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+    // then — 시청 상태 반영(flush)을 기다린 뒤 단정
+    await waitFor(() => expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled());
   });
 
   it('이어보기 위치가 이미 95% 이상이면 단계 완료 버튼이 바로 활성화된다', async () => {
@@ -226,6 +226,8 @@ describe('VideoPlayerPage 렌더링', () => {
     video.currentTime = 29;
     fireEvent.timeUpdate(video);
     const btn = screen.getByRole('button', { name: '단계 완료' });
+    // 시청 상태 반영으로 버튼이 활성화될 때까지 기다린 뒤 클릭 (disabled 상태 클릭 = no-op 방지)
+    await waitFor(() => expect(btn).toBeEnabled());
 
     // when
     await userEvent.click(btn);
@@ -292,11 +294,12 @@ describe('VideoPlayerPage 렌더링', () => {
     const video = document.querySelector('video');
     stubVideoTime(video);
 
-    // when
-    fireEvent.loadedMetadata(video);
-
-    // then — 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원되고, src에 프래그먼트가 없다
-    expect(video.currentTime).toBe(15);
+    // when & then — 복원 리스너(effect)가 붙을 때까지 재발화하며 기다린다 (부하 시 effect 지연 대비)
+    await waitFor(() => {
+      fireEvent.loadedMetadata(video);
+      expect(video.currentTime).toBe(15);
+    });
+    // 첫 프레임(0.1)이 아니라 이어보기 위치(15초)로 복원되므로 src에 프래그먼트가 없다
     expect(video.getAttribute('src')).not.toContain('#t=');
   });
 
@@ -349,8 +352,10 @@ describe('VideoPlayerPage 렌더링', () => {
     // then — 순차 잠금: 시청만으로는 다음으로 넘어갈 수 없다
     expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
 
-    // when — 단계 완료 처리
-    await userEvent.click(screen.getByRole('button', { name: '단계 완료' }));
+    // when — 단계 완료 처리 (버튼 활성화까지 기다린 뒤 클릭)
+    const completeBtn = screen.getByRole('button', { name: '단계 완료' });
+    await waitFor(() => expect(completeBtn).toBeEnabled());
+    await userEvent.click(completeBtn);
 
     // then — 완료 후 다음 영상 활성화
     await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
