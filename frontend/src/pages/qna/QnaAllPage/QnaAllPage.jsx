@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../QnaListPage/QnaListPage.module.css';
 import { getAllQnas } from '../../../api/qnaApi';
@@ -33,6 +33,9 @@ const QNA_STATUS_STYLE = {
 // 카테고리 요약 카드 아이콘 색상(순환)
 const SUM_COLORS = ['sumBlue', 'sumGreen', 'sumOrange', 'sumPink', 'sumPurple'];
 
+// 지식문서 필터 박스와 동일한 정렬 옵션
+const SORT_OPTIONS = ['최신순', '오래된순', '조회순'];
+
 function formatDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -40,6 +43,43 @@ function formatDate(iso) {
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yy}.${mm}.${dd}`;
+}
+
+// 지식문서 필터 박스에서 쓰는 아이콘/드롭다운 훅 (동일 UI 재사용)
+function IconSearch() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconChevronDown() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 9l6 6 6-6"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function useDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+  return { open, setOpen, ref };
 }
 
 function StatusBadge({ status }) {
@@ -63,6 +103,10 @@ function QnaAllPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('최신순');
+
+  const categoryDD = useDropdown();
+  const sortDD = useDropdown();
 
   useEffect(() => {
     let ignore = false;
@@ -93,13 +137,20 @@ function QnaAllPage() {
     ];
   }, [rows]);
 
+  const categoryOptions = useMemo(() => categoryCards.map(c => c.name), [categoryCards]);
+
   const filtered = useMemo(() => {
     let list = rows;
     if (category !== '전체 카테고리') list = list.filter(r => r.categoryName === category);
     const kw = search.trim();
     if (kw) list = list.filter(r => (r.title ?? '').includes(kw));
+    if (sort === '오래된순')
+      list = [...list].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    else if (sort === '조회순')
+      list = [...list].sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0));
+    else list = [...list].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return list;
-  }, [rows, category, search]);
+  }, [rows, category, search, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -111,6 +162,18 @@ function QnaAllPage() {
   function handleCategorySelect(opt) {
     setCategory(opt);
     setPage(1);
+  }
+
+  function handleCategoryDropdown(opt) {
+    setCategory(opt);
+    setPage(1);
+    categoryDD.setOpen(false);
+  }
+
+  function handleSortSelect(opt) {
+    setSort(opt);
+    setPage(1);
+    sortDD.setOpen(false);
   }
 
   return (
@@ -130,39 +193,102 @@ function QnaAllPage() {
         </div>
       </div>
 
-      {/* 카테고리 요약 카드 (지식문서식 클릭 필터) */}
-      <div className={styles.summaryRow}>
-        {categoryCards.map((c, idx) => (
-          <div
-            key={c.name}
-            className={`${styles.summaryCard} ${category === c.name ? styles.summaryCardActive : ''}`}
-            onClick={() => handleCategorySelect(category === c.name ? '전체 카테고리' : c.name)}
-          >
-            <div className={`${styles.summaryIcon} ${styles[SUM_COLORS[idx % SUM_COLORS.length]]}`}>
-              {c.label.slice(0, 1)}
-            </div>
-            <div className={styles.summaryText}>
-              <span className={styles.summaryCount}>{c.count}</span>
-              <span className={styles.summaryLabel}>{c.label}</span>
+      {/* 필터 박스 (지식문서 필터카드 그대로: 검색어 + 카테고리 + 정렬 + 요약카드) */}
+      <section className={styles.filterCard}>
+        <div className={styles.filterRow}>
+          <div className={`${styles.filterField} ${styles.filterFieldWide}`}>
+            <label className={styles.filterLabel}>검색어</label>
+            <div className={styles.inputWrap}>
+              <input
+                className={styles.input}
+                placeholder="제목을 입력하세요"
+                value={search}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+              <span className={styles.inputIcon}>
+                <IconSearch />
+              </span>
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* 검색 (지식문서식 자동 필터) */}
-      <div className={styles.filterRow}>
-        <div className={styles.searchWrap}>
-          <input
-            className={styles.searchInput}
-            placeholder="제목 검색"
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <div className={styles.filterField} ref={categoryDD.ref}>
+            <label className={styles.filterLabel}>카테고리</label>
+            <div
+              className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
+              onClick={() => categoryDD.setOpen(o => !o)}
+            >
+              <span>{category}</span>
+              <span
+                className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
+              >
+                <IconChevronDown />
+              </span>
+            </div>
+            {categoryDD.open && (
+              <ul className={styles.dropdown}>
+                {categoryOptions.map(opt => (
+                  <li
+                    key={opt}
+                    className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
+                    onClick={() => handleCategoryDropdown(opt)}
+                  >
+                    {opt}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className={styles.filterField} ref={sortDD.ref}>
+            <label className={styles.filterLabel}>정렬</label>
+            <div
+              className={`${styles.select} ${sortDD.open ? styles.selectOpen : ''}`}
+              onClick={() => sortDD.setOpen(o => !o)}
+            >
+              <span>{sort}</span>
+              <span className={`${styles.selectArrow} ${sortDD.open ? styles.selectArrowUp : ''}`}>
+                <IconChevronDown />
+              </span>
+            </div>
+            {sortDD.open && (
+              <ul className={styles.dropdown}>
+                {SORT_OPTIONS.map(opt => (
+                  <li
+                    key={opt}
+                    className={`${styles.dropdownItem} ${opt === sort ? styles.dropdownItemActive : ''}`}
+                    onClick={() => handleSortSelect(opt)}
+                  >
+                    {opt}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      </div>
+
+        <div className={styles.summaryRow}>
+          {categoryCards.map((c, idx) => (
+            <div
+              key={c.name}
+              className={`${styles.summaryCard} ${category === c.name ? styles.summaryCardActive : ''}`}
+              onClick={() => handleCategorySelect(category === c.name ? '전체 카테고리' : c.name)}
+            >
+              <div
+                className={`${styles.summaryIcon} ${styles[SUM_COLORS[idx % SUM_COLORS.length]]}`}
+              >
+                {c.label.slice(0, 1)}
+              </div>
+              <div className={styles.summaryText}>
+                <span className={styles.summaryCount}>{c.count}</span>
+                <span className={styles.summaryLabel}>{c.label}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className={styles.tableCard}>
         {loading && <Spinner />}
@@ -172,6 +298,13 @@ function QnaAllPage() {
         )}
         {!loading && !error && paged.length > 0 && (
           <table className={styles.table}>
+            <colgroup>
+              <col className={styles.colStatus} />
+              <col className={styles.colCategory} />
+              <col />
+              <col className={styles.colWriter} />
+              <col className={styles.colDate} />
+            </colgroup>
             <thead>
               <tr>
                 <th>상태</th>

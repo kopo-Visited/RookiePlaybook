@@ -10,6 +10,7 @@ public record QuestionListResponseDto(
         String title,
         String categoryName,
         QuestionStatus status,
+        Long viewCount,
         LocalDateTime createdAt
 ) {
     public static QuestionListResponseDto from(Question question) {
@@ -18,6 +19,7 @@ public record QuestionListResponseDto(
                 question.getTitle(),
                 question.getCategory().getName(),
                 question.getStatus(),
+                question.getViewCount(),
                 question.getCreatedAt()
         );
     }

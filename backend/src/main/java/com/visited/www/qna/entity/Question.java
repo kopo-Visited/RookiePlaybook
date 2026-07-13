@@ -59,6 +59,13 @@ public class Question {
     private QuestionStatus status = QuestionStatus.RECEIVED;
 
     /**
+     * 상세 조회 횟수. 목록 '조회순' 정렬에 사용한다.
+     * 기존 데이터가 있는 테이블에 ddl-auto=update로 컬럼이 추가돼도 실패하지 않도록 DB 기본값 0을 준다.
+     */
+    @Column(name = "view_count", nullable = false, columnDefinition = "bigint default 0")
+    private Long viewCount = 0L;
+
+    /**
      * FAQ 전환 시 생성된 faqs.id (B모듈 소유 테이블).
      * B파트 Faq Entity가 merge되기 전까지 ID만 보관한다. UNIQUE로 중복 전환을 막는다.
      */
@@ -96,6 +103,10 @@ public class Question {
 
     public void changeStatus(QuestionStatus status) {
         this.status = status;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
     }
 
     public void convertToFaq(Long faqId) {

@@ -43,15 +43,15 @@ VALUES
     (5, '네트워크', 'VPN, 사내망, 네트워크 장애 등',      'ACTIVE', 5, CURRENT_TIMESTAMP);
 ALTER TABLE question_categories ALTER COLUMN id RESTART WITH 6;
 
-INSERT INTO questions (id, user_id, question_category_id, title, content, status, is_deleted, created_at, updated_at)
+INSERT INTO questions (id, user_id, question_category_id, title, content, status, view_count, is_deleted, created_at, updated_at)
 VALUES
-    (1, 2, 2, '로컬 개발 환경 세팅이 궁금합니다',      '신규 입사자인데 백엔드/프론트 로컬 실행 방법을 알고 싶습니다.', 'RECEIVED',    false, DATEADD('HOUR', -1, CURRENT_TIMESTAMP), NULL),
-    (2, 2, 5, '사내 VPN 접속이 안 됩니다',             '재택 중인데 VPN 클라이언트에서 인증 오류가 납니다.',            'IN_PROGRESS', false, DATEADD('HOUR', -5, CURRENT_TIMESTAMP), DATEADD('HOUR', -2, CURRENT_TIMESTAMP)),
-    (3, 2, 4, '비밀번호 변경 주기 정책이 어떻게 되나요', '보안 정책상 비밀번호를 얼마마다 바꿔야 하는지 궁금합니다.',     'ANSWERED',    false, DATEADD('DAY',  -2, CURRENT_TIMESTAMP), DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
-    (4, 2, 2, 'Git 브랜치 전략이 궁금합니다',          '팀에서 사용하는 브랜치 네이밍과 머지 전략을 알려주세요.',        'ANSWERED',    false, DATEADD('DAY',  -3, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
-    (5, 2, 1, '재택근무 신청 절차 문의',               '재택근무를 하려면 어떤 절차를 밟아야 하나요?',                  'ON_HOLD',     false, DATEADD('DAY',  -4, CURRENT_TIMESTAMP), NULL),
-    (6, 3, 2, '사내 위키는 어디서 보나요',              '박신입입니다. 개발 관련 문서를 어디서 찾는지 궁금합니다.',        'RECEIVED',    false, DATEADD('HOUR', -3, CURRENT_TIMESTAMP), NULL),
-    (7, 3, 3, '노트북 사양 업그레이드 문의',            '빌드가 너무 느린데 장비 교체 신청이 가능한가요?',                'IN_PROGRESS', false, DATEADD('HOUR', -6, CURRENT_TIMESTAMP), NULL);
+    (1, 2, 2, '로컬 개발 환경 세팅이 궁금합니다',      '신규 입사자인데 백엔드/프론트 로컬 실행 방법을 알고 싶습니다.', 'RECEIVED',    42,  false, DATEADD('HOUR', -1, CURRENT_TIMESTAMP), NULL),
+    (2, 2, 5, '사내 VPN 접속이 안 됩니다',             '재택 중인데 VPN 클라이언트에서 인증 오류가 납니다.',            'IN_PROGRESS', 128, false, DATEADD('HOUR', -5, CURRENT_TIMESTAMP), DATEADD('HOUR', -2, CURRENT_TIMESTAMP)),
+    (3, 2, 4, '비밀번호 변경 주기 정책이 어떻게 되나요', '보안 정책상 비밀번호를 얼마마다 바꿔야 하는지 궁금합니다.',     'ANSWERED',    15,  false, DATEADD('DAY',  -2, CURRENT_TIMESTAMP), DATEADD('DAY', -1, CURRENT_TIMESTAMP)),
+    (4, 2, 2, 'Git 브랜치 전략이 궁금합니다',          '팀에서 사용하는 브랜치 네이밍과 머지 전략을 알려주세요.',        'ANSWERED',    87,  false, DATEADD('DAY',  -3, CURRENT_TIMESTAMP), DATEADD('DAY', -2, CURRENT_TIMESTAMP)),
+    (5, 2, 1, '재택근무 신청 절차 문의',               '재택근무를 하려면 어떤 절차를 밟아야 하나요?',                  'ON_HOLD',     8,   false, DATEADD('DAY',  -4, CURRENT_TIMESTAMP), NULL),
+    (6, 3, 2, '사내 위키는 어디서 보나요',              '박신입입니다. 개발 관련 문서를 어디서 찾는지 궁금합니다.',        'RECEIVED',    63,  false, DATEADD('HOUR', -3, CURRENT_TIMESTAMP), NULL),
+    (7, 3, 3, '노트북 사양 업그레이드 문의',            '빌드가 너무 느린데 장비 교체 신청이 가능한가요?',                'IN_PROGRESS', 231, false, DATEADD('HOUR', -6, CURRENT_TIMESTAMP), NULL);
 ALTER TABLE questions ALTER COLUMN id RESTART WITH 8;
 
 INSERT INTO answers (id, question_id, admin_id, content, created_at, updated_at)
