@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
 import AdminQnaDetail from './AdminQnaDetail';
 import { getAdminQnas } from '../../../api/qnaApi';
-import { pageWindow } from '../../../utils/pageWindow';
+import { slidingPageWindow } from '../../../utils/pageWindow';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
 import Dropdown from '../../../components/Dropdown/Dropdown';
@@ -21,11 +21,13 @@ const QNA_STATUS_CLASS = {
   ON_HOLD: 'stOnHold',
 };
 
+// 상태별 카드: 콘텐츠관리(AdminDocPage) 카드 스타일을 따르되 색은 보라색 제외 4색,
+// 각 상태 고유색(접수=핑크/처리중=파랑/답변완료=초록/보류=주황)을 유지한다.
 const STAT_CARDS = [
-  { key: 'RECEIVED', label: '접수' },
-  { key: 'IN_PROGRESS', label: '처리중' },
-  { key: 'ANSWERED', label: '답변완료' },
-  { key: 'ON_HOLD', label: '보류' },
+  { key: 'RECEIVED', label: '접수', color: 'pink', sub: '접수된 질문', iconText: '접수' },
+  { key: 'IN_PROGRESS', label: '처리중', color: 'blue', sub: '처리 중인 질문', iconText: '처리' },
+  { key: 'ANSWERED', label: '답변완료', color: 'green', sub: '답변 완료', iconText: '완료' },
+  { key: 'ON_HOLD', label: '보류', color: 'orange', sub: '보류된 질문', iconText: '보류' },
 ];
 
 const PAGE_SIZE = 10;
@@ -67,16 +69,15 @@ function StatusBadge({ status }) {
   );
 }
 
-function StatCard({ statusKey, label, count }) {
+function StatCard({ label, count, color, sub, iconText }) {
   return (
     <div className={styles.statCard}>
+      <div className={`${styles.statIcon} ${styles[color] ?? ''}`}>{iconText}</div>
       <div className={styles.statBody}>
         <span className={styles.statLabel}>{label}</span>
-        <span className={styles.statValue}>{count}</span>
+        <span className={styles.statValue}>{count}건</span>
+        <span className={styles.statSub}>{sub}</span>
       </div>
-      <span className={`${styles.statPill} ${styles[QNA_STATUS_CLASS[statusKey]] ?? ''}`}>
-        {label}
-      </span>
     </div>
   );
 }
@@ -200,9 +201,11 @@ function AdminQnaPage() {
         {STAT_CARDS.map(card => (
           <StatCard
             key={card.key}
-            statusKey={card.key}
             label={card.label}
             count={counts[card.key]}
+            color={card.color}
+            sub={card.sub}
+            iconText={card.iconText}
           />
         ))}
       </div>
@@ -312,7 +315,14 @@ function AdminQnaPage() {
 
         {totalPages > 1 && (
           <div className={styles.pagination}>
-            {pageWindow(page, totalPages).map((n, i) =>
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              ‹
+            </button>
+            {slidingPageWindow(page, totalPages).map((n, i) =>
               n === '…' ? (
                 <span key={`e${i}`} className={styles.pageNum} style={{ pointerEvents: 'none' }}>
                   …
@@ -327,6 +337,13 @@ function AdminQnaPage() {
                 </button>
               )
             )}
+            <button
+              className={styles.pageArrow}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              ›
+            </button>
           </div>
         )}
       </div>

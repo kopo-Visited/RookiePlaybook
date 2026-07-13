@@ -16,3 +16,24 @@ export function pageWindow(page, total, span = 1) {
   }
   return out;
 }
+
+// 현재 페이지부터 시작하는 연속 window(size개)를 만들고 마지막 페이지를 항상 붙인다.
+// 예: slidingPageWindow(1, 39) → [1,2,3,4,5,'…',39]
+//     slidingPageWindow(2, 39) → [2,3,4,5,6,'…',39]
+// 페이지가 적으면(size+1 이하) 전체를 그대로 나열한다.
+export function slidingPageWindow(page, total, size = 5) {
+  if (total <= size + 1) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  // 현재 페이지를 왼쪽 끝에 두되, 끝쪽에서는 window가 꽉 차도록 시작점을 당긴다.
+  let start = Math.min(page, total - size + 1);
+  if (start < 1) start = 1;
+  const out = [];
+  for (let i = start; i < start + size; i += 1) out.push(i);
+  const last = out[out.length - 1];
+  if (last < total) {
+    if (last < total - 1) out.push('…');
+    out.push(total);
+  }
+  return out;
+}

@@ -29,52 +29,76 @@
   color: var(--color-text-secondary);
   line-height: 20px;
 }
-/* ── stats ── */
+/* ── stats (콘텐츠관리 카드 스타일 · 보라색 제외 4색, 상태 고유색 유지) ── */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-md);
 }
 .statCard {
-  position: relative;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
   border-radius: var(--radius-xl);
-  padding: var(--spacing-lg);
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   height: 148px;
 }
 .statBody {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 4px;
 }
 .statLabel {
   font-size: 14.1px;
   font-weight: 900;
-  color: var(--color-text-body);
-  line-height: 24px;
+  color: var(--color-text-title);
+  line-height: 18px;
 }
 .statValue {
   font-size: 29.1px;
   font-weight: 900;
   color: var(--color-text-title);
-  line-height: 40px;
-  margin-top: var(--spacing-lg);
+  letter-spacing: -0.8px;
+  line-height: 38px;
+  margin-top: 8px;
 }
-.statPill {
-  position: absolute;
-  top: var(--spacing-lg);
-  right: var(--spacing-lg);
-  display: inline-flex;
+.statSub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+.statIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 60px;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: var(--radius-lg);
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 900;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.statIcon.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+.statIcon.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+.statIcon.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+.statIcon.orange {
+  background: #fff5e6;
+  color: #ffad33;
 }
 
 /* ── table card ── */
@@ -263,30 +287,47 @@
   background: var(--color-orange-bg);
 }
 
-/* ── pagination ── */
+/* ── pagination (문의관리 스타일 · 원형 + 화살표) ── */
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
+  gap: 6px;
   margin-top: var(--spacing-sm);
 }
+.pageArrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pageArrow:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+}
 .pageNum {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-white);
-  border: 1px solid var(--color-border);
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   font-size: 12px;
   font-weight: 700;
   color: var(--color-text-title);
   cursor: pointer;
+  background: none;
+  border: none;
   font-family: inherit;
 }
 .pageNumActive {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-bg-white);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 900;
 }
 
 /* ── Responsive ── */
