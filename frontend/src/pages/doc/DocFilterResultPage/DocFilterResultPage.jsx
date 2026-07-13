@@ -333,11 +333,7 @@ function DocFilterResultPage() {
             {faqItems.length > 0 ? (
               <ul className={styles.faqList}>
                 {faqItems.map(({ id, colorKey, question, tags }) => (
-                  <li
-                    key={id}
-                    className={styles.faqItem}
-                    onClick={() => navigate(ROUTES.QNA.ALL)}
-                  >
+                  <li key={id} className={styles.faqItem} onClick={() => navigate(ROUTES.QNA.ALL)}>
                     <div className={`${styles.faqQ} ${styles[colorKey]}`}>Q</div>
                     <div className={styles.faqBody}>
                       <span className={styles.faqQuestion}>{question}</span>
