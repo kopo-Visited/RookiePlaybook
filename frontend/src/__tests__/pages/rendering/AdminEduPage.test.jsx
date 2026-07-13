@@ -11,6 +11,8 @@ const mockEducations = [
     totalStages: 3,
     completedStages: 0,
     progressRate: 0,
+    departmentId: null,
+    departmentName: null, // 공통
   },
   {
     educationId: 2,
@@ -18,6 +20,8 @@ const mockEducations = [
     totalStages: 2,
     completedStages: 0,
     progressRate: 0,
+    departmentId: 1,
+    departmentName: '개발팀', // 개발
   },
 ];
 
@@ -75,33 +79,20 @@ function mockListSuccess(content = mockEducations) {
   );
 }
 
-// 과정이 2페이지에 걸쳐 있는 상황을 page 파라미터에 따라 다르게 응답한다
+// 전체 11개를 한 번에 받아 클라이언트에서 10개씩 페이지네이션한다 (최신순 = id 내림차순)
 function mockListPaged() {
+  const content = Array.from({ length: 11 }, (_, i) => ({
+    educationId: i + 1,
+    title: `과정 ${String(i + 1).padStart(2, '0')}`,
+    totalStages: 1,
+    completedStages: 0,
+    progressRate: 0,
+    departmentName: null,
+  }));
   server.use(
-    http.get('/api/admin/educations', ({ request }) => {
-      const page = Number(new URL(request.url).searchParams.get('page') ?? 0);
-      const content =
-        page === 0
-          ? [
-              {
-                educationId: 1,
-                title: '1페이지 과정',
-                totalStages: 1,
-                completedStages: 0,
-                progressRate: 0,
-              },
-            ]
-          : [
-              {
-                educationId: 2,
-                title: '2페이지 과정',
-                totalStages: 1,
-                completedStages: 0,
-                progressRate: 0,
-              },
-            ];
-      return apiOk({ content, totalPages: 2, number: page, size: 10, totalElements: 11 });
-    })
+    http.get('/api/admin/educations', () =>
+      apiOk({ content, totalPages: 1, number: 0, size: 100, totalElements: content.length })
+    )
   );
 }
 
@@ -134,6 +125,73 @@ describe('AdminEduPage 렌더링', () => {
     // then
     expect(await screen.findByText('신입사원 온보딩 교육')).toBeInTheDocument();
     expect(screen.getByText('백엔드 기초 교육')).toBeInTheDocument();
+  });
+
+  it('부서별 교육 개수 요약 카드(개발/인프라/보안/네트워크/공통)가 렌더링된다', async () => {
+    // given & when
+    mockListSuccess();
+    render(<AdminEduPage />);
+    await screen.findByText('신입사원 온보딩 교육');
+
+    // then — 고정 5개 카테고리 라벨
+    expect(screen.getByText('네트워크')).toBeInTheDocument();
+    expect(screen.getByText('보안')).toBeInTheDocument();
+    expect(screen.getByText('인프라')).toBeInTheDocument();
+    expect(screen.getByText('개발')).toBeInTheDocument();
+    expect(screen.getByText('공통')).toBeInTheDocument();
+  });
+
+  it('검색어를 입력하면 제목으로 교육 과정이 필터링된다', async () => {
+    // given
+    mockListSuccess();
+    render(<AdminEduPage />);
+    await screen.findByText('신입사원 온보딩 교육');
+
+    // when
+    await userEvent.type(screen.getByPlaceholderText('교육 과정명을 입력하세요'), '백엔드');
+
+    // then
+    expect(screen.getByText('백엔드 기초 교육')).toBeInTheDocument();
+    expect(screen.queryByText('신입사원 온보딩 교육')).not.toBeInTheDocument();
+  });
+
+  it('부서 요약 카드를 클릭하면 해당 부서 교육만 표시된다', async () => {
+    // given
+    mockListSuccess();
+    render(<AdminEduPage />);
+    await screen.findByText('신입사원 온보딩 교육');
+
+    // when — '개발' 카드 클릭 (백엔드 기초=개발팀만 남고 공통 온보딩은 제외)
+    await userEvent.click(screen.getByText('개발'));
+
+    // then
+    expect(screen.getByText('백엔드 기초 교육')).toBeInTheDocument();
+    expect(screen.queryByText('신입사원 온보딩 교육')).not.toBeInTheDocument();
+  });
+
+  it('교육 등록 폼 부서 선택지에 인사팀이 없다', async () => {
+    // given — 부서 목록에 인사팀 포함
+    mockListSuccess();
+    server.use(
+      http.get('/api/departments', () =>
+        apiOk([
+          { departmentId: 1, name: '개발팀' },
+          { departmentId: 4, name: '인사팀' },
+          { departmentId: 5, name: '네트워크팀' },
+        ])
+      )
+    );
+    render(<AdminEduPage />);
+    await screen.findByText('신입사원 온보딩 교육');
+
+    // when — 과정 추가 모달 열고 부서 드롭다운 펼치기
+    await userEvent.click(screen.getByRole('button', { name: '+ 과정 추가' }));
+    await userEvent.click(screen.getByText('공통 (전체 부서)'));
+
+    // then — 인사팀은 선택지에 없다
+    expect(screen.getByText('개발팀')).toBeInTheDocument();
+    expect(screen.getByText('네트워크팀')).toBeInTheDocument();
+    expect(screen.queryByText('인사팀')).not.toBeInTheDocument();
   });
 
   it('과정 목록에 콘텐츠 기준연도가 "2024 과정" 형태로 표시된다', async () => {
@@ -227,16 +285,16 @@ describe('AdminEduPage 렌더링', () => {
   });
 
   it('과정이 여러 페이지면 페이지네이션이 노출되고 페이지 이동이 동작한다', async () => {
-    // given
+    // given — 전체 11개, 최신순(id 내림차순)이라 1페이지엔 과정 11, 마지막 페이지엔 과정 01
     mockListPaged();
     render(<AdminEduPage />);
-    expect(await screen.findByText('1페이지 과정')).toBeInTheDocument();
+    expect(await screen.findByText('과정 11')).toBeInTheDocument();
 
     // when
     await userEvent.click(screen.getByRole('button', { name: '2' }));
 
     // then
-    expect(await screen.findByText('2페이지 과정')).toBeInTheDocument();
+    expect(await screen.findByText('과정 01')).toBeInTheDocument();
   });
 
   it('과정이 한 페이지뿐이면 페이지네이션이 표시되지 않는다', async () => {
