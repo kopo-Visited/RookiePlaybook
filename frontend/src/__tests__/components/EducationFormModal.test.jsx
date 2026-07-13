@@ -96,3 +96,93 @@ describe('EducationFormModal - 콘텐츠 기준연도', () => {
     await waitFor(() => expect(body).toMatchObject({ contentYear: null }));
   });
 });
+
+const mockDepartments = [
+  { departmentId: 1, name: '개발팀' },
+  { departmentId: 3, name: '보안팀' },
+];
+
+function renderCreateWithDepartments(departments = mockDepartments) {
+  render(<EducationFormModal departments={departments} onClose={() => {}} onSuccess={() => {}} />);
+}
+
+describe('EducationFormModal - 대상 부서', () => {
+  it('대상 부서 드롭다운이 렌더링되고 기본값은 공통이다', () => {
+    // given & when
+    renderCreateWithDepartments();
+
+    // then
+    expect(screen.getByText('대상 부서')).toBeInTheDocument();
+    expect(screen.getByText('공통 (전체 부서)')).toBeInTheDocument();
+  });
+
+  it('부서를 선택하면 등록 payload에 departmentId가 포함된다', async () => {
+    // given
+    const user = userEvent.setup();
+    let body = null;
+    server.use(
+      http.post('/api/admin/educations', async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({
+          success: true,
+          message: '',
+          data: { educationId: 7, title: '백엔드 기초 교육' },
+        });
+      })
+    );
+    renderCreateWithDepartments();
+    await fillRequired(user);
+
+    // when — 드롭다운을 열고 '개발팀' 선택
+    await user.click(screen.getByText('공통 (전체 부서)'));
+    await user.click(screen.getByText('개발팀'));
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    // then
+    await waitFor(() => expect(body).toMatchObject({ departmentId: 1 }));
+  });
+
+  it('부서를 지정하지 않으면 payload의 departmentId가 null로 전송된다', async () => {
+    // given
+    const user = userEvent.setup();
+    let body = null;
+    server.use(
+      http.post('/api/admin/educations', async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({
+          success: true,
+          message: '',
+          data: { educationId: 8, title: '백엔드 기초 교육' },
+        });
+      })
+    );
+    renderCreateWithDepartments();
+    await fillRequired(user);
+
+    // when (부서 미선택 = 공통)
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    // then
+    await waitFor(() => expect(body).toMatchObject({ departmentId: null }));
+  });
+
+  it('편집 시 기존 부서가 선택된 상태로 표시된다', () => {
+    // given & when
+    render(
+      <EducationFormModal
+        education={{
+          educationId: 2,
+          title: '백엔드 기초 교육',
+          completionCriteria: 100,
+          departmentId: 1,
+        }}
+        departments={mockDepartments}
+        onClose={() => {}}
+        onSuccess={() => {}}
+      />
+    );
+
+    // then — 드롭다운에 기존 부서명이 표시된다
+    expect(screen.getByText('개발팀')).toBeInTheDocument();
+  });
+});
