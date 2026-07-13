@@ -288,3 +288,46 @@
   border-color: var(--color-primary);
   color: var(--color-bg-white);
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tableCard {
+    padding: 16px;
+  }
+  .filters {
+    flex-wrap: wrap;
+  }
+  .searchWrap {
+    max-width: 100%;
+    width: 100%;
+  }
+  .filterSpacer {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  .statCard {
+    height: auto;
+    padding: 16px;
+  }
+  .filters {
+    gap: 8px;
+  }
+  .filterSelect {
+    min-width: 100%;
+  }
+  .filterDate {
+    width: 100%;
+  }
+  .btnDelete,
+  .btnSearch {
+    width: 100%;
+  }
+}

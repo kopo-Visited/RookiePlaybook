@@ -313,3 +313,35 @@
 .saveBtn:hover {
   background: #1a7ae0;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .addBtn {
+    align-self: flex-end;
+  }
+  .tableCard {
+    padding: 16px;
+  }
+  .scheduleRow {
+    flex-wrap: wrap;
+  }
+  .actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 16px;
+  }
+  .modal {
+    padding: 20px 16px;
+  }
+  .timeRow {
+    grid-template-columns: 1fr;
+  }
+}

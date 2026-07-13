@@ -27,3 +27,19 @@
   font-size: 14px;
   margin-bottom: 8px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .page {
+    padding: 24px;
+  }
+  .code {
+    font-size: 36px;
+  }
+  .title {
+    font-size: 15px;
+  }
+  .desc {
+    font-size: 13px;
+  }
+}

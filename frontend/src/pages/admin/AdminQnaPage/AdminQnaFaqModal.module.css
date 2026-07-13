@@ -205,3 +205,28 @@
   cursor: pointer;
   font-family: inherit;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .modal {
+    width: 95vw;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 16px;
+    max-height: 95vh;
+  }
+  .modalTitle {
+    font-size: 16px;
+  }
+  .modalActions {
+    flex-direction: column;
+  }
+  .cancelBtn,
+  .submitBtn {
+    width: 100%;
+  }
+}

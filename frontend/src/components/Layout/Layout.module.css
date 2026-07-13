@@ -225,3 +225,55 @@
   flex: 1;
   padding: 24px 40px 48px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 64px;
+  }
+  .logoText {
+    display: none;
+  }
+  .navItem {
+    padding: 12px;
+    justify-content: center;
+    gap: 0;
+  }
+  .navIcon {
+    width: 24px;
+    height: 24px;
+  }
+  .helpCard {
+    display: none;
+  }
+  .topbar {
+    padding: 20px 20px 0;
+  }
+  .main {
+    padding: 20px 20px 40px;
+  }
+  .userText {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    width: 48px;
+  }
+  .navItem {
+    padding: 10px;
+  }
+  .topbar {
+    padding: 14px 14px 0;
+    gap: 10px;
+  }
+  .main {
+    padding: 14px 14px 32px;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+}

@@ -318,3 +318,33 @@
   color: var(--color-orange);
   background: var(--color-orange-bg);
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+  .sideCol {
+    order: -1;
+  }
+  .card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 16px;
+  }
+  .qTitle {
+    font-size: 16px;
+  }
+  .actionRow {
+    flex-direction: column;
+  }
+  .btnOutline,
+  .btnPrimary,
+  .btnHold {
+    width: 100%;
+  }
+}

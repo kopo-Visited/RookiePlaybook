@@ -107,3 +107,19 @@
   font-size: 13px;
   color: var(--color-text-secondary);
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .tableCard {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .actionBar {
+    justify-content: flex-start;
+  }
+  .btnAsk {
+    width: 100%;
+  }
+}
