@@ -40,7 +40,7 @@ const useChangePassword = () => {
       await changePasswordApi({ currentPassword, newPassword });
       updateUser({ passwordChangeRequired: false });
       const destination =
-        user?.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DOC.LIST;
+        user?.roleCode === 'ROLE_ADMIN' ? ROUTES.ADMIN.DASHBOARD : ROUTES.DASHBOARD;
       navigate(destination, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
