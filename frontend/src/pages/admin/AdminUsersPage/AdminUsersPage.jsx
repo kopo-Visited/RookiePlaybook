@@ -741,7 +741,8 @@ function AdminUsersPage() {
           ) : (
             <>
               <table className={styles.usersTable}>
-                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일), 관리 칼럼(수정+삭제 버튼)은 남은 폭 */}
+                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일). 모든 칼럼 폭 고정 —
+                    남는 폭을 흡수하는 칼럼이 있으면 그 칼럼 안에 빈 공간이 몰려 보이므로 두지 않는다. */}
                 <colgroup>
                   <col style={{ width: '130px' }} />
                   <col style={{ width: '100px' }} />
@@ -750,7 +751,7 @@ function AdminUsersPage() {
                   <col style={{ width: '100px' }} />
                   <col style={{ width: '108px' }} />
                   <col style={{ width: '120px' }} />
-                  <col />
+                  <col style={{ width: '170px' }} />
                 </colgroup>
                 <thead>
                   <tr>
