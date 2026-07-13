@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './QnaListPage.module.css';
 import { ROUTES } from '../../../constants/routes';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
@@ -98,6 +98,7 @@ function StatusBadge({ status }) {
 
 function QnaListPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeStatus, setActiveStatus] = useState(null);
   const [category, setCategory] = useState('전체 카테고리');
   const [page, setPage] = useState(1);
@@ -107,6 +108,15 @@ function QnaListPage() {
   const [editTarget, setEditTarget] = useState(null);
 
   const categoryDD = useDropdown();
+
+  // 알림에서 넘어온 경우(state.openQuestionId) 해당 질문 상세 모달을 자동으로 연다
+  useEffect(() => {
+    if (location.state?.openQuestionId != null) {
+      setDetailId(location.state.openQuestionId);
+      // 뒤로가기/새로고침 시 다시 열리지 않도록 state 정리
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate]);
 
   const { data, loading, error } = useFetch(
     () => getQnas({ size: 100 }).then(r => r.data ?? r),

@@ -35,6 +35,7 @@ function formatRelativeTime(iso) {
 function mapNotification(n) {
   return {
     id: n.notificationId,
+    questionId: n.questionId,
     status: NOTIF_TYPE_TO_STATUS[n.type] ?? n.type,
     title: n.message,
     time: formatRelativeTime(n.createdAt),
@@ -246,8 +247,14 @@ function Layout() {
   }, []);
 
   const markRead = id => {
+    const notif = notifications.find(n => n.id === id);
     setNotifications(list => list.map(n => (n.id === id ? { ...n, read: true } : n)));
     markNotificationRead(id).catch(() => {});
+    setNotifOpen(false);
+    // 알림 클릭 시 해당 질문 상세로 이동 (내 질문 화면에서 모달 오픈)
+    if (notif?.questionId != null) {
+      navigate(ROUTES.QNA.LIST, { state: { openQuestionId: notif.questionId } });
+    }
   };
   const markAllRead = () => {
     const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
