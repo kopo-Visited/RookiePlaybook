@@ -706,6 +706,7 @@ function AdminDocPage() {
           onCreated={handleCreated}
           editDoc={editDoc}
           faqCategoryOptions={faqCategoryOptions}
+          docCategoryOptions={categoryOptions.map(c => ({ value: c, label: c }))}
         />
       )}
       <div className={styles.tableCard}>

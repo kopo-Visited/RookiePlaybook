@@ -3,7 +3,6 @@ import styles from './AdminDocModal.module.css';
 import { createDocument, updateDocument, createAdminFaq } from '../../../api/docApi';
 import Dropdown from '../../../components/Dropdown/Dropdown';
 
-const CATEGORIES = ['공통', '개발', '인프라', '보안', '네트워크'];
 const VISIBILITIES = ['공개', '비공개'];
 
 function IconX() {
@@ -38,10 +37,6 @@ function AdminDocFaqModal({ doc, onClose, onSuccess, faqCategoryOptions }) {
   const handleSubmit = async () => {
     if (!form.question.trim()) {
       setError('질문을 입력하세요.');
-      return;
-    }
-    if (!form.category) {
-      setError('카테고리를 선택하세요.');
       return;
     }
     if (!form.answer.trim()) {
@@ -141,7 +136,7 @@ function AdminDocFaqModal({ doc, onClose, onSuccess, faqCategoryOptions }) {
   );
 }
 
-function AdminDocModal({ onClose, onCreated, editDoc, faqCategoryOptions = [] }) {
+function AdminDocModal({ onClose, onCreated, editDoc, faqCategoryOptions = [], docCategoryOptions = [] }) {
   const isEdit = !!editDoc;
 
   const [form, setForm] = useState({
@@ -226,7 +221,7 @@ function AdminDocModal({ onClose, onCreated, editDoc, faqCategoryOptions = [] })
               <Dropdown
                 value={form.category}
                 onChange={val => handleChange('category', val)}
-                options={CATEGORIES.map(c => ({ value: c, label: c }))}
+                options={docCategoryOptions}
                 placeholder="카테고리 선택"
               />
             </div>
