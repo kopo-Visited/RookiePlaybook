@@ -196,8 +196,8 @@
 }
 
 .usersTable {
-  width: auto;
-  min-width: 988px;
+  width: 100%;
+  min-width: 900px;
   table-layout: fixed;
   border-collapse: collapse;
 }
