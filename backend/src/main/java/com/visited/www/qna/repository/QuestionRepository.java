@@ -20,6 +20,9 @@ public interface QuestionRepository
     Page<Question> findAllByUserIdAndStatusAndCategoryId(
             Long userId, QuestionStatus status, Long categoryId, Pageable pageable);
 
+    // '모든 질문'(사용자 공개 목록)은 관리자가 비공개 처리한 질문을 제외한다
+    Page<Question> findAllByIsPublicTrue(Pageable pageable);
+
     boolean existsByCategoryId(Long categoryId);
 
     long countByStatus(QuestionStatus status);

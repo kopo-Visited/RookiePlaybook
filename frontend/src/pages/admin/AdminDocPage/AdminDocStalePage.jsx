@@ -114,6 +114,14 @@ function AdminDocStalePage() {
         {!loading && staleDocs.length > 0 && (
           <div className={styles.tableScroll}>
             <table className={styles.table}>
+              <colgroup>
+                <col />
+                <col className={styles.colCategory} />
+                <col className={styles.colDate} />
+                <col className={styles.colNum} />
+                <col className={styles.colStatus} />
+                <col className={styles.colActions} />
+              </colgroup>
               <thead>
                 <tr>
                   <th>제목</th>

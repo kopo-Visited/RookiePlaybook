@@ -66,6 +66,13 @@ public class Question {
     private Long viewCount = 0L;
 
     /**
+     * 공개 여부. 관리자가 비공개로 전환하면 '모든 질문'(사용자) 목록/상세에서 숨긴다.
+     * 기존 데이터 테이블에도 ddl-auto=update로 안전하게 추가되도록 DB 기본값 true를 준다.
+     */
+    @Column(name = "is_public", nullable = false, columnDefinition = "boolean default true")
+    private Boolean isPublic = true;
+
+    /**
      * FAQ 전환 시 생성된 faqs.id (B모듈 소유 테이블).
      * B파트 Faq Entity가 merge되기 전까지 ID만 보관한다. UNIQUE로 중복 전환을 막는다.
      */
@@ -107,6 +114,10 @@ public class Question {
 
     public void increaseViewCount() {
         this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
+    }
+
+    public void changeVisibility(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public void convertToFaq(Long faqId) {

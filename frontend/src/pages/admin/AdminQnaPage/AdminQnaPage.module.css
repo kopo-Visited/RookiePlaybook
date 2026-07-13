@@ -43,7 +43,9 @@
   padding: 22px 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* 색상 아이콘 박스와 글자를 붙임(기존 space-between은 너무 벌어짐) */
+  justify-content: flex-start;
+  gap: 16px;
   height: 148px;
 }
 .statBody {
@@ -161,9 +163,6 @@
 .filterDate::placeholder {
   color: var(--color-text-secondary);
 }
-.filterSpacer {
-  flex: 1;
-}
 .resetBtn {
   height: 44px;
   padding: 0 18px;
@@ -219,6 +218,30 @@
 .table {
   width: 100%;
   border-collapse: collapse;
+  /* 문서 계열 3개 페이지 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(답변관리·콘텐츠관리·오래된문서 동일) — 제목은 남은 폭 자동 */
+.colAuthor {
+  width: 100px;
+}
+.colDept {
+  width: 100px;
+}
+.colCategory {
+  width: 132px;
+}
+.colStatus {
+  width: 108px;
+}
+.colDate {
+  width: 120px;
+}
+.colNum {
+  width: 80px;
+}
+.colActions {
+  width: 160px;
 }
 .table thead tr {
   background: #f6f8fb;
@@ -364,9 +387,6 @@
   .searchWrap {
     max-width: 100%;
     width: 100%;
-  }
-  .filterSpacer {
-    display: none;
   }
 }
 

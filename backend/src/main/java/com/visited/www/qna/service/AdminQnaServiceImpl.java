@@ -9,6 +9,7 @@ import com.visited.www.qna.dto.response.AnswerUpsertResponseDto;
 import com.visited.www.qna.dto.response.FaqConversionResponseDto;
 import com.visited.www.qna.dto.response.QuestionStatusHistoryResponseDto;
 import com.visited.www.qna.dto.response.QuestionStatusUpdateResponseDto;
+import com.visited.www.qna.dto.response.QuestionVisibilityUpdateResponseDto;
 import com.visited.www.qna.entity.Answer;
 import com.visited.www.qna.entity.Question;
 import com.visited.www.qna.entity.QuestionStatusHistory;
@@ -145,6 +146,16 @@ public class AdminQnaServiceImpl implements AdminQnaService {
         log.info("질문 상태 변경. questionId={}, status={}, adminId={}",
                 questionId, newStatus, adminId);
         return new QuestionStatusUpdateResponseDto(questionId, newStatus);
+    }
+
+    /** 질문 공개/비공개 전환. 비공개면 '모든 질문'(사용자) 목록/상세에서 숨긴다. */
+    @Override
+    @Transactional
+    public QuestionVisibilityUpdateResponseDto updateVisibility(Long questionId, boolean isPublic) {
+        Question question = findQuestion(questionId);
+        question.changeVisibility(isPublic);
+        log.info("질문 공개여부 변경. questionId={}, isPublic={}", questionId, isPublic);
+        return new QuestionVisibilityUpdateResponseDto(questionId, isPublic);
     }
 
     /**

@@ -515,6 +515,14 @@ function AdminDocPage() {
 
         <div className={styles.tableScroll}>
           <table className={styles.table}>
+            <colgroup>
+              <col />
+              <col className={styles.colCategory} />
+              <col className={styles.colStatus} />
+              <col className={styles.colDate} />
+              <col className={styles.colNum} />
+              <col className={styles.colActionsWide} />
+            </colgroup>
             <thead>
               <tr>
                 <th>문서명</th>
@@ -705,6 +713,12 @@ function AdminDocPage() {
         </div>
         <div className={styles.tableScroll}>
           <table className={styles.table}>
+            <colgroup>
+              <col />
+              <col className={styles.colCategory} />
+              <col className={styles.colStatus} />
+              <col className={styles.colActions} />
+            </colgroup>
             <thead>
               <tr>
                 <th>질문</th>

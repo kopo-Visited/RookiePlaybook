@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
 import AdminQnaDetail from './AdminQnaDetail';
-import { getAdminQnas } from '../../../api/qnaApi';
+import { getAdminQnas, updateQnaVisibility } from '../../../api/qnaApi';
 import { pageWindow } from '../../../utils/pageWindow';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
 import Dropdown from '../../../components/Dropdown/Dropdown';
+import useToastStore from '../../../stores/toastStore';
 
 const QNA_STATUS_LABEL = {
   RECEIVED: '접수',
@@ -51,7 +52,7 @@ function mapRow(q) {
     dept: q.departmentName ?? '-',
     category: q.categoryName,
     status: q.status,
-    isPublic: true,
+    isPublic: q.isPublic ?? true,
     createdAt: formatYYMMDD(q.createdAt),
   };
 }
@@ -83,18 +84,12 @@ function StatCard({ label, count, color, sub, iconText }) {
   );
 }
 
-// 관리 컬럼: 콘텐츠관리(AdminDocPage)와 동일한 수정/삭제/비공개 액션
-function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
+// 관리 컬럼: 수정 + 공개/비공개 토글 (콘텐츠관리 액션 스타일 동일, 삭제는 제외)
+function ActionButtons({ row, onEdit, onTogglePublic }) {
   return (
     <div className={styles.actionRow} onClick={e => e.stopPropagation()}>
       <button className={styles.actionBtn} onClick={() => onEdit(row)}>
         수정
-      </button>
-      <button
-        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-        onClick={() => onDelete(row)}
-      >
-        삭제
       </button>
       <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
         {row.isPublic ? '비공개' : '공개'}
@@ -175,10 +170,17 @@ function AdminQnaPage() {
   };
 
   const handleEdit = row => setDetailId(row.id);
-  // QNA 질문 삭제/공개토글 백엔드 API 미제공 → 화면 로컬 처리(기존 삭제 동작과 동일)
-  const handleDelete = row => setRows(rs => rs.filter(r => r.id !== row.id));
-  const handleTogglePublic = row =>
-    setRows(rs => rs.map(r => (r.id === row.id ? { ...r, isPublic: !r.isPublic } : r)));
+  // 공개/비공개 전환: 백엔드 반영 후 낙관적 업데이트, 실패 시 롤백
+  const handleTogglePublic = async row => {
+    const next = !row.isPublic;
+    setRows(rs => rs.map(r => (r.id === row.id ? { ...r, isPublic: next } : r)));
+    try {
+      await updateQnaVisibility(row.id, next);
+    } catch {
+      setRows(rs => rs.map(r => (r.id === row.id ? { ...r, isPublic: row.isPublic } : r)));
+      useToastStore.getState().show('공개 상태 변경에 실패했습니다.');
+    }
+  };
 
   if (detailId != null) {
     return (
@@ -261,13 +263,21 @@ function AdminQnaPage() {
               setPage(1);
             }}
           />
-          <div className={styles.filterSpacer} />
           <button className={styles.resetBtn} onClick={handleReset}>
             초기화
           </button>
         </div>
 
         <table className={styles.table}>
+          <colgroup>
+            <col />
+            <col className={styles.colAuthor} />
+            <col className={styles.colDept} />
+            <col className={styles.colCategory} />
+            <col className={styles.colStatus} />
+            <col className={styles.colDate} />
+            <col className={styles.colActions} />
+          </colgroup>
           <thead>
             <tr>
               <th>제목</th>
@@ -311,7 +321,6 @@ function AdminQnaPage() {
                     <ActionButtons
                       row={row}
                       onEdit={handleEdit}
-                      onDelete={handleDelete}
                       onTogglePublic={handleTogglePublic}
                     />
                   </td>

@@ -100,7 +100,8 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public PageResponse<PublicQuestionListResponseDto> getAllQuestions(Pageable pageable) {
-        Page<Question> page = questionRepository.findAll(pageable);
+        // 관리자가 비공개 처리한 질문은 '모든 질문'에서 제외
+        Page<Question> page = questionRepository.findAllByIsPublicTrue(pageable);
         List<Long> userIds = page.getContent().stream()
                 .map(Question::getUserId).distinct().toList();
         Map<Long, User> users = userRepository.findAllById(userIds).stream()
@@ -117,6 +118,10 @@ public class QuestionServiceImpl implements QuestionService {
     public PublicQuestionDetailResponseDto getPublicQuestion(Long questionId) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException(questionId));
+        // 관리자가 비공개 처리한 질문은 사용자 공개 상세에서 접근 불가
+        if (!Boolean.TRUE.equals(question.getIsPublic())) {
+            throw new QuestionNotFoundException(questionId);
+        }
         question.increaseViewCount();
         Answer answer = answerRepository.findByQuestionId(questionId).orElse(null);
         String writerName = userRepository.findById(question.getUserId())

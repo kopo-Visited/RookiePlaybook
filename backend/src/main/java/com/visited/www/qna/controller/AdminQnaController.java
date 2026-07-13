@@ -3,11 +3,13 @@ package com.visited.www.qna.controller;
 import com.visited.www.qna.dto.request.AnswerUpsertRequestDto;
 import com.visited.www.qna.dto.request.FaqConversionRequestDto;
 import com.visited.www.qna.dto.request.QuestionStatusUpdateRequestDto;
+import com.visited.www.qna.dto.request.QuestionVisibilityUpdateRequestDto;
 import com.visited.www.qna.dto.response.AdminQuestionDetailResponseDto;
 import com.visited.www.qna.dto.response.AdminQuestionListResponseDto;
 import com.visited.www.qna.dto.response.AnswerUpsertResponseDto;
 import com.visited.www.qna.dto.response.FaqConversionResponseDto;
 import com.visited.www.qna.dto.response.QuestionStatusUpdateResponseDto;
+import com.visited.www.qna.dto.response.QuestionVisibilityUpdateResponseDto;
 import com.visited.www.qna.enums.QuestionStatus;
 import com.visited.www.qna.service.AdminQnaService;
 import com.visited.www.global.response.ApiResponse;
@@ -87,6 +89,17 @@ public class AdminQnaController {
         return ResponseEntity.ok(ApiResponse.success(
                 adminQnaService.updateStatus(adminId, questionId, request),
                 "상태가 변경되었습니다."));
+    }
+
+    @Operation(summary = "질문 공개/비공개 전환",
+            description = "비공개로 전환하면 '모든 질문'(사용자) 목록/상세에서 숨겨진다")
+    @PatchMapping("/{questionId}/visibility")
+    public ResponseEntity<ApiResponse<QuestionVisibilityUpdateResponseDto>> updateVisibility(
+            @PathVariable Long questionId,
+            @Valid @RequestBody QuestionVisibilityUpdateRequestDto request) {
+        return ResponseEntity.ok(ApiResponse.success(
+                adminQnaService.updateVisibility(questionId, request.getIsPublic()),
+                request.getIsPublic() ? "공개로 전환되었습니다." : "비공개로 전환되었습니다."));
     }
 
     @Operation(summary = "FAQ 전환",
