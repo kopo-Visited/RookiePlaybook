@@ -106,6 +106,7 @@ function QnaListPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [detailId, setDetailId] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
+  const [search, setSearch] = useState('');
 
   const categoryDD = useDropdown();
 
@@ -149,8 +150,10 @@ function QnaListPage() {
     let list = items;
     if (activeStatus) list = list.filter(i => i.status === activeStatus);
     if (category !== '전체 카테고리') list = list.filter(i => i.categoryName === category);
+    const kw = search.trim();
+    if (kw) list = list.filter(i => (i.title ?? '').includes(kw));
     return list;
-  }, [items, activeStatus, category]);
+  }, [items, activeStatus, category, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -174,8 +177,18 @@ function QnaListPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>질문·답변</h1>
-        <p className={styles.pageSubtitle}>내 질문 및 답변을 확인할 수 있어요.</p>
+        <div className={styles.headerText}>
+          <h1 className={styles.pageTitle}>질문·답변</h1>
+          <p className={styles.pageSubtitle}>내 질문 및 답변을 확인할 수 있어요.</p>
+        </div>
+        <div className={styles.actionBtns}>
+          <button className={styles.btnAllQna} onClick={() => navigate(ROUTES.QNA.ALL)}>
+            모든 QNA 확인하기
+          </button>
+          <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
+            + 질문하기
+          </button>
+        </div>
       </div>
 
       {/* 상태 필터 칩 */}
@@ -199,8 +212,8 @@ function QnaListPage() {
         ))}
       </div>
 
-      {/* 액션 바 */}
-      <div className={styles.actionBar}>
+      {/* 필터: 카테고리 드롭다운 + 검색 (지식문서식 자동 필터) */}
+      <div className={styles.filterRow}>
         <div className={styles.categoryDDWrap} ref={categoryDD.ref}>
           <div
             className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
@@ -228,13 +241,16 @@ function QnaListPage() {
           )}
         </div>
 
-        <div className={styles.actionBtns}>
-          <button className={styles.btnAllQna} onClick={() => navigate(ROUTES.QNA.ALL)}>
-            모든 QNA 확인하기
-          </button>
-          <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
-            + 질문하기
-          </button>
+        <div className={styles.searchWrap}>
+          <input
+            className={styles.searchInput}
+            placeholder="제목 검색"
+            value={search}
+            onChange={e => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
       </div>
 

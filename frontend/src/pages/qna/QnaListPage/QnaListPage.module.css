@@ -6,7 +6,15 @@
 
 /* ── Page Header ── */
 .pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 8px;
+}
+.headerText {
+  display: flex;
+  flex-direction: column;
 }
 .pageTitle {
   font-size: 16px;
@@ -168,11 +176,46 @@
   color: #fff;
 }
 
-/* ── Table Card ── */
+/* ── Filter Row (카테고리 + 검색, 지식문서식 자동 필터) ── */
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.searchWrap {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+.searchInput {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: var(--color-bg-white);
+  font-size: 12px;
+  color: var(--color-text-body);
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
+.searchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* ── Table Card (페이지 이동 시 흔들림 방지: 최소 높이 고정 + 페이지네이션 하단 고정) ── */
 .tableCard {
   composes: card from '../../../styles/common.module.css';
   padding: 25px;
   overflow: hidden;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Table ── */
@@ -242,7 +285,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: auto;
+  padding-top: 20px;
 }
 .pageArrow {
   font-size: 14px;
