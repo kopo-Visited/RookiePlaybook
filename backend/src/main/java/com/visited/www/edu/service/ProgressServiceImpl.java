@@ -6,6 +6,7 @@ import com.visited.www.edu.StageNotFoundException;
 import com.visited.www.edu.dto.response.MyProgressResponseDto;
 import com.visited.www.edu.dto.response.StageCompleteResponseDto;
 import com.visited.www.edu.entity.Education;
+import com.visited.www.entity.Department;
 import com.visited.www.edu.entity.EducationMaterial;
 import com.visited.www.edu.entity.EducationProgress;
 import com.visited.www.edu.entity.EducationStage;
@@ -18,6 +19,7 @@ import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
 import com.visited.www.entity.User;
+import com.visited.www.user.exception.UserNotFoundException;
 import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,11 +133,17 @@ public class ProgressServiceImpl implements ProgressService {
         }
     }
 
-    // EDU-FR-005: 내 진도 조회 (진도 기록이 있는 과정만)
+    // EDU-FR-005: 내 진도 조회 (진도 기록이 있는 과정만, 공통 + 내 부서로 한정)
+    // 온보딩 목록(getEducations)의 findVisibleForDepartment 와 동일하게 부서 미지정(공통) + 내 부서 과정만 노출한다
     @Override
     @Transactional(readOnly = true)
     public List<MyProgressResponseDto> getMyProgress(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Long departmentId = user.getDepartment().getId();
+
         return educationProgressRepository.findAllByUserId(userId).stream()
+                .filter(progress -> isVisibleForDepartment(progress.getEducation(), departmentId))
                 .map(progress -> new MyProgressResponseDto(
                         progress.getEducation().getId(),
                         progress.getEducation().getTitle(),
@@ -144,5 +152,11 @@ public class ProgressServiceImpl implements ProgressService {
                         progress.getCompletedAt()
                 ))
                 .toList();
+    }
+
+    // 공통(부서 미지정) 또는 사용자 부서 과정이면 노출 대상 (findVisibleForDepartment 와 동일 술어)
+    private boolean isVisibleForDepartment(Education education, Long departmentId) {
+        Department dept = education.getDepartment();
+        return dept == null || dept.getId().equals(departmentId);
     }
 }
