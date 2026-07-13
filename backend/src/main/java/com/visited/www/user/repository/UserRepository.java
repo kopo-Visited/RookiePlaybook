@@ -21,6 +21,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByCreatedAtBefore(LocalDateTime dateTime);
 
+    long countByDepartment_IdAndStatusNot(Long departmentId, UserStatus status);
+
     @Query("SELECT u.lastLoginAt FROM User u WHERE u.lastLoginAt IS NOT NULL")
     List<LocalDateTime> findAllLastLoginTimestamps();
 

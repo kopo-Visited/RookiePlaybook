@@ -37,11 +37,23 @@ export const createDepartment = async ({ code, name }) => {
 };
 
 /**
- * 부서 이름 변경
+ * 부서 수정 (코드/이름)
  * PUT /api/admin/departments/{departmentId}
  */
-export const renameDepartment = async (departmentId, name) => {
-  const response = await axiosInstance.put(`/api/admin/departments/${departmentId}`, { name });
+export const updateDepartment = async (departmentId, { code, name }) => {
+  const response = await axiosInstance.put(`/api/admin/departments/${departmentId}`, {
+    code,
+    name,
+  });
+  return response.data;
+};
+
+/**
+ * 부서 삭제
+ * DELETE /api/admin/departments/{departmentId}
+ */
+export const deleteDepartment = async departmentId => {
+  const response = await axiosInstance.delete(`/api/admin/departments/${departmentId}`);
   return response.data;
 };
 

@@ -31,10 +31,16 @@ public class AdminDepartmentController {
     }
 
     @PutMapping("/{departmentId}")
-    public ApiResponse<DepartmentResponse> renameDepartment(
+    public ApiResponse<DepartmentResponse> updateDepartment(
             @PathVariable Long departmentId,
             @Valid @RequestBody DepartmentUpdateRequest request
     ) {
-        return ApiResponse.success(adminUserService.renameDepartment(departmentId, request), "부서명이 변경되었습니다.");
+        return ApiResponse.success(adminUserService.updateDepartment(departmentId, request), "부서 정보가 변경되었습니다.");
+    }
+
+    @DeleteMapping("/{departmentId}")
+    public ApiResponse<Void> deleteDepartment(@PathVariable Long departmentId) {
+        adminUserService.deactivateDepartment(departmentId);
+        return ApiResponse.success(null, "부서가 삭제되었습니다.");
     }
 }

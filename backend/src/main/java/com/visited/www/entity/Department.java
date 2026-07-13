@@ -45,7 +45,12 @@ public class Department {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void rename(String name) {
+    public void update(String code, String name) {
+        this.code = code;
         this.name = name;
+    }
+
+    public void deactivate() {
+        this.active = false;
     }
 }

@@ -56,6 +56,21 @@ function IconUsers() {
   );
 }
 
+function IconBuilding() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M8 7h1.5M8 11h1.5M8 15h1.5M14.5 7H16M14.5 11H16M14.5 15H16"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M10 21v-4h4v4" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function IconFolder() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -211,6 +226,7 @@ const NAV_ITEMS = [
   { to: ROUTES.ADMIN.EDU, label: '교육관리', icon: <IconBook /> },
   { to: ROUTES.ADMIN.INQUIRY, label: '문의 관리', icon: <IconFileTray /> },
   { to: ROUTES.ADMIN.SCHEDULE, label: '일정 관리', icon: <IconCalendar /> },
+  { to: ROUTES.ADMIN.DEPARTMENTS, label: '부서 관리', icon: <IconBuilding /> },
   { to: ROUTES.ADMIN.SETTINGS, label: '설정', icon: <IconSettings /> },
 ];
 

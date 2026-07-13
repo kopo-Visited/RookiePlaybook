@@ -17,7 +17,7 @@ function renderAdminLayout(initialPath = ROUTES.ADMIN.DASHBOARD) {
 }
 
 describe('AdminLayout', () => {
-  it('로고와 7개의 메뉴 항목이 렌더링된다', () => {
+  it('로고와 8개의 메뉴 항목이 렌더링된다', () => {
     // given & when
     renderAdminLayout();
 
@@ -26,6 +26,7 @@ describe('AdminLayout', () => {
     [
       '관리자 대시보드',
       '사용자 관리',
+      '부서 관리',
       '콘텐츠 관리',
       '답변 관리',
       '교육관리',

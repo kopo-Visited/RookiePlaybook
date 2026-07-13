@@ -11,6 +11,7 @@ import DocListPage from './pages/doc/DocListPage/DocListPage';
 import DocFilterResultPage from './pages/doc/DocFilterResultPage/DocFilterResultPage';
 import DocDetailPage from './pages/doc/DocDetailPage/DocDetailPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage/AdminUsersPage';
+import AdminDepartmentsPage from './pages/admin/AdminDepartmentsPage/AdminDepartmentsPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage/AdminDashboardPage';
 import AdminDocPage from './pages/admin/AdminDocPage/AdminDocPage';
 import AdminDocStalePage from './pages/admin/AdminDocPage/AdminDocStalePage';
@@ -71,6 +72,7 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboardPage />} />
             <Route path={ROUTES.ADMIN.USERS} element={<AdminUsersPage />} />
+            <Route path={ROUTES.ADMIN.DEPARTMENTS} element={<AdminDepartmentsPage />} />
             <Route path={ROUTES.ADMIN.DOC} element={<AdminDocPage />} />
             <Route path={ROUTES.ADMIN.DOC_STALE} element={<AdminDocStalePage />} />
             <Route path={ROUTES.ADMIN.QNA} element={<AdminQnaPage />} />

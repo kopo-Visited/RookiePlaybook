@@ -26,6 +26,7 @@ export const ROUTES = {
   ADMIN: {
     DASHBOARD: '/admin',
     USERS: '/admin/users',
+    DEPARTMENTS: '/admin/departments',
     DOC: '/admin/doc',
     DOC_STALE: '/admin/doc/stale',
     QNA: '/admin/qna',
