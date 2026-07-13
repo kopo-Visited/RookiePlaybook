@@ -24,7 +24,12 @@ const PAGE_SIZE = 10;
 
 function AdminFaqCreateModal({ onClose, onCreated, categoryOptions }) {
   const firstCatId = categoryOptions[0]?.value ?? null;
-  const [form, setForm] = useState({ categoryId: firstCatId, question: '', answer: '', isPublic: true });
+  const [form, setForm] = useState({
+    categoryId: firstCatId,
+    question: '',
+    answer: '',
+    isPublic: true,
+  });
   const [saving, setSaving] = useState(false);
 
   function handleChange(field, value) {
@@ -279,7 +284,9 @@ function AdminDocPage() {
 
   const faqCategoryOptions = useMemo(() => {
     const seen = new Map();
-    faqs.forEach(f => { if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName); });
+    faqs.forEach(f => {
+      if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName);
+    });
     return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
   }, [faqs]);
 

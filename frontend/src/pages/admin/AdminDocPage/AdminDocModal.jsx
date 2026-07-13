@@ -20,9 +20,10 @@ function IconX() {
 }
 
 function AdminDocFaqModal({ doc, onClose, onSuccess, faqCategoryOptions }) {
-  const initCategoryId = faqCategoryOptions.find(o => o.label === doc?.categoryName)?.value
-    ?? faqCategoryOptions[0]?.value
-    ?? null;
+  const initCategoryId =
+    faqCategoryOptions.find(o => o.label === doc?.categoryName)?.value ??
+    faqCategoryOptions[0]?.value ??
+    null;
   const [form, setForm] = useState({
     categoryId: initCategoryId,
     question: doc?.title ?? '',

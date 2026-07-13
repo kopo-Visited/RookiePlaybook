@@ -145,7 +145,9 @@ export default function DocFilterBox({ docs = [], onChange, placeholder = 'ê²€ìƒ
             onClick={() => categoryDD.setOpen(o => !o)}
           >
             <span>{category}</span>
-            <span className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}>
+            <span
+              className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
+            >
               <IconChevronDown />
             </span>
           </div>

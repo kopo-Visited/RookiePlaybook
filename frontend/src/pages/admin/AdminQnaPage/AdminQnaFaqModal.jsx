@@ -34,7 +34,9 @@ function AdminQnaFaqModal({ questionId, question, answer, onClose, onSuccess }) 
       .then(res => {
         const faqs = Array.isArray(res?.data) ? res.data : [];
         const seen = new Map();
-        faqs.forEach(f => { if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName); });
+        faqs.forEach(f => {
+          if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName);
+        });
         const opts = Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
         setCategories(opts);
         if (opts.length > 0) {
