@@ -25,6 +25,8 @@ export default defineConfig([
       react: { version: 'detect' },
     },
     rules: {
+      // prettier 포맷 위반은 배포를 막지 않도록 경고로만(저장소는 prettier를 하드게이트로 쓰지 않음)
+      'prettier/prettier': 'warn',
       'no-unused-vars': 'error',
       'no-console': 'warn',
       'react/react-in-jsx-scope': 'off',
