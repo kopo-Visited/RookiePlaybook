@@ -6,8 +6,10 @@ import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
 import {
   getAdminDocuments,
-  getFaqs,
+  getAdminFaqs,
   createAdminFaq,
+  updateAdminFaq,
+  deleteAdminFaq,
   deleteDocument,
   updateDocument,
   reviewDocument,
@@ -116,6 +118,99 @@ function AdminFaqCreateModal({ onClose, onCreated }) {
   );
 }
 
+function AdminFaqEditModal({ faq, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    categoryId: faq.categoryId ?? 1,
+    question: faq.question ?? '',
+    answer: faq.answer ?? '',
+    isPublic: faq.isPublic ?? true,
+  });
+  const [saving, setSaving] = useState(false);
+
+  function handleChange(field, value) {
+    setForm(prev => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.question.trim() || !form.answer.trim()) return;
+    setSaving(true);
+    try {
+      await updateAdminFaq(faq.id, form);
+      onSaved();
+      onClose();
+    } catch {
+      useToastStore.getState().show('FAQ 수정에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalBox} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>FAQ 수정</h2>
+          <button className={styles.modalClose} onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <form className={styles.modalForm} onSubmit={handleSubmit}>
+          <label className={styles.formLabel}>카테고리</label>
+          <select
+            className={styles.formInput}
+            value={form.categoryId}
+            onChange={e => handleChange('categoryId', Number(e.target.value))}
+          >
+            {CATEGORY_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+
+          <label className={styles.formLabel}>질문</label>
+          <input
+            className={styles.formInput}
+            placeholder="질문을 입력하세요"
+            value={form.question}
+            onChange={e => handleChange('question', e.target.value)}
+            required
+          />
+
+          <label className={styles.formLabel}>답변</label>
+          <textarea
+            className={styles.formTextarea}
+            placeholder="답변을 입력하세요"
+            value={form.answer}
+            onChange={e => handleChange('answer', e.target.value)}
+            rows={5}
+            required
+          />
+
+          <label className={styles.formCheckLabel}>
+            <input
+              type="checkbox"
+              checked={form.isPublic}
+              onChange={e => handleChange('isPublic', e.target.checked)}
+            />
+            공개
+          </label>
+
+          <div className={styles.modalFooter}>
+            <button type="button" className={styles.btnOutline} onClick={onClose}>
+              취소
+            </button>
+            <button type="submit" className={styles.btnPrimary} disabled={saving}>
+              {saving ? '저장 중...' : '저장'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 const STATUS_COLOR = {
   공개: COLOR_KEYS.BLUE2,
   비공개: COLOR_KEYS.AMBER,
@@ -176,15 +271,18 @@ function AdminDocPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [faqModalOpen, setFaqModalOpen] = useState(false);
+  const [editFaq, setEditFaq] = useState(null);
   const [editDoc, setEditDoc] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [faqRefreshKey, setFaqRefreshKey] = useState(0);
   const [page, setPage] = useState(1);
 
   const { data: apiRes, loading } = useFetch(() => getAdminDocuments(), [refreshKey]);
   const docs = useMemo(() => apiRes?.data ?? [], [apiRes]);
 
-  const { data: faqRes } = useFetch(() => getFaqs(), []);
-  const totalFaqs = faqRes?.data?.length ?? 0;
+  const { data: faqRes } = useFetch(() => getAdminFaqs(), [faqRefreshKey]);
+  const faqs = useMemo(() => (Array.isArray(faqRes?.data) ? faqRes.data : []), [faqRes]);
+  const totalFaqs = faqs.length;
 
   const publicDocs = useMemo(() => docs.filter(d => d.isPublic).length, [docs]);
   const privateDocs = useMemo(() => docs.filter(d => !d.isPublic).length, [docs]);
@@ -337,6 +435,16 @@ function AdminDocPage() {
     setStatusFilter('');
     setPage(1);
   };
+
+  const handleDeleteFaq = useCallback(async faq => {
+    if (!window.confirm(`"${faq.question}" FAQ를 삭제하시겠습니까?`)) return;
+    try {
+      await deleteAdminFaq(faq.id);
+      setFaqRefreshKey(k => k + 1);
+    } catch {
+      useToastStore.getState().show('FAQ 삭제에 실패했습니다.');
+    }
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -590,10 +698,94 @@ function AdminDocPage() {
           editDoc={editDoc}
         />
       )}
+      <div className={styles.tableCard}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <h2 className={styles.sectionTitle}>FAQ 관리</h2>
+            <p className={styles.sectionSubtitle}>등록된 FAQ를 수정하거나 삭제하세요.</p>
+          </div>
+          <button className={styles.btnOutline} onClick={() => setFaqModalOpen(true)}>
+            + FAQ 등록
+          </button>
+        </div>
+        <div className={styles.tableScroll}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>질문</th>
+                <th>카테고리</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {faqs.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className={styles.textCell}
+                    style={{ textAlign: 'center', padding: '40px' }}
+                  >
+                    등록된 FAQ가 없습니다.
+                  </td>
+                </tr>
+              )}
+              {faqs.map(faq => (
+                <tr key={faq.id}>
+                  <td>
+                    <span className={styles.docTitle}>{faq.question}</span>
+                  </td>
+                  <td>
+                    <div>
+                      <Badge
+                        colorKey={DEPT_COLOR[faq.categoryName] ?? COLOR_KEYS.BLUE}
+                        size={BADGE_SIZES.SM}
+                      >
+                        {faq.categoryName}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <Badge
+                        colorKey={faq.isPublic ? COLOR_KEYS.BLUE2 : COLOR_KEYS.AMBER}
+                        size={BADGE_SIZES.SM}
+                      >
+                        {faq.isPublic ? '공개' : '비공개'}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.actionRow}>
+                      <button className={styles.actionBtn} onClick={() => setEditFaq(faq)}>
+                        수정
+                      </button>
+                      <button
+                        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                        onClick={() => handleDeleteFaq(faq)}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {faqModalOpen && (
         <AdminFaqCreateModal
           onClose={() => setFaqModalOpen(false)}
-          onCreated={() => setRefreshKey(k => k + 1)}
+          onCreated={() => setFaqRefreshKey(k => k + 1)}
+        />
+      )}
+      {editFaq && (
+        <AdminFaqEditModal
+          faq={editFaq}
+          onClose={() => setEditFaq(null)}
+          onSaved={() => setFaqRefreshKey(k => k + 1)}
         />
       )}
     </div>
