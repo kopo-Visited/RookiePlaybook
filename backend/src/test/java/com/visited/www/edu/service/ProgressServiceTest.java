@@ -13,6 +13,7 @@ import com.visited.www.edu.entity.EducationStage;
 import com.visited.www.edu.entity.StageCompletion;
 import com.visited.www.edu.entity.VideoProgress;
 import com.visited.www.edu.enums.ProgressStatus;
+import com.visited.www.entity.Department;
 import com.visited.www.edu.repository.EducationMaterialRepository;
 import com.visited.www.edu.repository.EducationProgressRepository;
 import com.visited.www.edu.repository.EducationRepository;
@@ -309,11 +310,35 @@ class ProgressServiceTest {
 
     // ==================== EDU-FR-005: 내 진도 조회 ====================
 
+    // 부서를 가진 사용자 mock (getMyProgress 는 사용자 부서로 노출 범위를 판단한다)
+    private User userWithDepartment(Long departmentId) {
+        Department department = mock(Department.class);
+        given(department.getId()).willReturn(departmentId);
+        User user = mock(User.class);
+        given(user.getDepartment()).willReturn(department);
+        return user;
+    }
+
+    // departmentId 가 있으면 부서 과정, null 이면 공통 과정(부서 미지정)으로 취급되는 Education mock
+    private Education educationOfDepartment(Long educationId, String title, Long departmentId) {
+        Education education = mock(Education.class);
+        given(education.getId()).willReturn(educationId);
+        given(education.getTitle()).willReturn(title);
+        if (departmentId != null) {
+            Department department = mock(Department.class);
+            given(department.getId()).willReturn(departmentId);
+            given(education.getDepartment()).willReturn(department);
+        }
+        return education;
+    }
+
     @Test
     @DisplayName("내 진도 조회 - 진도 기록이 있는 과정을 과정명과 함께 반환한다")
     void getMyProgress_success() {
         // given
         Long userId = 1L;
+        User user = userWithDepartment(100L);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
         Education education1 = mock(Education.class);
         given(education1.getId()).willReturn(1L);
@@ -350,10 +375,52 @@ class ProgressServiceTest {
     }
 
     @Test
+    @DisplayName("내 진도 조회 - 공통 + 내 부서 과정만 반환하고 다른 부서 과정은 제외한다")
+    void getMyProgress_excludesOtherDepartment() {
+        // given
+        Long userId = 1L;
+        Long myDeptId = 100L;
+        User user = userWithDepartment(myDeptId);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+
+        Education commonEdu = educationOfDepartment(1L, "공통 교육", null);
+        Education mineEdu = educationOfDepartment(2L, "개발 부서 교육", myDeptId);
+        // 다른 부서(200) 과정 - 필터로 제외되어 id/title 은 조회되지 않으므로 부서 정보만 스텁한다
+        Department otherDept = mock(Department.class);
+        given(otherDept.getId()).willReturn(200L);
+        Education otherEdu = mock(Education.class);
+        given(otherEdu.getDepartment()).willReturn(otherDept);
+
+        EducationProgress common = mock(EducationProgress.class);
+        given(common.getEducation()).willReturn(commonEdu);
+        given(common.getProgressRate()).willReturn(30);
+
+        EducationProgress mine = mock(EducationProgress.class);
+        given(mine.getEducation()).willReturn(mineEdu);
+        given(mine.getProgressRate()).willReturn(50);
+
+        EducationProgress other = mock(EducationProgress.class);
+        given(other.getEducation()).willReturn(otherEdu);
+
+        given(educationProgressRepository.findAllByUserId(userId))
+                .willReturn(List.of(common, mine, other));
+
+        // when
+        List<MyProgressResponseDto> result = progressService.getMyProgress(userId);
+
+        // then - 공통(1) + 내 부서(2)만, 다른 부서(3)는 제외
+        assertThat(result).extracting(MyProgressResponseDto::educationId)
+                .containsExactly(1L, 2L)
+                .doesNotContain(3L);
+    }
+
+    @Test
     @DisplayName("내 진도 조회 - 진도 기록이 없으면 빈 목록을 반환한다")
     void getMyProgress_empty() {
         // given
         Long userId = 1L;
+        User user = userWithDepartment(100L);
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(educationProgressRepository.findAllByUserId(userId)).willReturn(List.of());
 
         // when
