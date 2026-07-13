@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
 import AdminQnaDetail from './AdminQnaDetail';
 import { getAdminQnas } from '../../../api/qnaApi';
-import { slidingPageWindow } from '../../../utils/pageWindow';
+import { pageWindow } from '../../../utils/pageWindow';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
 import Dropdown from '../../../components/Dropdown/Dropdown';
@@ -322,15 +322,21 @@ function AdminQnaPage() {
             >
               ‹
             </button>
-            {slidingPageWindow(page, totalPages).map(n => (
-              <button
-                key={n}
-                className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
-                onClick={() => setPage(n)}
-              >
-                {n}
-              </button>
-            ))}
+            {pageWindow(page, totalPages).map((n, i) =>
+              n === '…' ? (
+                <span key={`e${i}`} className={styles.pageNum} style={{ pointerEvents: 'none' }}>
+                  …
+                </span>
+              ) : (
+                <button
+                  key={n}
+                  className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
+                  onClick={() => setPage(n)}
+                >
+                  {n}
+                </button>
+              )
+            )}
             <button
               className={styles.pageArrow}
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}

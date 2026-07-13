@@ -16,14 +16,3 @@ export function pageWindow(page, total, span = 1) {
   }
   return out;
 }
-
-// 현재 페이지부터 시작하는 연속 window(size개)만 만든다. (마지막 페이지/구분자 없음)
-// 예: slidingPageWindow(1, 39) → [1,2,3,4,5]
-//     slidingPageWindow(2, 39) → [2,3,4,5,6]
-// 끝쪽에서는 window가 꽉 차도록 시작점을 당긴다. 전체가 size보다 적으면 있는 만큼만.
-export function slidingPageWindow(page, total, size = 5) {
-  const count = Math.min(size, total);
-  let start = Math.min(page, total - count + 1);
-  if (start < 1) start = 1;
-  return Array.from({ length: count }, (_, i) => start + i);
-}
