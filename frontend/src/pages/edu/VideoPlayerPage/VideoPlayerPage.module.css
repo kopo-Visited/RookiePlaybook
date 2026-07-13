@@ -35,7 +35,7 @@
 /* ── 2단 레이아웃: 좌측 단계 목록 사이드바 + 우측 영상 카드 ── */
 .layout {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 20px;
   width: 100%;
 }
@@ -53,6 +53,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  /* 영상 카드 높이에 맞춰 늘어나되(align-items: stretch), 내부에서만 스크롤되도록 */
+  min-height: 0;
 }
 .sidebarHeading {
   font-size: 15px;
@@ -64,6 +66,10 @@
   list-style: none;
   display: flex;
   flex-direction: column;
+  /* 단계 개수와 무관하게 사이드바 높이는 영상 카드에 맞추고, 넘치면 목록만 스크롤 */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .stageItem {
   display: flex;

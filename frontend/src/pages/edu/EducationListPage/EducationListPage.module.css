@@ -6,6 +6,10 @@
 
 /* ── Page Header (DocListPage 패턴 재사용) ── */
 .pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 8px;
 }
 .pageTitle {
