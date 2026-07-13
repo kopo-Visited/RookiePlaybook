@@ -74,7 +74,7 @@ const shortcuts = [
   { colorKey: 'blue', icon: <IconSearch />, label: '문서 검색', route: ROUTES.DOC.LIST },
   { colorKey: 'green', icon: <IconBook />, label: '교육 찾기', route: ROUTES.EDU.LIST },
   { colorKey: 'pink', icon: <IconChat />, label: '질문하기', route: null, action: 'qna' },
-  { colorKey: 'purple', icon: <IconList />, label: 'FAQ 전체', route: ROUTES.DOC.LIST },
+  { colorKey: 'purple', icon: <IconList />, label: 'FAQ 전체', route: ROUTES.QNA.ALL },
   { colorKey: 'orange', icon: <IconDocText />, label: '최근 문서', route: ROUTES.DOC.LIST },
 ];
 
@@ -497,7 +497,7 @@ function DashboardPage() {
         <section className={styles.card}>
           <div className={styles.sectionHead}>
             <span className={styles.sectionTitle}>자주 묻는 질문</span>
-            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.DOC.LIST)}>
+            <button className={styles.linkBtn} onClick={() => navigate(ROUTES.QNA.ALL)}>
               전체보기 ›
             </button>
           </div>
@@ -506,7 +506,7 @@ function DashboardPage() {
               <li className={styles.emptyText}>등록된 FAQ가 없습니다.</li>
             )}
             {recentFaqs.map(faq => (
-              <li key={faq.id} className={styles.noticeItem}>
+              <li key={faq.id} className={styles.noticeItem} onClick={() => navigate(ROUTES.QNA.ALL)} style={{ cursor: 'pointer' }}>
                 <span className={styles.noticeTitle}>
                   <span style={{ color: '#2288FF', fontWeight: 900, marginRight: 6 }}>Q.</span>
                   {faq.question}
