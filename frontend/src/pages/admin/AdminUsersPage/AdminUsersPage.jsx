@@ -728,15 +728,16 @@ function AdminUsersPage() {
           ) : (
             <>
               <table className={styles.usersTable}>
+                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일), 이메일은 남은 폭 */}
                 <colgroup>
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '8%' }} />
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '12%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '16%' }} />
-                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '130px' }} />
+                  <col style={{ width: '100px' }} />
+                  <col style={{ width: '90px' }} />
+                  <col />
+                  <col style={{ width: '100px' }} />
+                  <col style={{ width: '108px' }} />
+                  <col style={{ width: '120px' }} />
+                  <col style={{ width: '160px' }} />
                 </colgroup>
                 <thead>
                   <tr>

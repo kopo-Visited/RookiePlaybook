@@ -62,6 +62,13 @@ function AdminInquiryPage() {
         )}
         {!loading && !error && items.length > 0 && (
           <table className={styles.table}>
+            <colgroup>
+              <col className={styles.colStatus} />
+              <col className={styles.colType} />
+              <col className={styles.colAuthor} />
+              <col />
+              <col className={styles.colDate} />
+            </colgroup>
             <thead>
               <tr>
                 <th>상태</th>
