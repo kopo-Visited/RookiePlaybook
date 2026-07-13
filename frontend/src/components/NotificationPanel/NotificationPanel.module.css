@@ -2,13 +2,13 @@
   position: absolute;
   top: 52px;
   right: 0;
-  width: 420px;
-  max-height: 440px;
+  width: 360px;
+  max-height: 420px;
   overflow-y: auto;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   box-shadow: 0px 20px 60px rgba(33, 45, 70, 0.16);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   z-index: 60;
   cursor: default;
 }
@@ -17,11 +17,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 14px 18px;
   border-bottom: 1px solid var(--color-border);
 }
 .title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 900;
   color: var(--color-text-title);
 }
@@ -30,8 +30,8 @@
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--color-primary);
 }
 .markAll:disabled {
@@ -41,15 +41,15 @@
 .headerActions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .clearAll {
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
-  font-size: 16px;
-  font-weight: 900;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--color-red);
 }
 .clearAll:disabled {
@@ -70,8 +70,8 @@
 .item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: 10px;
+  padding: 12px 18px;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-white);
   cursor: pointer;
@@ -94,11 +94,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  height: 32px;
-  padding: 0 12px;
+  min-width: 44px;
+  height: 26px;
+  padding: 0 10px;
   border-radius: var(--radius-full);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
   flex-shrink: 0;
 }
@@ -109,7 +109,7 @@
   min-width: 0;
 }
 .itemTitle {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-text-title);
   white-space: nowrap;
