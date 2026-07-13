@@ -32,6 +32,12 @@ import com.visited.www.edu.repository.EducationRepository;
 import com.visited.www.edu.repository.EducationStageRepository;
 import com.visited.www.edu.repository.StageCompletionRepository;
 import com.visited.www.edu.repository.VideoProgressRepository;
+import com.visited.www.entity.Department;
+import com.visited.www.entity.User;
+import com.visited.www.user.exception.DepartmentNotFoundException;
+import com.visited.www.user.exception.UserNotFoundException;
+import com.visited.www.user.repository.DepartmentRepository;
+import com.visited.www.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -58,11 +64,17 @@ public class EducationServiceImpl implements EducationService {
     private final EducationProgressRepository educationProgressRepository;
     private final StageCompletionRepository stageCompletionRepository;
     private final StageAccessPolicy stageAccessPolicy;
+    private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
 
-    // EDU-FR-001: 교육 과정 목록 조회
+    // EDU-FR-001: 교육 과정 목록 조회 (로그인 사용자의 부서 + 공통 과정만 노출, 페이지네이션 유지)
     @Override
     public Page<EducationListResponseDto> getEducations(Long userId, Pageable pageable) {
-        Page<Education> educations = educationRepository.findAll(pageable);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Page<Education> educations = educationRepository
+                .findVisibleForDepartment(user.getDepartment().getId(), pageable);
 
         List<Long> educationIds = educations.getContent().stream()
                 .map(Education::getId)
@@ -78,31 +90,47 @@ public class EducationServiceImpl implements EducationService {
                         .collect(Collectors.toMap(EducationProgressDto::getEducationId, p -> p));
 
         List<EducationListResponseDto> content = educations.getContent().stream()
-                .map(education -> {
-                    EducationProgressDto progress = progressMap.get(education.getId());
-                    int progressRate = progress != null ? progress.getProgressRate() : 0;
-                    boolean isCompleted = progress != null &&
-                            "COMPLETED".equals(progress.getStatus());
-                    LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
-                    int totalStages = education.getStages().size();
-                    int completedStages = progress != null ? progress.getCompletedStages() : 0;
-                    boolean enrolled = progress != null;
-
-                    return new EducationListResponseDto(
-                            education.getId(),
-                            education.getTitle(),
-                            totalStages,
-                            completedStages,
-                            progressRate,
-                            isCompleted,
-                            completedAt,
-                            education.getContentYear(),
-                            enrolled
-                    );
-                })
+                .map(education -> toListResponse(education, progressMap.get(education.getId())))
                 .collect(Collectors.toList());
 
         return new PageImpl<>(content, pageable, educations.getTotalElements());
+    }
+
+    // 관리자 교육 과정 전체 목록 조회 (부서 필터 없음 - 관리 페이지 전용). 진도 정보는 사용하지 않는다
+    @Override
+    public Page<EducationListResponseDto> getAllEducations(Pageable pageable) {
+        Page<Education> educations = educationRepository.findAll(pageable);
+
+        List<EducationListResponseDto> content = educations.getContent().stream()
+                .map(education -> toListResponse(education, null))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, educations.getTotalElements());
+    }
+
+    // 교육 목록 응답 DTO 변환. progress가 null이면 미수강(관리자 목록 등)으로 취급한다
+    private EducationListResponseDto toListResponse(Education education, EducationProgressDto progress) {
+        int progressRate = progress != null ? progress.getProgressRate() : 0;
+        boolean isCompleted = progress != null && "COMPLETED".equals(progress.getStatus());
+        LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
+        int totalStages = education.getStages().size();
+        int completedStages = progress != null ? progress.getCompletedStages() : 0;
+        boolean enrolled = progress != null;
+        Department department = education.getDepartment();
+
+        return new EducationListResponseDto(
+                education.getId(),
+                education.getTitle(),
+                totalStages,
+                completedStages,
+                progressRate,
+                isCompleted,
+                completedAt,
+                education.getContentYear(),
+                enrolled,
+                department != null ? department.getId() : null,
+                department != null ? department.getName() : null
+        );
     }
 
     // EDU-FR-002: 교육 과정 상세 조회
@@ -147,6 +175,8 @@ public class EducationServiceImpl implements EducationService {
                 })
                 .collect(Collectors.toList());
 
+        Department department = education.getDepartment();
+
         return new EducationDetailResponseDto(
                 education.getId(),
                 education.getTitle(),
@@ -156,7 +186,9 @@ public class EducationServiceImpl implements EducationService {
                 isCompleted,
                 stageDtos,
                 education.getContentYear(),
-                enrolled
+                enrolled,
+                department != null ? department.getId() : null,
+                department != null ? department.getName() : null
         );
     }
 
@@ -189,9 +221,10 @@ public class EducationServiceImpl implements EducationService {
     @Override
     @Transactional
     public EducationCreateResponseDto createEducation(EducationCreateRequestDto request) {
+        Department department = resolveDepartment(request.getDepartmentId());
         Education education = educationRepository.save(Education.create(
                 request.getTitle(), request.getDescription(), request.getCompletionCriteria(),
-                request.getContentYear()));
+                request.getContentYear(), department));
         return new EducationCreateResponseDto(education.getId(), education.getTitle());
     }
 
@@ -201,8 +234,18 @@ public class EducationServiceImpl implements EducationService {
     public void updateEducation(Long educationId, EducationUpdateRequestDto request) {
         Education education = educationRepository.findById(educationId)
                 .orElseThrow(EducationNotFoundException::new);
+        Department department = resolveDepartment(request.getDepartmentId());
         education.update(request.getTitle(), request.getDescription(),
-                request.getCompletionCriteria(), request.getContentYear());
+                request.getCompletionCriteria(), request.getContentYear(), department);
+    }
+
+    // departmentId가 null이면 공통 과정(부서 미지정), 값이 있으면 존재하는 부서인지 검증 후 반환
+    private Department resolveDepartment(Long departmentId) {
+        if (departmentId == null) {
+            return null;
+        }
+        return departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new DepartmentNotFoundException(departmentId));
     }
 
     // EDU-FR-007: 관리자 교육 과정 삭제 (단계/진도가 있으면 삭제 불가)

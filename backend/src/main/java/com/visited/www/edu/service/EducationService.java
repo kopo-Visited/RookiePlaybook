@@ -16,8 +16,11 @@ import org.springframework.data.domain.Pageable;
 
 public interface EducationService {
 
-    // EDU-FR-001: 교육 과정 목록 조회
+    // EDU-FR-001: 교육 과정 목록 조회 (사용자 부서 + 공통 과정만)
     Page<EducationListResponseDto> getEducations(Long userId, Pageable pageable);
+
+    // 관리자 교육 과정 전체 목록 조회 (부서 필터 없이 전체 - 관리 페이지 전용)
+    Page<EducationListResponseDto> getAllEducations(Pageable pageable);
 
     // EDU-FR-002: 교육 과정 상세 조회 (단계 목록 포함)
     EducationDetailResponseDto getEducationDetail(Long userId, Long educationId);

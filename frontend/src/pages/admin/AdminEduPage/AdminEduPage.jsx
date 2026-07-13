@@ -3,7 +3,7 @@ import styles from './AdminEduPage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
 import {
-  getEducations,
+  getAdminEducations,
   getEducationDetail,
   deleteEducation,
   getAdminProgress,
@@ -46,12 +46,16 @@ function EducationSection() {
   const [page, setPage] = useState(1);
 
   const { data, loading, error } = useFetch(
-    () => getEducations({ page: page - 1, size: COURSE_PAGE_SIZE }),
+    () => getAdminEducations({ page: page - 1, size: COURSE_PAGE_SIZE }),
     [refreshKey, page]
   );
   const pageData = data?.data;
   const items = pageData?.content ?? [];
   const totalPages = pageData?.totalPages ?? 1;
+
+  // 등록/수정 폼의 부서 선택에 쓸 부서 목록
+  const { data: deptData } = useFetch(() => getDepartments(), []);
+  const departments = deptData ?? [];
 
   function openCreate() {
     setEditEducation(null);
@@ -155,6 +159,7 @@ function EducationSection() {
       {modalOpen && (
         <EducationFormModal
           education={editEducation}
+          departments={departments}
           onClose={() => setModalOpen(false)}
           onSuccess={() => setRefreshKey(k => k + 1)}
         />
@@ -420,7 +425,7 @@ function ProgressSection() {
 
   // 필터 옵션은 두 뷰가 공유하므로 세그먼트 전환과 무관하게 한 번만 조회한다
   const { data: deptData } = useFetch(() => getDepartments(), []);
-  const { data: eduData } = useFetch(() => getEducations({ page: 0, size: 100 }), []);
+  const { data: eduData } = useFetch(() => getAdminEducations({ page: 0, size: 100 }), []);
   const departments = deptData ?? [];
   const educations = eduData?.data?.content ?? [];
 

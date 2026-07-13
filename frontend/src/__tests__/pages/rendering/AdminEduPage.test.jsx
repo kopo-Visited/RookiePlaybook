@@ -69,7 +69,7 @@ function apiOk(data) {
 
 function mockListSuccess(content = mockEducations) {
   server.use(
-    http.get('/api/educations', () =>
+    http.get('/api/admin/educations', () =>
       apiOk({ content, totalPages: 1, number: 0, size: 10, totalElements: content.length })
     )
   );
@@ -78,7 +78,7 @@ function mockListSuccess(content = mockEducations) {
 // 과정이 2페이지에 걸쳐 있는 상황을 page 파라미터에 따라 다르게 응답한다
 function mockListPaged() {
   server.use(
-    http.get('/api/educations', ({ request }) => {
+    http.get('/api/admin/educations', ({ request }) => {
       const page = Number(new URL(request.url).searchParams.get('page') ?? 0);
       const content =
         page === 0
@@ -261,7 +261,9 @@ describe('AdminEduPage 렌더링', () => {
   it('API 실패 시 에러 메시지가 렌더링된다', async () => {
     // given
     server.use(
-      http.get('/api/educations', () => HttpResponse.json({ message: 'error' }, { status: 500 }))
+      http.get('/api/admin/educations', () =>
+        HttpResponse.json({ message: 'error' }, { status: 500 })
+      )
     );
 
     // when

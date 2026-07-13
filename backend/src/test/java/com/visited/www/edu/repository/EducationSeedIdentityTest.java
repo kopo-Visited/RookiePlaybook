@@ -35,7 +35,7 @@ class EducationSeedIdentityTest {
     @DisplayName("시드(id 1~3) 로드 후 교육 과정을 등록하면 PK 충돌 없이 시드 다음 id로 저장된다")
     void createEducation_afterSeed_noPkCollision() {
         // given & when — 시드 카운터가 안 맞으면 이 save에서 PK 충돌 예외가 발생한다
-        Education saved = educationRepository.save(Education.create("회귀 테스트 과정", "설명", 70, 2024));
+        Education saved = educationRepository.save(Education.create("회귀 테스트 과정", "설명", 70, 2024, null));
 
         // then — 시드 최대 id(3) 이후 값이 생성되어야 한다
         assertThat(saved.getId()).isGreaterThan(3L);
