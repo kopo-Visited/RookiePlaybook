@@ -132,18 +132,6 @@ function IconChatBubble() {
     </svg>
   );
 }
-function IconStar() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 function IconSearch() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -284,14 +272,6 @@ function DashboardPage() {
       label: '미답변 질문',
       value: `${pendingCount}`,
       subText: '내가 작성한 질문',
-      subColor: '#6B7588',
-    },
-    {
-      colorKey: 'orange',
-      icon: <IconStar />,
-      label: '등록 FAQ',
-      value: '—',
-      subText: '전체 FAQ 목록',
       subColor: '#6B7588',
     },
   ];
