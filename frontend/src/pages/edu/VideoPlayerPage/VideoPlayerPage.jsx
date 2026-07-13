@@ -86,6 +86,19 @@ function IconFullscreen() {
     </svg>
   );
 }
+function IconArrowLeft() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M19 12H5M5 12l7 7M5 12l7-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function VideoPlayerPage() {
   const { id, stageId } = useParams();
@@ -99,6 +112,7 @@ function VideoPlayerPage() {
   const [muted, setMuted] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [watched, setWatched] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
   const [toast, setToast] = useState(null);
 
   const {
@@ -176,17 +190,26 @@ function VideoPlayerPage() {
   }
 
   const isCompleted = justCompleted || Boolean(stage?.isCompleted);
-  // 순차 잠금: 현재 단계를 완료해야(또는 과정 수료) 다음 단계로 이동 가능 (단순 시청만으로는 불가)
-  const canGoNext = isCompleted || Boolean(detail?.isCompleted);
+  // 다음 영상 / 학습 완료 버튼 활성 조건: 영상을 충분히 시청했거나 이미 완료한 경우
+  const canAdvance = watched || isCompleted;
 
-  async function handleComplete() {
+  // 현재 단계를 (미완료면) 완료 처리한 뒤 목표 경로로 이동한다
+  async function advanceTo(target) {
+    if (advancing) return;
+    setAdvancing(true);
     try {
-      await completeStage(stageId);
-      setJustCompleted(true);
-      setToast('단계를 완료했습니다.');
+      if (!isCompleted) await completeStage(stageId);
+      navigate(target);
     } catch {
       setToast('완료 처리에 실패했습니다.');
+      setAdvancing(false);
     }
+  }
+  function handleNext() {
+    if (nextStage) advanceTo(ROUTES.EDU.VIDEO(id, nextStage.stageId));
+  }
+  function handleFinish() {
+    advanceTo(ROUTES.EDU.DETAIL(id));
   }
 
   return (
@@ -195,128 +218,187 @@ function VideoPlayerPage() {
       {!matLoading && matError && <ErrorMessage message="영상을 불러오지 못했습니다." />}
 
       {material && (
-        <div className={styles.card}>
-          <div className={styles.playerWrap} ref={wrapRef}>
-            <video
-              ref={videoRef}
-              className={styles.video}
-              // 이어보기 위치가 없으면 미디어 프래그먼트(#t=0.1)로 첫 프레임을 네이티브 표시한다.
-              // JS로 currentTime을 seek하면 재생 제스처(play())와 경쟁해 첫 클릭이 무시되므로 프래그먼트를 쓴다.
-              // (이어보기 위치가 있으면 useVideoProgress가 그 위치로 복원하므로 프래그먼트를 붙이지 않는다)
-              src={material.lastWatchedPosition ? material.videoUrl : `${material.videoUrl}#t=0.1`}
-              preload="metadata"
-              onClick={togglePlay}
-              onPlay={() => setPlaying(true)}
-              onPause={() => setPlaying(false)}
-              onEnded={() => setWatched(true)}
-              onTimeUpdate={e => {
-                const video = e.currentTarget;
-                setCurrent(video.currentTime);
-                if (video.duration && video.currentTime / video.duration >= WATCH_THRESHOLD) {
-                  setWatched(true);
-                }
-              }}
-              onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
-            />
+        <div className={styles.main}>
+          <button className={styles.backBtn} onClick={() => navigate(ROUTES.EDU.DETAIL(id))}>
+            <IconArrowLeft />
+            목록으로
+          </button>
+          <div className={styles.layout}>
+            <aside className={styles.sidebar}>
+              <span className={styles.sidebarHeading}>단계 ({stages.length})</span>
+              <ul className={styles.stageList}>
+                {stages.map((s, i) => {
+                  // 순차 잠금: 직전 단계를 완료하지 않았으면 잠긴다 (첫 단계는 항상 열림)
+                  const locked = i > 0 && !stages[i - 1].isCompleted;
+                  const isCurrent = String(s.stageId) === String(stageId);
+                  const completed = s.isCompleted || (isCurrent && justCompleted);
+                  return (
+                    <li
+                      key={s.stageId}
+                      className={`${styles.stageItem} ${isCurrent ? styles.stageItemActive : ''}`}
+                      style={locked ? { opacity: 0.55, cursor: 'not-allowed' } : undefined}
+                      onClick={() => {
+                        if (!locked && !isCurrent) navigate(ROUTES.EDU.VIDEO(id, s.stageId));
+                      }}
+                    >
+                      <div className={styles.stageOrder}>{s.orderNumber}</div>
+                      <div className={styles.stageBody}>
+                        <div className={styles.stageTitleRow}>
+                          <span className={styles.stageTitle}>{s.title}</span>
+                          {locked ? (
+                            <span
+                              className={styles.badge}
+                              style={{
+                                background: '#EEF1F6',
+                                color: 'var(--color-text-secondary)',
+                              }}
+                            >
+                              🔒 잠김
+                            </span>
+                          ) : (
+                            <span
+                              className={styles.badge}
+                              style={{
+                                background: completed ? 'var(--color-green-bg)' : '#EEF1F6',
+                                color: completed
+                                  ? 'var(--color-green)'
+                                  : 'var(--color-text-secondary)',
+                              }}
+                            >
+                              {completed ? '완료' : '미완료'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </aside>
 
-            {!playing && (
-              <button className={styles.centerPlay} onClick={togglePlay} aria-label="재생">
-                <IconPlay />
-              </button>
-            )}
+            <div className={styles.card}>
+              <div className={styles.playerWrap} ref={wrapRef}>
+                <video
+                  ref={videoRef}
+                  className={styles.video}
+                  // 이어보기 위치가 없으면 미디어 프래그먼트(#t=0.1)로 첫 프레임을 네이티브 표시한다.
+                  // JS로 currentTime을 seek하면 재생 제스처(play())와 경쟁해 첫 클릭이 무시되므로 프래그먼트를 쓴다.
+                  // (이어보기 위치가 있으면 useVideoProgress가 그 위치로 복원하므로 프래그먼트를 붙이지 않는다)
+                  src={
+                    material.lastWatchedPosition ? material.videoUrl : `${material.videoUrl}#t=0.1`
+                  }
+                  preload="metadata"
+                  onClick={togglePlay}
+                  onPlay={() => setPlaying(true)}
+                  onPause={() => setPlaying(false)}
+                  onEnded={() => setWatched(true)}
+                  onTimeUpdate={e => {
+                    const video = e.currentTarget;
+                    setCurrent(video.currentTime);
+                    if (video.duration && video.currentTime / video.duration >= WATCH_THRESHOLD) {
+                      setWatched(true);
+                    }
+                  }}
+                  onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
+                />
 
-            <div className={styles.controls}>
-              <input
-                type="range"
-                className={styles.seek}
-                min="0"
-                max={duration || 0}
-                step="0.1"
-                value={current}
-                onChange={onSeek}
-              />
-              <div className={styles.controlRow}>
-                <span className={styles.time}>
-                  {formatTime(current)} / {formatTime(duration)}
-                </span>
-                <div className={styles.centerBtns}>
-                  <button
-                    className={styles.ctrlBtn}
-                    onClick={() => skip(-10)}
-                    aria-label="10초 뒤로"
-                  >
-                    <IconRewind />
+                {!playing && (
+                  <button className={styles.centerPlay} onClick={togglePlay} aria-label="재생">
+                    <IconPlay />
                   </button>
-                  <button
-                    className={styles.ctrlBtn}
-                    onClick={togglePlay}
-                    aria-label="재생/일시정지"
-                  >
-                    {playing ? <IconPause /> : <IconPlay />}
-                  </button>
-                  <button
-                    className={styles.ctrlBtn}
-                    onClick={() => skip(10)}
-                    aria-label="10초 앞으로"
-                  >
-                    <IconForward />
-                  </button>
-                </div>
-                <div className={styles.rightBtns}>
-                  <button className={styles.ctrlBtn} onClick={toggleMute} aria-label="음소거">
-                    <IconVolume muted={muted} />
-                  </button>
-                  <button
-                    className={styles.ctrlBtn}
-                    onClick={toggleFullscreen}
-                    aria-label="전체화면"
-                  >
-                    <IconFullscreen />
-                  </button>
+                )}
+
+                <div className={styles.controls}>
+                  <input
+                    type="range"
+                    className={styles.seek}
+                    min="0"
+                    max={duration || 0}
+                    step="0.1"
+                    value={current}
+                    onChange={onSeek}
+                  />
+                  <div className={styles.controlRow}>
+                    <span className={styles.time}>
+                      {formatTime(current)} / {formatTime(duration)}
+                    </span>
+                    <div className={styles.centerBtns}>
+                      <button
+                        className={styles.ctrlBtn}
+                        onClick={() => skip(-10)}
+                        aria-label="10초 뒤로"
+                      >
+                        <IconRewind />
+                      </button>
+                      <button
+                        className={styles.ctrlBtn}
+                        onClick={togglePlay}
+                        aria-label="재생/일시정지"
+                      >
+                        {playing ? <IconPause /> : <IconPlay />}
+                      </button>
+                      <button
+                        className={styles.ctrlBtn}
+                        onClick={() => skip(10)}
+                        aria-label="10초 앞으로"
+                      >
+                        <IconForward />
+                      </button>
+                    </div>
+                    <div className={styles.rightBtns}>
+                      <button className={styles.ctrlBtn} onClick={toggleMute} aria-label="음소거">
+                        <IconVolume muted={muted} />
+                      </button>
+                      <button
+                        className={styles.ctrlBtn}
+                        onClick={toggleFullscreen}
+                        aria-label="전체화면"
+                      >
+                        <IconFullscreen />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              <div className={styles.info}>
+                <h1 className={styles.courseTitle}>[{detail?.title}]</h1>
+                <p className={styles.videoTitle}>
+                  영상 제목 : {stage?.title ?? material.title}
+                  {currentIndex >= 0 &&
+                    stages.length > 0 &&
+                    ` (${currentIndex + 1}/${stages.length}단계)`}
+                </p>
+                {stage?.description && <p className={styles.videoDesc}>{stage.description}</p>}
+              </div>
+
+              <div className={styles.actions}>
+                <Button
+                  variant={BUTTON_VARIANTS.PRIMARY}
+                  disabled={!prevStage}
+                  onClick={() => prevStage && navigate(ROUTES.EDU.VIDEO(id, prevStage.stageId))}
+                >
+                  ‹ 이전 영상
+                </Button>
+                {nextStage ? (
+                  <Button
+                    variant={BUTTON_VARIANTS.PRIMARY}
+                    disabled={!canAdvance || advancing}
+                    onClick={handleNext}
+                  >
+                    다음 영상 ›
+                  </Button>
+                ) : (
+                  <Button
+                    variant={BUTTON_VARIANTS.PRIMARY}
+                    disabled={!canAdvance || advancing}
+                    onClick={handleFinish}
+                  >
+                    학습 완료
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-
-          <div className={styles.info}>
-            <h1 className={styles.courseTitle}>[{detail?.title}]</h1>
-            <p className={styles.videoTitle}>
-              영상 제목 : {stage?.title ?? material.title}
-              {currentIndex >= 0 &&
-                stages.length > 0 &&
-                ` (${currentIndex + 1}/${stages.length}단계)`}
-            </p>
-            {stage?.description && <p className={styles.videoDesc}>{stage.description}</p>}
-          </div>
-
-          <div className={styles.actions}>
-            <Button
-              variant={BUTTON_VARIANTS.PRIMARY}
-              disabled={isCompleted || !watched}
-              onClick={handleComplete}
-            >
-              {isCompleted ? '완료됨' : '단계 완료'}
-            </Button>
-            <Button
-              variant={BUTTON_VARIANTS.PRIMARY}
-              disabled={!prevStage}
-              onClick={() => prevStage && navigate(ROUTES.EDU.VIDEO(id, prevStage.stageId))}
-            >
-              ‹ 이전 영상
-            </Button>
-            <Button
-              variant={BUTTON_VARIANTS.PRIMARY}
-              disabled={!nextStage || !canGoNext}
-              onClick={() => nextStage && navigate(ROUTES.EDU.VIDEO(id, nextStage.stageId))}
-            >
-              다음 영상 ›
-            </Button>
-            <Button
-              variant={BUTTON_VARIANTS.SECONDARY}
-              onClick={() => navigate(ROUTES.EDU.DETAIL(id))}
-            >
-              ← 목록으로
-            </Button>
           </div>
         </div>
       )}
