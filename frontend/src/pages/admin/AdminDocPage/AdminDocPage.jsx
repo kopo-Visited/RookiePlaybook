@@ -21,6 +21,7 @@ import { ROUTES } from '../../../constants/routes';
 
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
+const FAQ_PAGE_SIZE = 10;
 
 function AdminFaqCreateModal({ onClose, onCreated, categoryOptions }) {
   const firstCatId = categoryOptions[0]?.value ?? null;
@@ -274,6 +275,7 @@ function AdminDocPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [faqRefreshKey, setFaqRefreshKey] = useState(0);
   const [page, setPage] = useState(1);
+  const [faqPage, setFaqPage] = useState(1);
 
   const { data: apiRes, loading } = useFetch(() => getAdminDocuments(), [refreshKey]);
   const docs = useMemo(() => apiRes?.data ?? [], [apiRes]);
@@ -281,6 +283,8 @@ function AdminDocPage() {
   const { data: faqRes } = useFetch(() => getAdminFaqs(), [faqRefreshKey]);
   const faqs = useMemo(() => (Array.isArray(faqRes?.data) ? faqRes.data : []), [faqRes]);
   const totalFaqs = faqs.length;
+  const faqTotalPages = Math.max(1, Math.ceil(totalFaqs / FAQ_PAGE_SIZE));
+  const pagedFaqs = faqs.slice((faqPage - 1) * FAQ_PAGE_SIZE, faqPage * FAQ_PAGE_SIZE);
 
   const faqCategoryOptions = useMemo(() => {
     const seen = new Map();
@@ -447,6 +451,7 @@ function AdminDocPage() {
     try {
       await deleteAdminFaq(faq.id);
       setFaqRefreshKey(k => k + 1);
+      setFaqPage(1);
     } catch {
       useToastStore.getState().show('FAQ 삭제에 실패했습니다.');
     }
@@ -747,7 +752,7 @@ function AdminDocPage() {
                   </td>
                 </tr>
               )}
-              {faqs.map(faq => (
+              {pagedFaqs.map(faq => (
                 <tr key={faq.id}>
                   <td>
                     <span className={styles.docTitle}>{faq.question}</span>
@@ -790,12 +795,40 @@ function AdminDocPage() {
             </tbody>
           </table>
         </div>
+
+        {faqTotalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageArrow}
+              onClick={() => setFaqPage(p => Math.max(1, p - 1))}
+              disabled={faqPage === 1}
+            >
+              ‹
+            </button>
+            {Array.from({ length: faqTotalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                className={`${styles.pageNum} ${n === faqPage ? styles.pageNumActive : ''}`}
+                onClick={() => setFaqPage(n)}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              className={styles.pageArrow}
+              onClick={() => setFaqPage(p => Math.min(faqTotalPages, p + 1))}
+              disabled={faqPage === faqTotalPages}
+            >
+              ›
+            </button>
+          </div>
+        )}
       </div>
 
       {faqModalOpen && (
         <AdminFaqCreateModal
           onClose={() => setFaqModalOpen(false)}
-          onCreated={() => setFaqRefreshKey(k => k + 1)}
+          onCreated={() => { setFaqRefreshKey(k => k + 1); setFaqPage(1); }}
           categoryOptions={faqCategoryOptions}
         />
       )}
