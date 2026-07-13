@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -100,6 +101,13 @@ public class AdminQnaController {
         return ResponseEntity.ok(ApiResponse.success(
                 adminQnaService.updateVisibility(questionId, request.getIsPublic()),
                 request.getIsPublic() ? "공개로 전환되었습니다." : "비공개로 전환되었습니다."));
+    }
+
+    @Operation(summary = "질문 삭제", description = "관리자가 질문을 논리 삭제한다")
+    @DeleteMapping("/{questionId}")
+    public ResponseEntity<ApiResponse<Void>> deleteQuestion(@PathVariable Long questionId) {
+        adminQnaService.deleteQuestion(questionId);
+        return ResponseEntity.ok(ApiResponse.<Void>success(null, "질문이 삭제되었습니다."));
     }
 
     @Operation(summary = "FAQ 전환",

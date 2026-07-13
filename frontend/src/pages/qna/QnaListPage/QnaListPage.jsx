@@ -137,10 +137,12 @@ function QnaListPage() {
         )}
         {!loading && !error && paged.length > 0 && (
           <table className={styles.table}>
+            {/* 모든 질문(작성자 포함)과 컬럼 위치를 맞추기 위해 작성자 칸을 예약(값은 비움) */}
             <colgroup>
               <col className={styles.colStatus} />
               <col className={styles.colCategory} />
               <col />
+              <col className={styles.colWriter} />
               <col className={styles.colDate} />
             </colgroup>
             <thead>
@@ -148,6 +150,7 @@ function QnaListPage() {
                 <th>상태</th>
                 <th>카테고리</th>
                 <th>제목</th>
+                <th>작성자</th>
                 <th>등록일</th>
               </tr>
             </thead>
@@ -173,6 +176,7 @@ function QnaListPage() {
                   <td>
                     <span className={styles.titleText}>{item.title}</span>
                   </td>
+                  <td />
                   <td>
                     <span className={styles.secondary}>{formatDate(item.createdAt)}</span>
                   </td>

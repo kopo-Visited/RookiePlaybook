@@ -30,12 +30,15 @@
   line-height: 20px;
 }
 /* ── stats (콘텐츠관리 카드 스타일 · 보라색 제외 4색, 상태 고유색 유지) ── */
+/* 카드를 내용 폭으로 좁혀 4개가 서로 가깝게 붙도록(꽉 찬 1fr은 내용이 왼쪽에 뭉쳐 멀어 보임) */
 .statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .statCard {
+  flex: 0 0 auto;
+  width: 230px;
   background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
@@ -117,31 +120,11 @@
   min-height: 640px;
 }
 
-/* ── filters ── */
+/* ── filters (검색창 없이 상태/카테고리/날짜 + 초기화) ── */
 .filters {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-}
-.searchWrap {
-  flex: 1;
-  max-width: 420px;
-}
-.filterSearch {
-  width: 100%;
-  height: 44px;
-  padding: 0 16px;
-  background: var(--color-bg-white);
-  border: 1px solid var(--color-border-input);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  color: var(--color-text-title);
-  font-family: inherit;
-  outline: none;
-  box-sizing: border-box;
-}
-.filterSearch::placeholder {
-  color: var(--color-text-secondary);
 }
 .filterSelect {
   min-width: 132px;
@@ -241,7 +224,8 @@
   width: 80px;
 }
 .colActions {
-  width: 160px;
+  /* 수정/삭제/비공개 3개 버튼 */
+  width: 210px;
 }
 .table thead tr {
   background: #f6f8fb;
@@ -375,26 +359,18 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
   .tableCard {
     padding: 16px;
   }
   .filters {
     flex-wrap: wrap;
   }
-  .searchWrap {
-    max-width: 100%;
-    width: 100%;
-  }
 }
 
 @media (max-width: 640px) {
-  .statsGrid {
-    grid-template-columns: 1fr;
-  }
   .statCard {
+    flex: 1 1 100%;
+    width: auto;
     height: auto;
     padding: 16px;
   }
@@ -405,10 +381,6 @@
     min-width: 100%;
   }
   .filterDate {
-    width: 100%;
-  }
-  .btnDelete,
-  .btnSearch {
     width: 100%;
   }
 }
