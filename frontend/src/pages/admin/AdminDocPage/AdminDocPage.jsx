@@ -463,7 +463,7 @@ function AdminDocPage() {
         ))}
       </div>
 
-      <div className={styles.tableCard}>
+      <div className={`${styles.tableCard} ${styles.tableCardTall}`}>
         <div className={styles.sectionHeader}>
           <div>
             <h2 className={styles.sectionTitle}>문서 관리</h2>
