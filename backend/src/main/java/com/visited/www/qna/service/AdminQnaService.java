@@ -8,6 +8,7 @@ import com.visited.www.qna.dto.response.AdminQuestionListResponseDto;
 import com.visited.www.qna.dto.response.AnswerUpsertResponseDto;
 import com.visited.www.qna.dto.response.FaqConversionResponseDto;
 import com.visited.www.qna.dto.response.QuestionStatusUpdateResponseDto;
+import com.visited.www.qna.dto.response.QuestionVisibilityUpdateResponseDto;
 import com.visited.www.qna.enums.QuestionStatus;
 import com.visited.www.global.response.PageResponse;
 import java.time.LocalDate;
@@ -26,6 +27,8 @@ public interface AdminQnaService {
 
     QuestionStatusUpdateResponseDto updateStatus(Long adminId, Long questionId,
                                                  QuestionStatusUpdateRequestDto request);
+
+    QuestionVisibilityUpdateResponseDto updateVisibility(Long questionId, boolean isPublic);
 
     FaqConversionResponseDto convertToFaq(Long adminId, Long questionId,
                                           FaqConversionRequestDto request);

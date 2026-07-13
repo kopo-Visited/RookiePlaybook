@@ -25,5 +25,7 @@ export const getAdminQna = id => axiosInstance.get(`/api/admin/questions/${id}`)
 export const answerQna = (id, data) => axiosInstance.put(`/api/admin/questions/${id}/answer`, data);
 export const updateQnaStatus = (id, data) =>
   axiosInstance.patch(`/api/admin/questions/${id}/status`, data);
+export const updateQnaVisibility = (id, isPublic) =>
+  axiosInstance.patch(`/api/admin/questions/${id}/visibility`, { isPublic });
 export const convertQnaToFaq = (id, data) =>
   axiosInstance.post(`/api/admin/questions/${id}/faq`, data);

@@ -15,6 +15,7 @@ public record AdminQuestionListResponseDto(
         String departmentName,
         String categoryName,
         QuestionStatus status,
+        boolean isPublic,
         LocalDateTime createdAt
 ) {
     public static AdminQuestionListResponseDto from(Question question) {
@@ -30,6 +31,7 @@ public record AdminQuestionListResponseDto(
                 departmentName,
                 question.getCategory().getName(),
                 question.getStatus(),
+                Boolean.TRUE.equals(question.getIsPublic()),
                 question.getCreatedAt()
         );
     }

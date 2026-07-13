@@ -73,6 +73,24 @@
   width: 100%;
   min-width: 760px;
   border-collapse: collapse;
+  /* 문서 계열 3개 페이지 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(답변관리·콘텐츠관리·오래된문서 동일) — 제목은 남은 폭 자동 */
+.colCategory {
+  width: 132px;
+}
+.colStatus {
+  width: 108px;
+}
+.colDate {
+  width: 120px;
+}
+.colNum {
+  width: 80px;
+}
+.colActions {
+  width: 160px;
 }
 .table thead tr {
   background: #f6f8fb;
