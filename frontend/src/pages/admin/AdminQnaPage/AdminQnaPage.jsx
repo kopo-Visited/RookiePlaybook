@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
 import AdminQnaDetail from './AdminQnaDetail';
-import { getAdminQnas, updateQnaVisibility, deleteAdminQna } from '../../../api/qnaApi';
+import AdminQnaFaqModal from './AdminQnaFaqModal';
+import { getAdminQnas, getAdminQna, updateQnaVisibility, deleteAdminQna } from '../../../api/qnaApi';
 import { pageWindow } from '../../../utils/pageWindow';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
@@ -84,8 +85,8 @@ function StatCard({ label, count, color, sub, iconText }) {
   );
 }
 
-// 관리 컬럼: 콘텐츠관리와 동일하게 수정 / 삭제 / 비공개
-function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
+// 관리 컬럼: 수정 / 삭제 / 비공개 / FAQ전환
+function ActionButtons({ row, onEdit, onDelete, onTogglePublic, onConvertFaq }) {
   return (
     <div className={styles.actionRow} onClick={e => e.stopPropagation()}>
       <button className={styles.actionBtn} onClick={() => onEdit(row)}>
@@ -99,6 +100,9 @@ function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
       </button>
       <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
         {row.isPublic ? '비공개' : '공개'}
+      </button>
+      <button className={styles.actionBtn} onClick={() => onConvertFaq(row)}>
+        FAQ전환
       </button>
     </div>
   );
@@ -114,6 +118,7 @@ function AdminQnaPage() {
   const [dateFilter, setDateFilter] = useState(''); // yyyy-mm-dd (달력 선택값)
   const [page, setPage] = useState(1);
   const [detailId, setDetailId] = useState(null);
+  const [faqTarget, setFaqTarget] = useState(null); // FAQ 전환 모달 대상(상세 조회 결과)
 
   // 관리자 질문 목록 실데이터 조회 (refreshKey 증가 시 재조회)
   useEffect(() => {
@@ -191,6 +196,27 @@ function AdminQnaPage() {
       setRows(rs => rs.filter(r => r.id !== row.id));
     } catch {
       useToastStore.getState().show('질문 삭제에 실패했습니다.');
+    }
+  };
+  // FAQ 전환: 답변완료(ANSWERED)만 가능. 상세를 불러와 기존 전환 모달을 연다
+  const handleConvertFaq = async row => {
+    if (row.status !== 'ANSWERED') {
+      useToastStore.getState().show('답변완료 상태만 FAQ로 전환할 수 있어요.');
+      return;
+    }
+    try {
+      const d = (await getAdminQna(row.id)).data;
+      if (d?.convertedFaqId != null) {
+        useToastStore.getState().show('이미 FAQ로 전환된 질문입니다.');
+        return;
+      }
+      setFaqTarget({
+        questionId: row.id,
+        question: { title: d.title, category: d.category?.name, content: d.content },
+        answer: d.answer?.content ?? '',
+      });
+    } catch {
+      useToastStore.getState().show('질문 정보를 불러오지 못했습니다.');
     }
   };
 
@@ -323,6 +349,7 @@ function AdminQnaPage() {
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                       onTogglePublic={handleTogglePublic}
+                      onConvertFaq={handleConvertFaq}
                     />
                   </td>
                 </tr>
@@ -364,6 +391,19 @@ function AdminQnaPage() {
           </div>
         )}
       </div>
+
+      {faqTarget && (
+        <AdminQnaFaqModal
+          questionId={faqTarget.questionId}
+          question={faqTarget.question}
+          answer={faqTarget.answer}
+          onClose={() => setFaqTarget(null)}
+          onSuccess={() => {
+            useToastStore.getState().show('FAQ로 전환되었습니다.');
+            setRefreshKey(k => k + 1);
+          }}
+        />
+      )}
     </div>
   );
 }

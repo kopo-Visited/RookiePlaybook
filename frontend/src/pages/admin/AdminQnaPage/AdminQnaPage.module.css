@@ -224,8 +224,8 @@
   width: 80px;
 }
 .colActions {
-  /* 수정/삭제/비공개 3개 버튼 */
-  width: 210px;
+  /* 수정/삭제/비공개/FAQ전환 4개 버튼 */
+  width: 280px;
 }
 .table thead tr {
   background: #f6f8fb;
