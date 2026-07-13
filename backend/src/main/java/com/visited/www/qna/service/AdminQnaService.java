@@ -30,6 +30,8 @@ public interface AdminQnaService {
 
     QuestionVisibilityUpdateResponseDto updateVisibility(Long questionId, boolean isPublic);
 
+    void deleteQuestion(Long questionId);
+
     FaqConversionResponseDto convertToFaq(Long adminId, Long questionId,
                                           FaqConversionRequestDto request);
 }

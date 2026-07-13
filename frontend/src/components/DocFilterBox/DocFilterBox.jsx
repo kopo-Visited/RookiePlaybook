@@ -29,6 +29,9 @@ const CATEGORY_COLOR_MAP = {
 };
 const CATEGORY_ICON = { 개발: 'Dev', 인프라: 'Infra', 보안: 'Sec', 네트워크: 'Net', 공통: 'All' };
 
+// 지식문서와 동일한 카테고리 고정 순서(All·Sec·Infra·Dev·Net). 없는 카테고리도 0건으로 항상 노출.
+const CATEGORY_ORDER = ['공통', '보안', '인프라', '개발', '네트워크'];
+
 function IconSearch() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
@@ -74,25 +77,29 @@ export default function DocFilterBox({ docs = [], onChange, placeholder = '검�
   const categoryDD = useDropdown();
   const sortDD = useDropdown();
 
-  // 문서에 존재하는 카테고리 → 드롭다운 옵션
-  const categoryOptions = useMemo(() => {
-    const names = [...new Set(docs.map(d => d.categoryName))];
-    return ['전체', ...names];
-  }, [docs]);
-
-  // 카테고리별 문서 수 → 카운트 카드
-  const summaryCards = useMemo(() => {
+  // 카테고리별 개수(고정 순서 + 없는 카테고리도 0으로, 순서 밖 카테고리는 뒤에 붙임)
+  const orderedCategories = useMemo(() => {
     const countMap = {};
     docs.forEach(d => {
       if (d.categoryName) countMap[d.categoryName] = (countMap[d.categoryName] || 0) + 1;
     });
-    return Object.entries(countMap).map(([name, count]) => ({
+    const extras = Object.keys(countMap).filter(n => !CATEGORY_ORDER.includes(n));
+    return [...CATEGORY_ORDER, ...extras].map(name => ({
       id: name,
       categoryName: name,
       colorKey: CATEGORY_COLOR_MAP[name] ?? COLOR_KEYS.BLUE,
-      count,
+      count: countMap[name] || 0,
     }));
   }, [docs]);
+
+  // 드롭다운 옵션(카운트 카드와 같은 순서)
+  const categoryOptions = useMemo(
+    () => ['전체', ...orderedCategories.map(c => c.categoryName)],
+    [orderedCategories]
+  );
+
+  // 카운트 카드
+  const summaryCards = orderedCategories;
 
   // 상태 변경 시 부모에 알림
   useEffect(() => {

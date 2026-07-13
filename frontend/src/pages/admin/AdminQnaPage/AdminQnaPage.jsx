@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import styles from './AdminQnaPage.module.css';
 import AdminQnaDetail from './AdminQnaDetail';
-import { getAdminQnas, updateQnaVisibility } from '../../../api/qnaApi';
+import { getAdminQnas, updateQnaVisibility, deleteAdminQna } from '../../../api/qnaApi';
 import { pageWindow } from '../../../utils/pageWindow';
 import { DEPT_COLOR, COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import Badge from '../../../components/Badge/Badge';
@@ -84,12 +84,18 @@ function StatCard({ label, count, color, sub, iconText }) {
   );
 }
 
-// 관리 컬럼: 수정 + 공개/비공개 토글 (콘텐츠관리 액션 스타일 동일, 삭제는 제외)
-function ActionButtons({ row, onEdit, onTogglePublic }) {
+// 관리 컬럼: 콘텐츠관리와 동일하게 수정 / 삭제 / 비공개
+function ActionButtons({ row, onEdit, onDelete, onTogglePublic }) {
   return (
     <div className={styles.actionRow} onClick={e => e.stopPropagation()}>
       <button className={styles.actionBtn} onClick={() => onEdit(row)}>
         수정
+      </button>
+      <button
+        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+        onClick={() => onDelete(row)}
+      >
+        삭제
       </button>
       <button className={styles.actionBtn} onClick={() => onTogglePublic(row)}>
         {row.isPublic ? '비공개' : '공개'}
@@ -102,8 +108,7 @@ function AdminQnaPage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
-  // 필터: 입력/선택 즉시 자동 반영(검색 버튼 없음)
-  const [search, setSearch] = useState('');
+  // 필터: 선택 즉시 자동 반영(검색창 없음)
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [dateFilter, setDateFilter] = useState(''); // yyyy-mm-dd (달력 선택값)
@@ -144,14 +149,12 @@ function AdminQnaPage() {
     return rows.filter(row => {
       const { year, month, day } = parseCreatedAt(row.createdAt);
       const rowDate = `${year}-${month}-${day}`;
-      const matchSearch =
-        !search || row.title.includes(search) || (row.author ?? '').includes(search);
       const matchStatus = !statusFilter || row.status === statusFilter;
       const matchCategory = !categoryFilter || row.category === categoryFilter;
       const matchDate = !dateFilter || rowDate === dateFilter;
-      return matchSearch && matchStatus && matchCategory && matchDate;
+      return matchStatus && matchCategory && matchDate;
     });
-  }, [rows, search, statusFilter, categoryFilter, dateFilter]);
+  }, [rows, statusFilter, categoryFilter, dateFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -162,7 +165,6 @@ function AdminQnaPage() {
   }, [page, totalPages]);
 
   const handleReset = () => {
-    setSearch('');
     setStatusFilter('');
     setCategoryFilter('');
     setDateFilter('');
@@ -179,6 +181,16 @@ function AdminQnaPage() {
     } catch {
       setRows(rs => rs.map(r => (r.id === row.id ? { ...r, isPublic: row.isPublic } : r)));
       useToastStore.getState().show('공개 상태 변경에 실패했습니다.');
+    }
+  };
+  // 삭제: 콘텐츠 관리와 동일하게 확인 후 백엔드 삭제(논리) → 목록에서 제거
+  const handleDelete = async row => {
+    if (!window.confirm(`"${row.title}" 질문을 삭제하시겠습니까?`)) return;
+    try {
+      await deleteAdminQna(row.id);
+      setRows(rs => rs.filter(r => r.id !== row.id));
+    } catch {
+      useToastStore.getState().show('질문 삭제에 실패했습니다.');
     }
   };
 
@@ -218,18 +230,6 @@ function AdminQnaPage() {
 
       <div className={styles.tableCard}>
         <div className={styles.filters}>
-          <div className={styles.searchWrap}>
-            <input
-              type="text"
-              className={styles.filterSearch}
-              placeholder="제목, 작성자 검색"
-              value={search}
-              onChange={e => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
           <Dropdown
             className={styles.filterSelect}
             value={statusFilter}
@@ -321,6 +321,7 @@ function AdminQnaPage() {
                     <ActionButtons
                       row={row}
                       onEdit={handleEdit}
+                      onDelete={handleDelete}
                       onTogglePublic={handleTogglePublic}
                     />
                   </td>

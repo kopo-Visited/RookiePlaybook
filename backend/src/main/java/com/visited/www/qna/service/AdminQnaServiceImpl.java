@@ -158,6 +158,15 @@ public class AdminQnaServiceImpl implements AdminQnaService {
         return new QuestionVisibilityUpdateResponseDto(questionId, isPublic);
     }
 
+    /** 질문 삭제(관리자). @SQLDelete로 논리 삭제된다. */
+    @Override
+    @Transactional
+    public void deleteQuestion(Long questionId) {
+        Question question = findQuestion(questionId);
+        questionRepository.delete(question);
+        log.info("질문 삭제(관리자, 논리). questionId={}", questionId);
+    }
+
     /**
      * FAQ 전환 (QNA-API-013).
      * ANSWERED 상태의 질문만 전환할 수 있고, 이미 전환된 질문은 409.
