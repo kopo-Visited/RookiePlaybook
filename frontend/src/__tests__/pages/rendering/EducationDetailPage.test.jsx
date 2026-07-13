@@ -180,3 +180,43 @@ describe('EducationDetailPage 렌더링', () => {
     expect(await screen.findByText('교육 과정을 불러오지 못했습니다.')).toBeInTheDocument();
   });
 });
+
+// 이슈 #328 회귀: 수강한 적 없는 과정이 '진행중'으로 표시되던 버그
+describe('EducationDetailPage 과정 상태 칩', () => {
+  it('미수강(enrolled=false)이면 "진행중"이 아니라 "미수강" 칩이 표시된다', async () => {
+    // given & when
+    mockSuccess({ ...mockDetail, enrolled: false, isCompleted: false });
+    renderPage();
+
+    // then
+    expect(await screen.findByText('미수강')).toBeInTheDocument();
+    expect(screen.queryByText('진행중')).not.toBeInTheDocument();
+  });
+
+  it('수강중(enrolled=true, 미완료)이면 "진행중" 칩이 표시된다', async () => {
+    // given & when
+    mockSuccess({ ...mockDetail, enrolled: true, isCompleted: false });
+    renderPage();
+
+    // then
+    expect(await screen.findByText('진행중')).toBeInTheDocument();
+    expect(screen.queryByText('미수강')).not.toBeInTheDocument();
+  });
+
+  it('수료(isCompleted=true)면 "완료" 칩이 표시된다', async () => {
+    // given — 단계 배지의 "완료"와 겹치지 않도록 모든 단계를 미완료로 둔다
+    const detail = {
+      ...mockDetail,
+      enrolled: true,
+      isCompleted: true,
+      stages: mockDetail.stages.map(s => ({ ...s, isCompleted: false })),
+    };
+    mockSuccess(detail);
+    renderPage();
+
+    // then
+    expect(await screen.findByText('완료')).toBeInTheDocument();
+    expect(screen.queryByText('미수강')).not.toBeInTheDocument();
+    expect(screen.queryByText('진행중')).not.toBeInTheDocument();
+  });
+});
