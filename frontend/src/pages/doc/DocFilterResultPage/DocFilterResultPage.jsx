@@ -4,6 +4,7 @@ import styles from './DocFilterResultPage.module.css';
 import Badge from '../../../components/Badge/Badge';
 import DocDetailModal from '../../../components/DocDetailModal/DocDetailModal';
 import QnaQuestionModal from '../../../components/QnaQuestionModal/QnaQuestionModal';
+import AiChatModal from '../../../components/AiChatModal/AiChatModal';
 import { COLOR_KEYS, BADGE_SIZES } from '../../../constants/styles';
 import { ROUTES } from '../../../constants/routes';
 import { getDocuments, getFaqs } from '../../../api/docApi';
@@ -70,6 +71,7 @@ function DocFilterResultPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [questionOpen, setQuestionOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const { data: docRes, loading } = useFetch(() => getDocuments().catch(() => null), []);
   const { data: faqRes } = useFetch(() => getFaqs().catch(() => null), []);
@@ -344,7 +346,7 @@ function DocFilterResultPage() {
               <p className={styles.empty}>관련 FAQ가 없습니다.</p>
             )}
             <div className={styles.faqActions}>
-              <button className={styles.btnPrimary} onClick={() => navigate(ROUTES.DOC.LIST)}>
+              <button className={styles.btnPrimary} onClick={() => setAiOpen(true)}>
                 AI에게 물어보기
               </button>
               <button className={styles.btnOutline} onClick={() => setQuestionOpen(true)}>
@@ -357,6 +359,7 @@ function DocFilterResultPage() {
 
       {selectedDoc && <DocDetailModal doc={selectedDoc} onClose={() => setSelectedDoc(null)} />}
       {questionOpen && <QnaQuestionModal onClose={() => setQuestionOpen(false)} />}
+      {aiOpen && <AiChatModal onClose={() => setAiOpen(false)} />}
     </div>
   );
 }
