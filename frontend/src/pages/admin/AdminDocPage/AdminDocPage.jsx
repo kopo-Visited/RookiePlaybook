@@ -22,16 +22,9 @@ import { ROUTES } from '../../../constants/routes';
 const STALE_THRESHOLD_DAYS = 90;
 const PAGE_SIZE = 10;
 
-const CATEGORY_OPTIONS = [
-  { label: '공통', value: 1 },
-  { label: '개발', value: 2 },
-  { label: '인프라', value: 3 },
-  { label: '보안', value: 4 },
-  { label: '네트워크', value: 5 },
-];
-
-function AdminFaqCreateModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ categoryId: 1, question: '', answer: '', isPublic: true });
+function AdminFaqCreateModal({ onClose, onCreated, categoryOptions }) {
+  const firstCatId = categoryOptions[0]?.value ?? null;
+  const [form, setForm] = useState({ categoryId: firstCatId, question: '', answer: '', isPublic: true });
   const [saving, setSaving] = useState(false);
 
   function handleChange(field, value) {
@@ -69,7 +62,7 @@ function AdminFaqCreateModal({ onClose, onCreated }) {
             value={form.categoryId}
             onChange={e => handleChange('categoryId', Number(e.target.value))}
           >
-            {CATEGORY_OPTIONS.map(opt => (
+            {categoryOptions.map(opt => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -118,9 +111,9 @@ function AdminFaqCreateModal({ onClose, onCreated }) {
   );
 }
 
-function AdminFaqEditModal({ faq, onClose, onSaved }) {
+function AdminFaqEditModal({ faq, onClose, onSaved, categoryOptions }) {
   const [form, setForm] = useState({
-    categoryId: faq.categoryId ?? 1,
+    categoryId: faq.categoryId,
     question: faq.question ?? '',
     answer: faq.answer ?? '',
     isPublic: faq.isPublic ?? true,
@@ -162,7 +155,7 @@ function AdminFaqEditModal({ faq, onClose, onSaved }) {
             value={form.categoryId}
             onChange={e => handleChange('categoryId', Number(e.target.value))}
           >
-            {CATEGORY_OPTIONS.map(opt => (
+            {categoryOptions.map(opt => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -283,6 +276,12 @@ function AdminDocPage() {
   const { data: faqRes } = useFetch(() => getAdminFaqs(), [faqRefreshKey]);
   const faqs = useMemo(() => (Array.isArray(faqRes?.data) ? faqRes.data : []), [faqRes]);
   const totalFaqs = faqs.length;
+
+  const faqCategoryOptions = useMemo(() => {
+    const seen = new Map();
+    faqs.forEach(f => { if (f.categoryId && !seen.has(f.categoryId)) seen.set(f.categoryId, f.categoryName); });
+    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
+  }, [faqs]);
 
   const publicDocs = useMemo(() => docs.filter(d => d.isPublic).length, [docs]);
   const privateDocs = useMemo(() => docs.filter(d => !d.isPublic).length, [docs]);
@@ -463,7 +462,7 @@ function AdminDocPage() {
         ))}
       </div>
 
-      <div className={styles.tableCard}>
+      <div className={`${styles.tableCard} ${styles.tableCardTall}`}>
         <div className={styles.sectionHeader}>
           <div>
             <h2 className={styles.sectionTitle}>문서 관리</h2>
@@ -691,6 +690,7 @@ function AdminDocPage() {
           }}
           onCreated={handleCreated}
           editDoc={editDoc}
+          faqCategoryOptions={faqCategoryOptions}
         />
       )}
       <div className={styles.tableCard}>
@@ -774,6 +774,7 @@ function AdminDocPage() {
         <AdminFaqCreateModal
           onClose={() => setFaqModalOpen(false)}
           onCreated={() => setFaqRefreshKey(k => k + 1)}
+          categoryOptions={faqCategoryOptions}
         />
       )}
       {editFaq && (
@@ -781,6 +782,7 @@ function AdminDocPage() {
           faq={editFaq}
           onClose={() => setEditFaq(null)}
           onSaved={() => setFaqRefreshKey(k => k + 1)}
+          categoryOptions={faqCategoryOptions}
         />
       )}
     </div>

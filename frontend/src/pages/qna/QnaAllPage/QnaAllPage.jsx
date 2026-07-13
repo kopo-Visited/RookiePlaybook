@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../QnaListPage/QnaListPage.module.css';
 import { getAllQnas } from '../../../api/qnaApi';
@@ -30,32 +30,8 @@ const QNA_STATUS_STYLE = {
   ON_HOLD: { color: '#FFAD33', background: '#FFF5E6' },
 };
 
-function IconChevronDown() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function useDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    function handler(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-  return { open, setOpen, ref };
-}
+// 카테고리 요약 카드 아이콘 색상(순환)
+const SUM_COLORS = ['sumBlue', 'sumGreen', 'sumOrange', 'sumPink', 'sumPurple'];
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -86,8 +62,7 @@ function QnaAllPage() {
   const [category, setCategory] = useState('전체 카테고리');
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const categoryDD = useDropdown();
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     let ignore = false;
@@ -107,15 +82,24 @@ function QnaAllPage() {
     };
   }, [refreshKey]);
 
-  const categories = useMemo(() => {
-    const set = new Set(rows.map(r => r.categoryName).filter(Boolean));
-    return ['전체 카테고리', ...set];
+  const categoryCards = useMemo(() => {
+    const counts = {};
+    rows.forEach(r => {
+      if (r.categoryName) counts[r.categoryName] = (counts[r.categoryName] || 0) + 1;
+    });
+    return [
+      { name: '전체 카테고리', label: '전체', count: rows.length },
+      ...Object.keys(counts).map(c => ({ name: c, label: c, count: counts[c] })),
+    ];
   }, [rows]);
 
   const filtered = useMemo(() => {
-    if (category === '전체 카테고리') return rows;
-    return rows.filter(r => r.categoryName === category);
-  }, [rows, category]);
+    let list = rows;
+    if (category !== '전체 카테고리') list = list.filter(r => r.categoryName === category);
+    const kw = search.trim();
+    if (kw) list = list.filter(r => (r.title ?? '').includes(kw));
+    return list;
+  }, [rows, category, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -126,45 +110,16 @@ function QnaAllPage() {
 
   function handleCategorySelect(opt) {
     setCategory(opt);
-    categoryDD.setOpen(false);
     setPage(1);
   }
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>모든 질문</h1>
-        <p className={styles.pageSubtitle}>모든 구성원이 남긴 질문과 답변을 확인할 수 있어요.</p>
-      </div>
-
-      <div className={styles.actionBar}>
-        <div className={styles.categoryDDWrap} ref={categoryDD.ref}>
-          <div
-            className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
-            onClick={() => categoryDD.setOpen(o => !o)}
-          >
-            <span>{category}</span>
-            <span
-              className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
-            >
-              <IconChevronDown />
-            </span>
-          </div>
-          {categoryDD.open && (
-            <ul className={styles.dropdown}>
-              {categories.map(opt => (
-                <li
-                  key={opt}
-                  className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
-                  onClick={() => handleCategorySelect(opt)}
-                >
-                  {opt}
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className={styles.headerText}>
+          <h1 className={styles.pageTitle}>모든 질문</h1>
+          <p className={styles.pageSubtitle}>모든 구성원이 남긴 질문과 답변을 확인할 수 있어요.</p>
         </div>
-
         <div className={styles.actionBtns}>
           <button className={styles.btnAllQna} onClick={() => navigate(ROUTES.QNA.LIST)}>
             내 질문 확인하기
@@ -172,6 +127,40 @@ function QnaAllPage() {
           <button className={styles.btnAsk} onClick={() => setModalOpen(true)}>
             + 질문하기
           </button>
+        </div>
+      </div>
+
+      {/* 카테고리 요약 카드 (지식문서식 클릭 필터) */}
+      <div className={styles.summaryRow}>
+        {categoryCards.map((c, idx) => (
+          <div
+            key={c.name}
+            className={`${styles.summaryCard} ${category === c.name ? styles.summaryCardActive : ''}`}
+            onClick={() => handleCategorySelect(category === c.name ? '전체 카테고리' : c.name)}
+          >
+            <div className={`${styles.summaryIcon} ${styles[SUM_COLORS[idx % SUM_COLORS.length]]}`}>
+              {c.label.slice(0, 1)}
+            </div>
+            <div className={styles.summaryText}>
+              <span className={styles.summaryCount}>{c.count}</span>
+              <span className={styles.summaryLabel}>{c.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 검색 (지식문서식 자동 필터) */}
+      <div className={styles.filterRow}>
+        <div className={styles.searchWrap}>
+          <input
+            className={styles.searchInput}
+            placeholder="제목 검색"
+            value={search}
+            onChange={e => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
         </div>
       </div>
 
