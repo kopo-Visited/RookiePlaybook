@@ -183,3 +183,22 @@
   text-align: center;
   padding: 60px 0;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .card {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 16px;
+  }
+  .title {
+    font-size: 18px;
+  }
+  .stageItem {
+    gap: 10px;
+  }
+}

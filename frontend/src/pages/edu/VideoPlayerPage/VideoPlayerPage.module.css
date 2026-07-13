@@ -143,3 +143,26 @@
   text-align: center;
   padding: 60px 0;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .card {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 10px;
+  }
+  .courseTitle {
+    font-size: 15px;
+  }
+  .actions {
+    flex-direction: column;
+  }
+  .actions > button {
+    flex: unset;
+    width: 100%;
+  }
+}

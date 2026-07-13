@@ -180,3 +180,27 @@
   padding: 40px 0;
   text-align: center;
 }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .countBadge {
+    margin-top: 0;
+  }
+  .tableCard {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 14px;
+  }
+  .actionRow {
+    flex-wrap: wrap;
+  }
+}

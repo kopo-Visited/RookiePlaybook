@@ -570,3 +570,57 @@
   color: #2d374d;
   line-height: 20px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .shortcutGridWide {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .midRow {
+    grid-template-columns: 1fr;
+  }
+  .bottomRow {
+    grid-template-columns: 1fr;
+  }
+  .welcomeBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .welcomeDate {
+    white-space: normal;
+  }
+  .shortcutGridWide {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+  .shortcutGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .shortcutGridWide {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .welcomeBanner {
+    padding: 20px;
+  }
+  .welcomeTitle {
+    font-size: 18px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .statCard {
+    height: auto;
+    padding: 16px;
+  }
+}
