@@ -17,9 +17,35 @@ import EmptyState from '../../../components/EmptyState/EmptyState';
 import EducationFormModal from '../../../components/EducationFormModal/EducationFormModal';
 import StageManageModal from '../../../components/StageManageModal/StageManageModal';
 import Dropdown from '../../../components/Dropdown/Dropdown';
+import { DEPT_COLOR } from '../../../constants/styles';
 
 const PROGRESS_PAGE_SIZE = 20;
 const COURSE_PAGE_SIZE = 10;
+// 검색/요약을 위해 전체 교육을 한 번에 받아온다 (교육 과정 수보다 크게)
+const COURSE_FETCH_SIZE = 100;
+
+// 교육 카테고리 (지식문서와 동일 집합·순서, 인사팀 제외)
+const EDU_CATEGORIES = ['네트워크', '보안', '인프라', '개발', '공통'];
+const CATEGORY_ICON = { 개발: 'Dev', 인프라: 'Infra', 보안: 'Sec', 네트워크: 'Net', 공통: 'All' };
+const EDU_SORT_OPTIONS = [
+  { value: 'latest', label: '최신순' },
+  { value: 'oldest', label: '오래된순' },
+  { value: 'title', label: '제목순' },
+];
+
+// 교육의 부서명 → 카테고리 (부서명의 '팀' 접미사 제거, 부서 미지정=공통)
+function eduCategory(edu) {
+  return edu.departmentName ? edu.departmentName.replace(/팀$/, '') : '공통';
+}
+
+function IconSearch() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+      <path d="M21 21l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 const COMPLETION_OPTIONS = [
   { value: 'ALL', label: '완료여부 전체' },
@@ -44,18 +70,63 @@ function EducationSection() {
   const [stageEducation, setStageEducation] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('전체');
+  const [sort, setSort] = useState('latest');
 
+  // 전체 교육을 받아 검색/부서/정렬을 클라이언트에서 처리한다 (지식문서 목록과 동일 방식)
   const { data, loading, error } = useFetch(
-    () => getAdminEducations({ page: page - 1, size: COURSE_PAGE_SIZE }),
-    [refreshKey, page]
+    () => getAdminEducations({ page: 0, size: COURSE_FETCH_SIZE }),
+    [refreshKey]
   );
-  const pageData = data?.data;
-  const items = pageData?.content ?? [];
-  const totalPages = pageData?.totalPages ?? 1;
+  const allItems = data?.data?.content ?? [];
 
-  // 등록/수정 폼의 부서 선택에 쓸 부서 목록
+  // 등록/수정 폼의 부서 선택지. 인사팀은 교육 카테고리가 아니므로 제외
   const { data: deptData } = useFetch(() => getDepartments(), []);
-  const departments = deptData ?? [];
+  const departments = (deptData ?? []).filter(d => d.name !== '인사팀');
+
+  // 부서별 교육 개수 요약 (고정 5개 카테고리, 0 포함)
+  const countMap = allItems.reduce((acc, e) => {
+    const c = eduCategory(e);
+    acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
+  const summaryCards = EDU_CATEGORIES.map(name => ({
+    name,
+    colorKey: DEPT_COLOR[name],
+    count: countMap[name] ?? 0,
+  }));
+
+  // 검색(제목) + 부서 + 정렬 필터 후 10개씩 페이지네이션
+  let filtered = allItems;
+  if (search.trim()) filtered = filtered.filter(e => e.title.includes(search.trim()));
+  if (category !== '전체') filtered = filtered.filter(e => eduCategory(e) === category);
+  filtered = [...filtered].sort((a, b) => {
+    if (sort === 'oldest') return a.educationId - b.educationId;
+    if (sort === 'title') return a.title.localeCompare(b.title, 'ko');
+    return b.educationId - a.educationId;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / COURSE_PAGE_SIZE));
+  const items = filtered.slice((page - 1) * COURSE_PAGE_SIZE, page * COURSE_PAGE_SIZE);
+
+  // 필터 변경 시 항상 첫 페이지로 되돌린다
+  function changeSearch(v) {
+    setSearch(v);
+    setPage(1);
+  }
+  function changeCategory(v) {
+    setCategory(v);
+    setPage(1);
+  }
+  function changeSort(v) {
+    setSort(v);
+    setPage(1);
+  }
+  function toggleCategoryCard(name) {
+    setCategory(prev => (prev === name ? '전체' : name));
+    setPage(1);
+  }
 
   function openCreate() {
     setEditEducation(null);
@@ -92,96 +163,162 @@ function EducationSection() {
   }
 
   return (
-    <section className={styles.tableCard}>
-      <div className={styles.sectionHeader}>
-        <div>
-          <h2 className={styles.sectionTitle}>교육 과정 목록</h2>
-          <p className={styles.sectionSubtitle}>교육 과정을 등록·수정·삭제하세요.</p>
+    <>
+      <section className={styles.filterCard}>
+        <div className={styles.eduFilterRow}>
+          <div className={`${styles.filterField} ${styles.filterFieldWide}`}>
+            <label className={styles.filterLabel}>검색어</label>
+            <div className={styles.inputWrap}>
+              <input
+                className={styles.searchInput}
+                placeholder="교육 과정명을 입력하세요"
+                value={search}
+                onChange={e => changeSearch(e.target.value)}
+              />
+              <span className={styles.inputIcon}>
+                <IconSearch />
+              </span>
+            </div>
+          </div>
+          <div className={styles.filterField}>
+            <label className={styles.filterLabel}>카테고리</label>
+            <Dropdown
+              className={styles.filterSelect}
+              value={category}
+              onChange={changeCategory}
+              options={[
+                { value: '전체', label: '전체' },
+                ...EDU_CATEGORIES.map(c => ({ value: c, label: c })),
+              ]}
+            />
+          </div>
+          <div className={styles.filterField}>
+            <label className={styles.filterLabel}>정렬</label>
+            <Dropdown
+              className={styles.filterSelect}
+              value={sort}
+              onChange={changeSort}
+              options={EDU_SORT_OPTIONS}
+            />
+          </div>
         </div>
-        <button className={styles.btnPrimary} onClick={openCreate}>
-          + 과정 추가
-        </button>
-      </div>
 
-      {loading && <Spinner />}
-      {!loading && error && <ErrorMessage />}
-      {!loading && !error && items.length === 0 && (
-        <EmptyState message="등록된 교육 과정이 없습니다." />
-      )}
-      {!loading && !error && items.length > 0 && (
-        <table className={styles.table}>
-          <colgroup>
-            <col />
-            <col className={styles.colYear} />
-            <col className={styles.colNum} />
-            <col className={styles.colActions} />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>제목</th>
-              <th>기준연도</th>
-              <th>단계 수</th>
-              <th>관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(edu => (
-              <tr key={edu.educationId}>
-                <td>
-                  <span className={styles.titleText}>{edu.title}</span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>
-                    {edu.contentYear ? `${edu.contentYear} 과정` : '—'}
-                  </span>
-                </td>
-                <td>
-                  <span className={styles.secondary}>{edu.totalStages}단계</span>
-                </td>
-                <td>
-                  <div className={styles.actionRow}>
-                    <button className={styles.actionBtn} onClick={() => setStageEducation(edu)}>
-                      단계 관리
-                    </button>
-                    <button className={styles.actionBtn} onClick={() => openEdit(edu)}>
-                      수정
-                    </button>
-                    <button
-                      className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                      onClick={() => handleDelete(edu)}
-                    >
-                      삭제
-                    </button>
-                  </div>
-                </td>
+        <div className={styles.summaryRow}>
+          {summaryCards.map(c => (
+            <div
+              key={c.name}
+              className={`${styles.summaryCard} ${category === c.name ? styles.summaryCardActive : ''}`}
+              onClick={() => toggleCategoryCard(c.name)}
+            >
+              <div className={`${styles.summaryIcon} ${styles[c.colorKey]}`}>
+                {CATEGORY_ICON[c.name]}
+              </div>
+              <div className={styles.summaryText}>
+                <span className={styles.summaryCount}>{c.count}</span>
+                <span className={styles.summaryLabel}>{c.name}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.tableCard}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <h2 className={styles.sectionTitle}>교육 과정 목록</h2>
+            <p className={styles.sectionSubtitle}>교육 과정을 등록·수정·삭제하세요.</p>
+          </div>
+          <button className={styles.btnPrimary} onClick={openCreate}>
+            + 과정 추가
+          </button>
+        </div>
+
+        {loading && <Spinner />}
+        {!loading && error && <ErrorMessage />}
+        {!loading && !error && items.length === 0 && (
+          <EmptyState
+            message={
+              allItems.length === 0
+                ? '등록된 교육 과정이 없습니다.'
+                : '조건에 맞는 교육 과정이 없습니다.'
+            }
+          />
+        )}
+        {!loading && !error && items.length > 0 && (
+          <table className={styles.table}>
+            <colgroup>
+              <col />
+              <col className={styles.colYear} />
+              <col className={styles.colNum} />
+              <col className={styles.colActions} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>제목</th>
+                <th>기준연도</th>
+                <th>단계 수</th>
+                <th>관리</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody>
+              {items.map(edu => (
+                <tr key={edu.educationId}>
+                  <td>
+                    <span className={styles.titleText}>{edu.title}</span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>
+                      {edu.contentYear ? `${edu.contentYear} 과정` : '—'}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={styles.secondary}>{edu.totalStages}단계</span>
+                  </td>
+                  <td>
+                    <div className={styles.actionRow}>
+                      <button className={styles.actionBtn} onClick={() => setStageEducation(edu)}>
+                        단계 관리
+                      </button>
+                      <button className={styles.actionBtn} onClick={() => openEdit(edu)}>
+                        수정
+                      </button>
+                      <button
+                        className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                        onClick={() => handleDelete(edu)}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
-      {modalOpen && (
-        <EducationFormModal
-          education={editEducation}
-          departments={departments}
-          onClose={() => setModalOpen(false)}
-          onSuccess={() => setRefreshKey(k => k + 1)}
-        />
-      )}
+        {modalOpen && (
+          <EducationFormModal
+            education={editEducation}
+            departments={departments}
+            onClose={() => setModalOpen(false)}
+            onSuccess={() => setRefreshKey(k => k + 1)}
+          />
+        )}
 
-      {stageEducation && (
-        <StageManageModal
-          education={stageEducation}
-          onClose={() => {
-            setStageEducation(null);
-            // 단계 수가 바뀌었을 수 있으니 과정 목록을 다시 조회한다
-            setRefreshKey(k => k + 1);
-          }}
-        />
-      )}
-    </section>
+        {stageEducation && (
+          <StageManageModal
+            education={stageEducation}
+            onClose={() => {
+              setStageEducation(null);
+              // 단계 수가 바뀌었을 수 있으니 과정 목록을 다시 조회한다
+              setRefreshKey(k => k + 1);
+            }}
+          />
+        )}
+      </section>
+    </>
   );
 }
 

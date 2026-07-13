@@ -204,6 +204,150 @@
   color: var(--color-primary);
 }
 
+/* ── 교육 과정 관리 필터 카드 (DocListPage filterCard와 동일 구조) ── */
+.filterCard {
+  composes: card from '../../../styles/common.module.css';
+  padding: 21px 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.eduFilterRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.filterField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  position: relative;
+}
+.filterFieldWide {
+  flex: 1;
+  min-width: 240px;
+}
+.filterLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-label);
+  line-height: 14px;
+}
+.inputWrap {
+  position: relative;
+}
+.searchInput {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  padding: 0 36px 0 16px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--color-text-title);
+  outline: none;
+  background: var(--color-bg-white);
+}
+.searchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
+.inputIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+/* ── 부서별 교육 개수 요약 카드 (DocListPage 요약 카드 재사용) ── */
+.summaryRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.summaryCard {
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-bg-white);
+  cursor: pointer;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.summaryCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(34, 136, 255, 0.12);
+}
+.summaryCardActive {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(34, 136, 255, 0.12);
+  background: var(--color-primary-bg, #f0f7ff);
+}
+.summaryIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.summaryCount {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  line-height: 1.2;
+}
+.summaryLabel {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* 요약 카드 아이콘 색상 (COLOR_KEYS → 색 토큰, DocListPage와 동일) */
+.blue {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+.green {
+  background: var(--color-green-bg);
+  color: var(--color-green);
+}
+.pink {
+  background: var(--color-pink-bg);
+  color: var(--color-pink);
+}
+.orange {
+  background: var(--color-orange-bg);
+  color: var(--color-orange);
+}
+.purple {
+  background: var(--color-purple-bg);
+  color: var(--color-purple);
+}
+
 /* ── 진도율 셀 (EducationListPage 진도 바 값 그대로 재사용) ── */
 .progressCell {
   display: flex;
