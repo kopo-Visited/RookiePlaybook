@@ -14,7 +14,7 @@ const material = {
 };
 
 // jsdom은 미디어를 실제 로드하지 않으므로, video의 currentTime/duration을 스텁으로 심어
-// loadedmetadata 시 첫 프레임 이동 로직(설정된 currentTime 값)을 관찰한다.
+// timeupdate 시 시청 완료 판정 로직을 관찰한다.
 function stubVideoTime(video, { duration = 30 } = {}) {
   let pos = 0;
   Object.defineProperty(video, 'currentTime', {
@@ -124,30 +124,33 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByText(/\(2\/2단계\)/)).toBeInTheDocument();
   });
 
-  it('단계 완료/이전/다음/목록으로 버튼이 렌더링된다', async () => {
+  it('좌측 사이드바에 교육 과정의 단계 목록이 렌더링된다', async () => {
     // given & when
     mockSuccess();
-    renderPage();
+    renderPage(1);
+
+    // then — '정보보안 기초'는 사이드바에만 존재(영상 정보엔 현재 단계 '회사 소개'만 표시)
+    await screen.findByText('[신입사원 온보딩 교육]');
+    expect(screen.getByText('단계 (2)')).toBeInTheDocument();
+    expect(screen.getByText('정보보안 기초')).toBeInTheDocument();
+  });
+
+  it('하단에 이전/다음 영상 버튼이 있고 단계 완료 버튼은 없다', async () => {
+    // given & when
+    mockSuccess();
+    renderPage(1);
 
     // then
     await screen.findByText('[신입사원 온보딩 교육]');
-    expect(screen.getByRole('button', { name: '단계 완료' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /이전 영상/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /다음 영상/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /목록으로/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '단계 완료' })).not.toBeInTheDocument();
   });
 
   it('목록으로 버튼 클릭 시 교육 상세(/edu/:id)로 이동한다', async () => {
     // given
     mockSuccess();
-    render(
-      <MemoryRouter initialEntries={['/edu/1/stages/1']}>
-        <Routes>
-          <Route path="/edu/:id/stages/:stageId" element={<VideoPlayerPage />} />
-          <Route path="/edu/:id" element={<div>교육 상세 페이지</div>} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderPage(1);
     const btn = await screen.findByRole('button', { name: /목록으로/ });
 
     // when
@@ -167,34 +170,34 @@ describe('VideoPlayerPage 렌더링', () => {
     expect(screen.getByRole('button', { name: /이전 영상/ })).toBeDisabled();
   });
 
-  it('영상을 충분히 시청하기 전에는 단계 완료 버튼이 비활성화된다', async () => {
-    // given & when
+  it('현재 영상 미시청 시 다음 영상 버튼이 비활성화된다', async () => {
+    // given & when — 다음 단계(stage 2)가 존재하는 첫 단계
     mockSuccess();
-    renderPage();
+    renderPage(1);
 
     // then
     await screen.findByText('[신입사원 온보딩 교육]');
-    expect(screen.getByRole('button', { name: '단계 완료' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
   });
 
-  it('영상을 95% 이상 시청하면 단계 완료 버튼이 활성화된다', async () => {
+  it('영상을 95% 이상 시청하면 다음 영상 버튼이 활성화된다', async () => {
     // given
     mockSuccess();
-    renderPage();
+    renderPage(1);
     await screen.findByText('[신입사원 온보딩 교육]');
     const video = document.querySelector('video');
     stubVideoTime(video, { duration: 30 });
-    expect(screen.getByRole('button', { name: '단계 완료' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
 
     // when — 96% 지점까지 재생
     video.currentTime = 29;
     fireEvent.timeUpdate(video);
 
-    // then — 시청 상태 반영(flush)을 기다린 뒤 단정
-    await waitFor(() => expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled());
+    // then
+    await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
   });
 
-  it('이어보기 위치가 이미 95% 이상이면 단계 완료 버튼이 바로 활성화된다', async () => {
+  it('이어보기 위치가 이미 95% 이상이면 다음 영상 버튼이 바로 활성화된다', async () => {
     // given
     const resumeMaterial = { ...material, lastWatchedPosition: 590, totalDuration: 600 };
     server.use(
@@ -203,40 +206,119 @@ describe('VideoPlayerPage 렌더링', () => {
       ),
       http.get('/api/educations/:id', () =>
         HttpResponse.json({ success: true, message: '', data: detail })
+      ),
+      http.post('/api/educations/:id/enroll', () =>
+        HttpResponse.json({ success: true, message: '' })
       )
     );
 
     // when
-    renderPage();
+    renderPage(1);
 
     // then — 자료 로드 후 effect로 watched가 설정되므로 waitFor로 반영을 기다린다
     await screen.findByText('[신입사원 온보딩 교육]');
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: '단계 완료' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
     });
   });
 
-  it('영상을 95% 이상 시청한 뒤 단계 완료 버튼 클릭 시 완료 처리된다', async () => {
+  it('이미 완료한 단계는 미시청이어도 다음 영상 버튼이 활성화된다', async () => {
+    // given — 현재 단계(stage 1)가 이미 완료 상태
+    const completedDetail = {
+      ...detail,
+      stages: [{ ...detail.stages[0], isCompleted: true }, detail.stages[1]],
+    };
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: material })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: completedDetail })
+      ),
+      http.post('/api/educations/:id/enroll', () =>
+        HttpResponse.json({ success: true, message: '' })
+      )
+    );
+
+    // when
+    renderPage(1);
+
+    // then
+    await screen.findByText('[신입사원 온보딩 교육]');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
+    });
+  });
+
+  it('영상을 95% 이상 시청한 뒤 다음 영상 버튼 클릭 시 현재 단계를 완료 처리하고 다음 단계로 이동한다', async () => {
     // given
     mockSuccess();
-    renderPage();
+    let stageCompleted = false;
+    server.use(
+      http.post('/api/progress/stage', () => {
+        stageCompleted = true;
+        return HttpResponse.json({ success: true, message: '', data: {} });
+      })
+    );
+    renderPage(1);
     await screen.findByText('[신입사원 온보딩 교육]');
     const video = document.querySelector('video');
     stubVideoTime(video, { duration: 30 });
     video.currentTime = 29;
     fireEvent.timeUpdate(video);
-    const btn = screen.getByRole('button', { name: '단계 완료' });
-    // 시청 상태 반영으로 버튼이 활성화될 때까지 기다린 뒤 클릭 (disabled 상태 클릭 = no-op 방지)
-    await waitFor(() => expect(btn).toBeEnabled());
+    const nextBtn = screen.getByRole('button', { name: /다음 영상/ });
+    await waitFor(() => expect(nextBtn).toBeEnabled());
 
     // when
-    await userEvent.click(btn);
+    await userEvent.click(nextBtn);
 
-    // then
-    await waitFor(() => {
-      expect(screen.getByText('단계를 완료했습니다.')).toBeInTheDocument();
-    });
-    expect(screen.getByRole('button', { name: '완료됨' })).toBeInTheDocument();
+    // then — 현재 단계 완료 호출 + 다음 단계(2/2)로 이동
+    await waitFor(() => expect(stageCompleted).toBe(true));
+    expect(await screen.findByText(/\(2\/2단계\)/)).toBeInTheDocument();
+  });
+
+  it('마지막 단계에서는 "학습 완료" 버튼이 뜨고 클릭 시 완료 처리 후 교육 상세로 이동한다', async () => {
+    // given — 마지막 단계(stage 2). 직전 단계는 완료된 상태로 접근 가능하게 둔다
+    const detailStage1Done = {
+      ...detail,
+      stages: [{ ...detail.stages[0], isCompleted: true }, detail.stages[1]],
+    };
+    let stageCompleted = false;
+    server.use(
+      http.get('/api/stages/:stageId/material', () =>
+        HttpResponse.json({ success: true, message: '', data: material })
+      ),
+      http.get('/api/educations/:id', () =>
+        HttpResponse.json({ success: true, message: '', data: detailStage1Done })
+      ),
+      http.post('/api/progress/video', () => HttpResponse.json({ success: true, message: '' })),
+      http.post('/api/educations/:id/enroll', () =>
+        HttpResponse.json({ success: true, message: '' })
+      ),
+      http.post('/api/progress/stage', () => {
+        stageCompleted = true;
+        return HttpResponse.json({ success: true, message: '', data: {} });
+      })
+    );
+    renderPage(2);
+    await screen.findByText('[신입사원 온보딩 교육]');
+
+    // then — 마지막 단계는 다음 영상 대신 학습 완료 버튼
+    expect(screen.getByRole('button', { name: '학습 완료' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /다음 영상/ })).not.toBeInTheDocument();
+
+    // when — 95% 시청 후 학습 완료 클릭
+    const video = document.querySelector('video');
+    stubVideoTime(video, { duration: 30 });
+    video.currentTime = 29;
+    fireEvent.timeUpdate(video);
+    const finishBtn = screen.getByRole('button', { name: '학습 완료' });
+    await waitFor(() => expect(finishBtn).toBeEnabled());
+    await userEvent.click(finishBtn);
+
+    // then — 완료 처리 + 교육 상세로 이동
+    await waitFor(() => expect(stageCompleted).toBe(true));
+    expect(await screen.findByText('교육 상세 페이지')).toBeInTheDocument();
   });
 
   it('영상 로드 실패 시 에러 메시지가 렌더링된다', async () => {
@@ -325,61 +407,6 @@ describe('VideoPlayerPage 렌더링', () => {
 
     // then
     await waitFor(() => expect(enrollCalled).toBe(true));
-  });
-
-  it('현재 영상 미시청 시 다음 영상 버튼이 비활성화된다', async () => {
-    // given & when — 다음 단계(stage 2)가 존재하는 첫 단계
-    mockSuccess();
-    renderPage(1);
-
-    // then
-    await screen.findByText('[신입사원 온보딩 교육]');
-    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
-  });
-
-  it('현재 단계를 완료해야 다음 영상 버튼이 활성화된다 (시청만으로는 불가)', async () => {
-    // given
-    mockSuccess();
-    renderPage(1);
-    await screen.findByText('[신입사원 온보딩 교육]');
-    const video = document.querySelector('video');
-    stubVideoTime(video, { duration: 30 });
-
-    // when — 96% 지점까지 재생 (단계 완료 버튼만 활성, 다음 영상은 아직 잠김)
-    video.currentTime = 29;
-    fireEvent.timeUpdate(video);
-
-    // then — 순차 잠금: 시청만으로는 다음으로 넘어갈 수 없다
-    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
-
-    // when — 단계 완료 처리 (버튼 활성화까지 기다린 뒤 클릭)
-    const completeBtn = screen.getByRole('button', { name: '단계 완료' });
-    await waitFor(() => expect(completeBtn).toBeEnabled());
-    await userEvent.click(completeBtn);
-
-    // then — 완료 후 다음 영상 활성화
-    await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
-  });
-
-  it('과정을 이미 수료한 사용자는 미시청이어도 다음 영상 버튼이 활성화된다', async () => {
-    // given — 과정 수료(detail.isCompleted=true)
-    server.use(
-      http.get('/api/stages/:stageId/material', () =>
-        HttpResponse.json({ success: true, message: '', data: material })
-      ),
-      http.get('/api/educations/:id', () =>
-        HttpResponse.json({ success: true, message: '', data: { ...detail, isCompleted: true } })
-      )
-    );
-
-    // when
-    renderPage(1);
-
-    // then
-    await screen.findByText('[신입사원 온보딩 교육]');
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled();
-    });
   });
 
   it('잠긴 단계로 URL 직접 진입하면(403) 교육 상세로 리다이렉트된다', async () => {
