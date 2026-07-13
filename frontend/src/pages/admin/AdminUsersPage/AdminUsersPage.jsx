@@ -5,6 +5,8 @@ import Spinner from '../../../components/Spinner/Spinner';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
 import Dropdown from '../../../components/Dropdown/Dropdown';
 import useAdminUsers from '../../../hooks/admin/useAdminUsers';
+import useAuthStore from '../../../stores/authStore';
+import useToastStore from '../../../stores/toastStore';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
 
@@ -551,6 +553,7 @@ function AdminUsersPage() {
     changeUserRole,
     changeUserStatus,
   } = useAdminUsers();
+  const currentUserId = useAuthStore(state => state.user?.userId);
 
   const [keyword, setKeyword] = useState('');
   const [deptFilter, setDeptFilter] = useState('ALL');
@@ -652,6 +655,15 @@ function AdminUsersPage() {
     setEditingUser(null);
   }
 
+  async function handleDeleteUser(user) {
+    if (!window.confirm(`"${user.name}" 계정을 삭제하시겠습니까?`)) return;
+    try {
+      await changeUserStatus(user.userId, 'DELETED');
+    } catch (err) {
+      useToastStore.getState().show(err.response?.data?.message || ERROR_MESSAGES.SERVER_ERROR);
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
@@ -728,16 +740,16 @@ function AdminUsersPage() {
           ) : (
             <>
               <table className={styles.usersTable}>
-                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일), 이메일은 남은 폭 */}
+                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일), 관리 칼럼(수정+삭제 버튼)은 남은 폭 */}
                 <colgroup>
                   <col style={{ width: '130px' }} />
                   <col style={{ width: '100px' }} />
                   <col style={{ width: '90px' }} />
-                  <col />
+                  <col style={{ width: '170px' }} />
                   <col style={{ width: '100px' }} />
                   <col style={{ width: '108px' }} />
                   <col style={{ width: '120px' }} />
-                  <col style={{ width: '160px' }} />
+                  <col />
                 </colgroup>
                 <thead>
                   <tr>
@@ -773,6 +785,19 @@ function AdminUsersPage() {
                             onClick={() => setEditingUser(u)}
                           >
                             수정
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.rowActionBtn} ${styles.rowActionBtnDanger}`}
+                            disabled={u.status === 'DELETED' || u.userId === currentUserId}
+                            title={
+                              u.userId === currentUserId
+                                ? '본인 계정은 삭제할 수 없습니다.'
+                                : undefined
+                            }
+                            onClick={() => handleDeleteUser(u)}
+                          >
+                            삭제
                           </button>
                         </div>
                       </td>
