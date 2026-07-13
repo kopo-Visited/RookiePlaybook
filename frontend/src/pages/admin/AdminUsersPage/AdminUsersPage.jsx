@@ -741,17 +741,18 @@ function AdminUsersPage() {
           ) : (
             <>
               <table className={styles.usersTable}>
-                {/* 관리자 표 공통 컬럼 폭(부서/상태/등록일 등 다른 페이지와 동일). 모든 칼럼 폭 고정 —
-                    남는 폭을 흡수하는 칼럼이 있으면 그 칼럼 안에 빈 공간이 몰려 보이므로 두지 않는다. */}
+                {/* 칼럼 폭은 모두 비율(%)로 지정해 표가 항상 패널 폭 전체를 채우도록 한다.
+                    px 고정 폭 + width:auto 조합은 표 자체가 좁아져 패널 오른쪽에 빈 여백이
+                    그대로 남는 문제가 있었다(패널은 여전히 폭 전체를 차지하기 때문). */}
                 <colgroup>
-                  <col style={{ width: '130px' }} />
-                  <col style={{ width: '100px' }} />
-                  <col style={{ width: '90px' }} />
-                  <col style={{ width: '170px' }} />
-                  <col style={{ width: '100px' }} />
-                  <col style={{ width: '108px' }} />
-                  <col style={{ width: '120px' }} />
-                  <col style={{ width: '170px' }} />
+                  <col style={{ width: '13%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '9%' }} />
+                  <col style={{ width: '17%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '11%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '18%' }} />
                 </colgroup>
                 <thead>
                   <tr>
