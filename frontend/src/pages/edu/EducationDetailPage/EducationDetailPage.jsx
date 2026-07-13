@@ -30,9 +30,12 @@ function EducationDetailPage() {
   const edu = apiRes?.data;
   const [starting, setStarting] = useState(false);
 
+  // 미수강(enrolled=false)이면 '진행중'이 아니라 '미수강'으로 표시한다 (목록과 색 토큰 통일)
   const courseChip = edu?.isCompleted
     ? { label: '완료', bg: 'var(--color-green-bg)', color: 'var(--color-green)' }
-    : { label: '진행중', bg: '#DFF1FF', color: '#2288FF' };
+    : edu?.enrolled
+      ? { label: '진행중', bg: '#DFF1FF', color: '#2288FF' }
+      : { label: '미수강', bg: '#EEF1F6', color: 'var(--color-text-secondary)' };
 
   // 첫 미완료 단계(없으면 첫 단계)로 이동. 미수강이면 이동 전에 수강 처리한다.
   const firstIncomplete = (edu?.stages ?? []).find(s => !s.isCompleted) ?? edu?.stages?.[0];
