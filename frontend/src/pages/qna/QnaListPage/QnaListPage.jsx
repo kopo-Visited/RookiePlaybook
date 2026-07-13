@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './QnaListPage.module.css';
 import { ROUTES } from '../../../constants/routes';
@@ -36,32 +36,8 @@ const ALL_STATUSES = [
   { key: 'ON_HOLD', label: '보류' },
 ];
 
-function IconChevronDown() {
-  return (
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function useDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    function handler(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-  return { open, setOpen, ref };
-}
+// 카테고리 요약 카드 아이콘 색상(순환)
+const SUM_COLORS = ['sumBlue', 'sumGreen', 'sumOrange', 'sumPink', 'sumPurple'];
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -108,8 +84,6 @@ function QnaListPage() {
   const [editTarget, setEditTarget] = useState(null);
   const [search, setSearch] = useState('');
 
-  const categoryDD = useDropdown();
-
   // 알림에서 넘어온 경우(state.openQuestionId) 해당 질문 상세 모달을 자동으로 연다
   useEffect(() => {
     if (location.state?.openQuestionId != null) {
@@ -129,9 +103,15 @@ function QnaListPage() {
     return Array.isArray(data) ? data : (data.content ?? data.data ?? []);
   }, [data]);
 
-  const categories = useMemo(() => {
-    const set = new Set(items.map(i => i.categoryName).filter(Boolean));
-    return ['전체 카테고리', ...set];
+  const categoryCards = useMemo(() => {
+    const counts = {};
+    items.forEach(i => {
+      if (i.categoryName) counts[i.categoryName] = (counts[i.categoryName] || 0) + 1;
+    });
+    return [
+      { name: '전체 카테고리', label: '전체', count: items.length },
+      ...Object.keys(counts).map(c => ({ name: c, label: c, count: counts[c] })),
+    ];
   }, [items]);
 
   const statusCounts = useMemo(() => {
@@ -170,7 +150,6 @@ function QnaListPage() {
 
   function handleCategorySelect(opt) {
     setCategory(opt);
-    categoryDD.setOpen(false);
     setPage(1);
   }
 
@@ -212,35 +191,27 @@ function QnaListPage() {
         ))}
       </div>
 
-      {/* 필터: 카테고리 드롭다운 + 검색 (지식문서식 자동 필터) */}
-      <div className={styles.filterRow}>
-        <div className={styles.categoryDDWrap} ref={categoryDD.ref}>
+      {/* 카테고리 요약 카드 (지식문서식 클릭 필터) */}
+      <div className={styles.summaryRow}>
+        {categoryCards.map((c, idx) => (
           <div
-            className={`${styles.select} ${categoryDD.open ? styles.selectOpen : ''}`}
-            onClick={() => categoryDD.setOpen(o => !o)}
+            key={c.name}
+            className={`${styles.summaryCard} ${category === c.name ? styles.summaryCardActive : ''}`}
+            onClick={() => handleCategorySelect(category === c.name ? '전체 카테고리' : c.name)}
           >
-            <span>{category}</span>
-            <span
-              className={`${styles.selectArrow} ${categoryDD.open ? styles.selectArrowUp : ''}`}
-            >
-              <IconChevronDown />
-            </span>
+            <div className={`${styles.summaryIcon} ${styles[SUM_COLORS[idx % SUM_COLORS.length]]}`}>
+              {c.label.slice(0, 1)}
+            </div>
+            <div className={styles.summaryText}>
+              <span className={styles.summaryCount}>{c.count}</span>
+              <span className={styles.summaryLabel}>{c.label}</span>
+            </div>
           </div>
-          {categoryDD.open && (
-            <ul className={styles.dropdown}>
-              {categories.map(opt => (
-                <li
-                  key={opt}
-                  className={`${styles.dropdownItem} ${opt === category ? styles.dropdownItemActive : ''}`}
-                  onClick={() => handleCategorySelect(opt)}
-                >
-                  {opt}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        ))}
+      </div>
 
+      {/* 검색 (지식문서식 자동 필터) */}
+      <div className={styles.filterRow}>
         <div className={styles.searchWrap}>
           <input
             className={styles.searchInput}

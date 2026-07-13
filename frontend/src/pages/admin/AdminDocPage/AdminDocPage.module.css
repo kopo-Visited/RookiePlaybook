@@ -116,6 +116,10 @@
   gap: 16px;
   overflow: hidden;
 }
+/* 문서표(페이지네이션 有)만 페이지 이동 시 흔들림 방지용 최소 높이 */
+.tableCardTall {
+  min-height: 640px;
+}
 .sectionHeader {
   display: flex;
   align-items: flex-start;

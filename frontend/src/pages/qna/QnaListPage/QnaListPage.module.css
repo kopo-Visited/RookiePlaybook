@@ -208,6 +208,86 @@
   color: var(--color-text-secondary);
 }
 
+/* ── Category Summary Cards (지식문서식 클릭 카테고리 필터) ── */
+.summaryRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.summaryCard {
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-bg-white);
+  cursor: pointer;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.summaryCard:hover {
+  border-color: var(--color-primary);
+}
+.summaryCardActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.summaryIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.summaryCount {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  line-height: 1.2;
+}
+.summaryLabel {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sumBlue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+.sumGreen {
+  background: #e6f8f2;
+  color: #12b886;
+}
+.sumOrange {
+  background: #fff5e6;
+  color: #ffad33;
+}
+.sumPink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+.sumPurple {
+  background: #f3eeff;
+  color: #845ef7;
+}
+
 /* ── Table Card (페이지 이동 시 흔들림 방지: 최소 높이 고정 + 페이지네이션 하단 고정) ── */
 .tableCard {
   composes: card from '../../../styles/common.module.css';
