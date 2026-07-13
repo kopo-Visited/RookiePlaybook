@@ -322,21 +322,15 @@ function AdminQnaPage() {
             >
               ‹
             </button>
-            {slidingPageWindow(page, totalPages).map((n, i) =>
-              n === '…' ? (
-                <span key={`e${i}`} className={styles.pageNum} style={{ pointerEvents: 'none' }}>
-                  …
-                </span>
-              ) : (
-                <button
-                  key={n}
-                  className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
-                  onClick={() => setPage(n)}
-                >
-                  {n}
-                </button>
-              )
-            )}
+            {slidingPageWindow(page, totalPages).map(n => (
+              <button
+                key={n}
+                className={`${styles.pageNum} ${n === page ? styles.pageNumActive : ''}`}
+                onClick={() => setPage(n)}
+              >
+                {n}
+              </button>
+            ))}
             <button
               className={styles.pageArrow}
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
