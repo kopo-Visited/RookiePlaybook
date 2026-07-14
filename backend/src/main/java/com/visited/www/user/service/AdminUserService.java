@@ -9,7 +9,6 @@ import com.visited.www.global.exception.ErrorCode;
 import com.visited.www.user.exception.DepartmentNotFoundException;
 import com.visited.www.user.exception.DuplicateDepartmentCodeException;
 import com.visited.www.user.exception.DuplicateEmailException;
-import com.visited.www.user.exception.DuplicateEmployeeNoException;
 import com.visited.www.user.exception.RoleNotFoundException;
 import com.visited.www.user.exception.UserNotFoundException;
 import com.visited.www.user.dto.request.DepartmentCreateRequest;
@@ -30,7 +29,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Year;
+import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,9 @@ public class AdminUserService {
 
     // 관리자가 등록하는 모든 신규 계정의 고정 초기 비밀번호. 최초 로그인 후 반드시 변경해야 한다.
     private static final String INITIAL_PASSWORD = "0000";
+
+    // RP{가입연도 2자리}-{부서코드}-{부서별 4자리 순번}, 예: RP26-DEV-0001
+    private static final String EMPLOYEE_NO_FORMAT = "RP%02d-%s-%04d";
 
     private final UserRepository userRepository;
     private final DepartmentRepository departmentRepository;
@@ -63,10 +69,6 @@ public class AdminUserService {
             throw new DuplicateEmailException(request.email());
         }
 
-        if (userRepository.existsByEmployeeNo(request.employeeNo())) {
-            throw new DuplicateEmployeeNoException(request.employeeNo());
-        }
-
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new DepartmentNotFoundException(request.departmentId()));
 
@@ -80,7 +82,7 @@ public class AdminUserService {
                 .department(department)
                 .role(role)
                 .position(request.position())
-                .employeeNo(request.employeeNo())
+                .employeeNo(generateEmployeeNo(department))
                 .phone(request.phone())
                 .status(request.status() == null ? UserStatus.ACTIVE : request.status())
                 .build();
@@ -90,16 +92,27 @@ public class AdminUserService {
         return UserResponse.from(savedUser);
     }
 
+    // 부서코드 + 가입연도 + 부서별 순번으로 사번을 자동 생성한다. 사번은 관리자가 직접 입력하지 않는다.
+    private String generateEmployeeNo(Department department) {
+        String deptCode = department.getCode();
+        Pattern pattern = Pattern.compile("^RP\\d{2}-" + Pattern.quote(deptCode) + "-(\\d{4})$");
+
+        int nextSequence = userRepository.findEmployeeNosByDepartmentId(department.getId()).stream()
+                .map(pattern::matcher)
+                .filter(Matcher::matches)
+                .map(matcher -> Integer.parseInt(matcher.group(1)))
+                .max(Comparator.naturalOrder())
+                .orElse(0) + 1;
+
+        int currentYear = Year.now().getValue() % 100;
+        return String.format(EMPLOYEE_NO_FORMAT, currentYear, deptCode, nextSequence);
+    }
+
     public UserResponse updateUser(Long userId, UserUpdateRequest request) {
         User user = getUserEntity(userId);
 
         Department department = departmentRepository.findById(request.departmentId())
                 .orElseThrow(() -> new DepartmentNotFoundException(request.departmentId()));
-
-        if (!request.employeeNo().equals(user.getEmployeeNo())
-                && userRepository.existsByEmployeeNo(request.employeeNo())) {
-            throw new DuplicateEmployeeNoException(request.employeeNo());
-        }
 
         user.updateInfo(
                 request.name(),
@@ -107,7 +120,7 @@ public class AdminUserService {
                 request.position(),
                 request.status()
         );
-        user.updateContact(request.employeeNo(), request.phone());
+        user.updatePhone(request.phone());
 
         return UserResponse.from(user);
     }
