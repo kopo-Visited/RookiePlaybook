@@ -109,12 +109,16 @@ public class EducationServiceImpl implements EducationService {
     }
 
     // 교육 목록 응답 DTO 변환. progress가 null이면 미수강(관리자 목록 등)으로 취급한다
+    // 진도율/수료여부는 상세(getEducationDetail)와 동일하게 실시간 계산해 두 화면이 항상 일치하도록 한다.
+    // (저장된 progress_rate/status를 그대로 쓰면 단계 변경 등으로 값이 stale해져 목록과 상세가 달라진다)
     private EducationListResponseDto toListResponse(Education education, EducationProgressDto progress) {
-        int progressRate = progress != null ? progress.getProgressRate() : 0;
-        boolean isCompleted = progress != null && "COMPLETED".equals(progress.getStatus());
-        LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
         int totalStages = education.getStages().size();
         int completedStages = progress != null ? progress.getCompletedStages() : 0;
+        int progressRate = (progress != null && totalStages > 0)
+                ? (int) (completedStages * 100L / totalStages)
+                : 0;
+        boolean isCompleted = progress != null && progressRate >= education.getCompletionCriteria();
+        LocalDateTime completedAt = progress != null ? progress.getCompletedAt() : null;
         boolean enrolled = progress != null;
         Department department = education.getDepartment();
 
