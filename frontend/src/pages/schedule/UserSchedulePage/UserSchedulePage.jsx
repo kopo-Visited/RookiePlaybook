@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import styles from './UserSchedulePage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import {
   getUserSchedules,
   createUserSchedule,
@@ -33,32 +34,30 @@ const EMPTY_FORM = {
   dotColor: '#2288FF',
 };
 
-function TimePicker({ name, value, onChange, required }) {
+function TimePicker({ name, value, onChange }) {
   const [h, m] = (value || '').split(':');
-  function handleH(e) {
-    onChange({ target: { name, value: `${e.target.value}:${m || '00'}` } });
+  function handleH(val) {
+    onChange({ target: { name, value: `${val}:${m || '00'}` } });
   }
-  function handleM(e) {
-    onChange({ target: { name, value: `${h || '00'}:${e.target.value}` } });
+  function handleM(val) {
+    onChange({ target: { name, value: `${h || '00'}:${val}` } });
   }
   return (
     <div className={styles.timePicker}>
-      <select className={styles.timeSelect} value={h || ''} onChange={handleH} required={required}>
-        {!h && <option value="">--</option>}
-        {HOURS.map(v => (
-          <option key={v} value={v}>
-            {v}시
-          </option>
-        ))}
-      </select>
-      <select className={styles.timeSelect} value={m || ''} onChange={handleM}>
-        {!m && <option value="">--</option>}
-        {MINUTES.map(v => (
-          <option key={v} value={v}>
-            {v}분
-          </option>
-        ))}
-      </select>
+      <Dropdown
+        className={styles.timeDropdown}
+        value={h || ''}
+        onChange={handleH}
+        options={HOURS.map(v => ({ value: v, label: `${v}시` }))}
+        placeholder="--"
+      />
+      <Dropdown
+        className={styles.timeDropdown}
+        value={m || ''}
+        onChange={handleM}
+        options={MINUTES.map(v => ({ value: v, label: `${v}분` }))}
+        placeholder="--"
+      />
     </div>
   );
 }
@@ -118,12 +117,7 @@ function ScheduleModal({ initial, onClose, onSave }) {
               <label className={styles.label}>
                 시작 시간 <span className={styles.required}>*</span>
               </label>
-              <TimePicker
-                name="startTime"
-                value={form.startTime}
-                onChange={handleChange}
-                required
-              />
+              <TimePicker name="startTime" value={form.startTime} onChange={handleChange} />
             </div>
             <div className={styles.timeField}>
               <label className={styles.label}>종료 시간</label>
