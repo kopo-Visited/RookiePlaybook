@@ -5,6 +5,7 @@ import com.visited.www.entity.UserStatus;
 import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,9 +16,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmail(String email);
 
-    boolean existsByEmployeeNo(String employeeNo);
-
     List<User> findByStatus(UserStatus status);
+
+    @Query("SELECT u.employeeNo FROM User u WHERE u.department.id = :departmentId AND u.employeeNo IS NOT NULL")
+    List<String> findEmployeeNosByDepartmentId(@Param("departmentId") Long departmentId);
 
     long countByCreatedAtBefore(LocalDateTime dateTime);
 

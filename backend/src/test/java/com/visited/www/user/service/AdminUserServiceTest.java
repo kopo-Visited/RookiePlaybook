@@ -17,12 +17,12 @@ import com.visited.www.user.dto.response.UserResponse;
 import com.visited.www.user.exception.DepartmentNotFoundException;
 import com.visited.www.user.exception.DuplicateDepartmentCodeException;
 import com.visited.www.user.exception.DuplicateEmailException;
-import com.visited.www.user.exception.DuplicateEmployeeNoException;
 import com.visited.www.user.exception.RoleNotFoundException;
 import com.visited.www.user.exception.UserNotFoundException;
 import com.visited.www.user.repository.DepartmentRepository;
 import com.visited.www.user.repository.RoleRepository;
 import com.visited.www.user.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ class AdminUserServiceTest {
 
     private UserCreateRequest createRequest() {
         return new UserCreateRequest(
-                "홍길동", "hong@visited.com", "0000", 1L, 1L, "사원", "EMP001", "010-0000-0000", UserStatus.ACTIVE);
+                "홍길동", "hong@visited.com", "0000", 1L, 1L, "사원", "010-0000-0000", UserStatus.ACTIVE);
     }
 
     private User existingUser() {
@@ -83,20 +83,9 @@ class AdminUserServiceTest {
     }
 
     @Test
-    @DisplayName("사번이 중복되면 DuplicateEmployeeNoException이 발생한다")
-    void createUser_duplicateEmployeeNo() {
-        given(userRepository.existsByEmail(createRequest().email())).willReturn(false);
-        given(userRepository.existsByEmployeeNo(createRequest().employeeNo())).willReturn(true);
-
-        assertThatThrownBy(() -> adminUserService.createUser(createRequest()))
-                .isInstanceOf(DuplicateEmployeeNoException.class);
-    }
-
-    @Test
     @DisplayName("존재하지 않는 부서로 등록하면 DepartmentNotFoundException이 발생한다")
     void createUser_departmentNotFound() {
         given(userRepository.existsByEmail(createRequest().email())).willReturn(false);
-        given(userRepository.existsByEmployeeNo(createRequest().employeeNo())).willReturn(false);
         given(departmentRepository.findById(1L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> adminUserService.createUser(createRequest()))
@@ -107,12 +96,32 @@ class AdminUserServiceTest {
     @DisplayName("존재하지 않는 권한으로 등록하면 RoleNotFoundException이 발생한다")
     void createUser_roleNotFound() {
         given(userRepository.existsByEmail(createRequest().email())).willReturn(false);
-        given(userRepository.existsByEmployeeNo(createRequest().employeeNo())).willReturn(false);
         given(departmentRepository.findById(1L)).willReturn(Optional.of(Department.builder().build()));
         given(roleRepository.findById(1L)).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> adminUserService.createUser(createRequest()))
                 .isInstanceOf(RoleNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("부서에 기존 사번이 없으면 0001번으로, 있으면 부서별 최대 순번 다음 번호로 사번이 자동 생성된다")
+    void createUser_generatesEmployeeNoByDepartmentSequence() {
+        Department department = Department.builder().code("DEV").name("개발팀").build();
+        ReflectionTestUtils.setField(department, "id", 1L);
+        Role role = Role.builder().code("ROLE_USER").name("일반 사용자").build();
+        ReflectionTestUtils.setField(role, "id", 1L);
+
+        given(userRepository.existsByEmail(createRequest().email())).willReturn(false);
+        given(departmentRepository.findById(1L)).willReturn(Optional.of(department));
+        given(roleRepository.findById(1L)).willReturn(Optional.of(role));
+        given(userRepository.findEmployeeNosByDepartmentId(1L))
+                .willReturn(List.of("RP24-DEV-0001", "RP25-DEV-0002"));
+        given(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .willAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = adminUserService.createUser(createRequest());
+
+        assertThat(response.employeeNo()).matches("RP\\d{2}-DEV-0003");
     }
 
     @Test

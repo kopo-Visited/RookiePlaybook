@@ -95,8 +95,7 @@ public class User {
         this.status = status;
     }
 
-    public void updateContact(String employeeNo, String phone) {
-        this.employeeNo = employeeNo;
+    public void updatePhone(String phone) {
         this.phone = phone;
     }
 
