@@ -197,6 +197,23 @@ describe('VideoPlayerPage 렌더링', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
   });
 
+  it('video.duration이 Infinity여도 totalDuration 기준 95% 시청 시 새로고침 없이 활성화된다', async () => {
+    // given — 스트리밍 영상은 video.duration이 Infinity로 잡혀 시청 완료 판정이 안 되던 버그
+    mockSuccess();
+    renderPage(1);
+    await screen.findByText('[신입사원 온보딩 교육]');
+    const video = document.querySelector('video');
+    stubVideoTime(video, { duration: Infinity });
+    expect(screen.getByRole('button', { name: /다음 영상/ })).toBeDisabled();
+
+    // when — totalDuration(600초)의 96% 지점까지 재생
+    video.currentTime = 580;
+    fireEvent.timeUpdate(video);
+
+    // then — video.duration이 Infinity여도 totalDuration 폴백으로 활성화
+    await waitFor(() => expect(screen.getByRole('button', { name: /다음 영상/ })).toBeEnabled());
+  });
+
   it('이어보기 위치가 이미 95% 이상이면 다음 영상 버튼이 바로 활성화된다', async () => {
     // given
     const resumeMaterial = { ...material, lastWatchedPosition: 590, totalDuration: 600 };
