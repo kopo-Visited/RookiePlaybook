@@ -226,6 +226,10 @@ describe('AdminUsersPage 인터랙션', () => {
     await userEvent.click(screen.getAllByText('개발팀').find(el => el.tagName === 'LI'));
     await userEvent.click(screen.getByText('권한을 선택하세요'));
     await userEvent.click(screen.getAllByText('일반 사용자').find(el => el.tagName === 'LI'));
+    await userEvent.type(
+      screen.getByPlaceholderText('01012345678 또는 010-1234-5678'),
+      '01012345678'
+    );
     await userEvent.type(screen.getByPlaceholderText('초기 비밀번호를 입력하세요'), 'Temp1234!');
     await userEvent.click(screen.getByRole('button', { name: '저장' }));
 
@@ -236,6 +240,7 @@ describe('AdminUsersPage 인터랙션', () => {
         email: 'newuser@company.com',
         departmentId: 1,
         roleId: 1,
+        phone: '01012345678',
       })
     );
     expect(screen.getByRole('button', { name: '+ 사용자 등록' })).toBeInTheDocument();
