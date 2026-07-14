@@ -9,6 +9,9 @@ import useAuthStore from '../../../stores/authStore';
 import useToastStore from '../../../stores/toastStore';
 import { COLOR_KEYS, BUTTON_VARIANTS, BUTTON_SIZES } from '../../../constants/styles';
 import { ERROR_MESSAGES } from '../../../constants/message';
+import { isValidPhone } from '../../../utils/validation';
+
+const PHONE_FORMAT_ERROR = '전화번호는 숫자 11자리로 입력해주세요. (하이픈 포함/미포함 모두 가능)';
 
 const PAGE_SIZE = 10;
 
@@ -379,7 +382,7 @@ function UserFormFields({ form, onChange, departments, roles, isEdit }) {
           className={styles.input}
           value={form.phone}
           onChange={e => onChange({ ...form, phone: e.target.value })}
-          placeholder="전화번호를 입력하세요"
+          placeholder="01012345678 또는 010-1234-5678"
         />
       </div>
 
@@ -415,6 +418,10 @@ function RegisterUserModal({ departments, roles, onClose, onSave }) {
   const [error, setError] = useState(null);
 
   async function handleSave() {
+    if (!isValidPhone(form.phone)) {
+      setError(PHONE_FORMAT_ERROR);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
@@ -480,6 +487,10 @@ function EditUserModal({ user, departments, roles, onClose, onSave }) {
   const [error, setError] = useState(null);
 
   async function handleSave() {
+    if (!isValidPhone(form.phone)) {
+      setError(PHONE_FORMAT_ERROR);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
