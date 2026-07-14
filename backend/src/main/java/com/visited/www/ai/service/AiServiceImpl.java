@@ -57,6 +57,7 @@ class AiServiceImpl implements AiService {
         String answer;
         try {
             answer = chatClient.prompt()
+                    .system("당신은 사내 온보딩 도우미입니다. 반드시 한국어로만 답변하세요. 한자, 일본어, 영어를 섞지 마세요.")
                     .user(userMessage)
                     .call()
                     .content();
