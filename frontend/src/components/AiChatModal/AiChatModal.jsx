@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './AiChatModal.module.css';
 import { askAi } from '../../api/aiApi';
 
@@ -40,7 +41,7 @@ function AiChatModal({ onClose }) {
     }
   }
 
-  return (
+  return createPortal(
     <div className={styles.modal}>
       <div className={styles.header}>
         <span className={styles.headerTitle}>AI 온보딩 도우미</span>
@@ -81,7 +82,8 @@ function AiChatModal({ onClose }) {
           전송
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
