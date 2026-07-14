@@ -262,7 +262,7 @@ function DashboardPage() {
       colorKey: 'green',
       icon: <IconAcademicCap />,
       label: '진행 중 교육',
-      value: inProgressEdu.length > 0 ? `${inProgressEdu.length}` : '—',
+      value: `${inProgressEdu.length}`,
       subText: '현재 수강 중',
       subColor: '#12B886',
     },
