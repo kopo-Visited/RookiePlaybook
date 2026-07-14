@@ -4,6 +4,7 @@ import com.visited.www.entity.UserStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record UserCreateRequest(
 
@@ -26,6 +27,7 @@ public record UserCreateRequest(
         String position,
 
         @NotBlank(message = "전화번호를 입력해주세요.")
+        @Pattern(regexp = "^(\\d{11}|\\d{3}-\\d{4}-\\d{4})$", message = "전화번호는 숫자 11자리로 입력해주세요. (하이픈 포함/미포함 모두 가능)")
         String phone,
 
         UserStatus status
