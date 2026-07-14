@@ -367,8 +367,9 @@ function UserFormFields({ form, onChange, departments, roles, isEdit }) {
         <input
           className={styles.input}
           value={form.employeeNo}
-          onChange={e => onChange({ ...form, employeeNo: e.target.value })}
-          placeholder="사번을 입력하세요"
+          disabled
+          readOnly
+          placeholder={isEdit ? '' : '저장 시 자동으로 부여됩니다'}
         />
       </div>
 
@@ -624,6 +625,7 @@ function AdminUsersPage() {
       departmentId: form.departmentId,
       roleId: form.roleId,
       position: form.position,
+      phone: form.phone,
       status: form.status,
     });
     setIsRegisterOpen(false);
@@ -634,7 +636,8 @@ function AdminUsersPage() {
     const basicInfoChanged =
       form.name !== original.name ||
       form.departmentId !== original.departmentId ||
-      form.position !== original.position;
+      form.position !== original.position ||
+      form.phone !== original.phone;
     const statusChanged = form.status !== original.status;
     const roleChanged = form.roleId !== original.roleId;
 
@@ -643,6 +646,7 @@ function AdminUsersPage() {
         name: form.name,
         departmentId: form.departmentId,
         position: form.position,
+        phone: form.phone,
         status: form.status,
       });
     } else if (statusChanged) {
