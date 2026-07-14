@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import styles from './AdminSchedulePage.module.css';
 import useFetch from '../../../hooks/useFetch';
 import useToastStore from '../../../stores/toastStore';
+import Dropdown from '../../../components/Dropdown/Dropdown';
 import {
   getAdminSchedules,
   createSchedule,
@@ -135,24 +136,16 @@ function ScheduleModal({ initial, departments, onClose, onSave }) {
           </div>
 
           <label className={styles.label}>대상 부서</label>
-          <select
-            className={styles.input}
-            name="departmentId"
+          <Dropdown
             value={form.departmentId ?? ''}
-            onChange={e =>
-              setForm(f => ({
-                ...f,
-                departmentId: e.target.value === '' ? null : Number(e.target.value),
-              }))
+            onChange={val =>
+              setForm(f => ({ ...f, departmentId: val === '' ? null : Number(val) }))
             }
-          >
-            <option value="">공통 (전체)</option>
-            {departments.map(d => (
-              <option key={d.departmentId} value={d.departmentId}>
-                {d.name}
-              </option>
-            ))}
-          </select>
+            options={[
+              { value: '', label: '공통 (전체)' },
+              ...departments.map(d => ({ value: d.departmentId, label: d.name })),
+            ]}
+          />
 
           <label className={styles.label}>색상</label>
           <div className={styles.colorRow}>

@@ -63,17 +63,11 @@ function AdminFaqCreateModal({ onClose, onCreated, categoryOptions }) {
         </div>
         <form className={styles.modalForm} onSubmit={handleSubmit}>
           <label className={styles.formLabel}>카테고리</label>
-          <select
-            className={styles.formInput}
+          <Dropdown
             value={form.categoryId}
-            onChange={e => handleChange('categoryId', Number(e.target.value))}
-          >
-            {categoryOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            onChange={val => handleChange('categoryId', Number(val))}
+            options={categoryOptions}
+          />
 
           <label className={styles.formLabel}>질문</label>
           <input
@@ -156,17 +150,11 @@ function AdminFaqEditModal({ faq, onClose, onSaved, categoryOptions }) {
         </div>
         <form className={styles.modalForm} onSubmit={handleSubmit}>
           <label className={styles.formLabel}>카테고리</label>
-          <select
-            className={styles.formInput}
+          <Dropdown
             value={form.categoryId}
-            onChange={e => handleChange('categoryId', Number(e.target.value))}
-          >
-            {categoryOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            onChange={val => handleChange('categoryId', Number(val))}
+            options={categoryOptions}
+          />
 
           <label className={styles.formLabel}>질문</label>
           <input
