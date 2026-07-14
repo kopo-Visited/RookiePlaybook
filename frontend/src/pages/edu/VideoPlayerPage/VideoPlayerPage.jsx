@@ -193,6 +193,13 @@ function VideoPlayerPage() {
   // 다음 영상 / 학습 완료 버튼 활성 조건: 영상을 충분히 시청했거나 이미 완료한 경우
   const canAdvance = watched || isCompleted;
 
+  // 실제 영상 길이. 스트리밍/메타데이터 부재로 video.duration이 Infinity·NaN으로
+  // 잡히면 시청 완료 판정이 영영 안 켜지므로, 관리자가 입력한 totalDuration으로 대체한다.
+  function effectiveDuration(video) {
+    const d = video?.duration;
+    return Number.isFinite(d) && d > 0 ? d : material?.totalDuration || 0;
+  }
+
   // 현재 단계를 (미완료면) 완료 처리한 뒤 목표 경로로 이동한다
   async function advanceTo(target) {
     if (advancing) return;
@@ -295,11 +302,12 @@ function VideoPlayerPage() {
                   onTimeUpdate={e => {
                     const video = e.currentTarget;
                     setCurrent(video.currentTime);
-                    if (video.duration && video.currentTime / video.duration >= WATCH_THRESHOLD) {
+                    const dur = effectiveDuration(video);
+                    if (dur && video.currentTime / dur >= WATCH_THRESHOLD) {
                       setWatched(true);
                     }
                   }}
-                  onLoadedMetadata={e => setDuration(e.currentTarget.duration)}
+                  onLoadedMetadata={e => setDuration(effectiveDuration(e.currentTarget))}
                 />
 
                 {!playing && (
