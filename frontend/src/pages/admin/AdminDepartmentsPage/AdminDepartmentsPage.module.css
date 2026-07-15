@@ -1,0 +1,264 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Page header ── */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2f3a;
+}
+
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+/* ── Stat cards ── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  composes: card from '../../../styles/common.module.css';
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  min-width: 0;
+  padding: 24px;
+  min-height: 138px;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.statIcon {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statIcon.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+
+.statIcon.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+
+.statIcon.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+
+.statLabel {
+  font-size: 14.1px;
+  font-weight: 900;
+  color: #283146;
+  white-space: nowrap;
+}
+
+.statValue {
+  font-size: 29.1px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #172033;
+  white-space: nowrap;
+}
+
+/* ── Table panel ── */
+.tablePanel {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1f2a44;
+}
+
+.sectionSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+.registerButton {
+  height: 44px;
+}
+
+.deptTable {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.deptTable th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f7fa;
+}
+
+.deptTable td {
+  font-size: 12px;
+  color: #46556e;
+  padding: 14px 8px 14px 0;
+  border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deptTable tr:last-child td {
+  border-bottom: none;
+}
+
+.secondary {
+  color: #8a94a6;
+}
+
+.titleText {
+  color: #283146;
+  font-weight: 500;
+}
+
+.rowActions {
+  display: flex;
+  gap: 6px;
+}
+
+.rowActionBtn {
+  height: 25px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 5px;
+  background: var(--color-bg-white);
+  font-size: 10px;
+  font-family: inherit;
+  color: #46556e;
+  cursor: pointer;
+}
+
+.rowActionBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.rowActionBtnDanger {
+  border-color: #ffc9d0;
+  color: var(--color-danger);
+}
+
+.rowActionBtnDanger:hover {
+  border-color: var(--color-danger);
+  background: #fff0f3;
+  color: var(--color-danger);
+}
+
+/* ── Member distribution panel ── */
+.panel {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  position: relative;
+}
+
+.panelTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #1f2a44;
+}
+
+.panelCaption {
+  position: absolute;
+  right: 24px;
+  top: 28px;
+  font-size: 12px;
+  color: #94a1b8;
+}
+
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barLabel {
+  width: 96px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #4c5d78;
+}
+
+.barTrack {
+  flex: 1;
+  height: 8px;
+  background: #eef2f8;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barFillDynamic {
+  height: 100%;
+  width: var(--bar-percent);
+  background: var(--bar-color);
+  border-radius: 6px;
+}
+
+.barValue {
+  width: 56px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 12px;
+  color: #94a1b8;
+}
+
+@media (max-width: 900px) {
+  .statGrid {
+    grid-template-columns: 1fr;
+  }
+}

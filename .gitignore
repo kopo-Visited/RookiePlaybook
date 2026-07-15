@@ -16,6 +16,7 @@ lerna-debug.log*
 .env
 .env.*
 !.env.example
+!.env.production
 
 # SSH / SSL Keys & Certificates
 *.pem
@@ -48,6 +49,12 @@ dist-ssr
 .npm
 .eslintcache
 
+# 디자인 시안 등 로컬 산출물 (git 제외)
+frontend/design/
+
+# 테스트 커버리지 리포트 (vitest --coverage 산출물)
+coverage/
+
 # ==========================================
 # 4. Backend (Java / Spring Boot / Gradle / Maven)
 # ==========================================
@@ -76,7 +83,13 @@ bin/
 !.mvn/wrapper/maven-wrapper.properties
 
 # ==========================================
-# 5. Editor & OS (IDE 및 운영체제 임시 파일)
+# 5. Documents (내부 문서 - git 제외)
+# ==========================================
+docs/*.pdf
+docs/find-security-bugs-review.md
+
+# ==========================================
+# 6. Editor & OS (IDE 및 운영체제 임시 파일)
 # ==========================================
 .vscode/*
 !.vscode/extensions.json

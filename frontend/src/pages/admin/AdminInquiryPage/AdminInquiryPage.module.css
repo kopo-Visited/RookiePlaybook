@@ -1,0 +1,150 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2f3a;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+.tableCard {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 13px;
+  /* 관리자 표 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(관리자 표 전반 동일) — 제목은 남은 폭 자동 */
+.colStatus {
+  width: 108px;
+}
+.colType {
+  width: 120px;
+}
+.colAuthor {
+  width: 100px;
+}
+.colDate {
+  width: 120px;
+}
+.table thead tr th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f7fa;
+}
+.table tbody tr td {
+  font-size: 12px;
+  color: #46556e;
+  padding: 14px 8px 14px 0;
+  border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+.tableRow:hover td {
+  background: #f7f9fc;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.titleText {
+  font-weight: 700;
+  color: var(--color-text-body);
+}
+.secondary {
+  color: var(--color-text-secondary);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 0 4px;
+}
+.pageArrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pageArrow:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+.pageNum {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-title);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.pageNumActive {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .tableCard {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 14px;
+  }
+}

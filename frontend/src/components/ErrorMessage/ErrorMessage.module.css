@@ -1,0 +1,11 @@
+.wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.message {
+  color: var(--color-danger);
+  font-size: 14px;
+}

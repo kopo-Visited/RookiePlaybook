@@ -1,0 +1,216 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Page Header ── */
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.headerText {
+  display: flex;
+  flex-direction: column;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-title);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+  line-height: 20px;
+}
+
+/* ── Ask Button ── */
+.btnAsk {
+  height: 32px;
+  padding: 0 20px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+}
+.btnAsk:hover {
+  opacity: 0.9;
+}
+.actionBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btnAllQna {
+  height: 32px;
+  padding: 0 18px;
+  background: #fff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btnAllQna:hover {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ── Table Card (페이지 이동 시 흔들림 방지: 최소 높이 고정 + 페이지네이션 하단 고정) ── */
+.tableCard {
+  composes: card from '../../../styles/common.module.css';
+  padding: 25px;
+  overflow: hidden;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Table ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  /* 페이지(내 질문/모든 질문) 이동 시 상태·카테고리·등록일 위치가 흔들리지 않도록 컬럼 폭 고정 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭: 두 페이지에서 상태·카테고리·등록일이 같은 위치에 오도록 고정, 제목은 남은 폭 자동 */
+.colStatus {
+  width: 90px;
+}
+.colCategory {
+  width: 132px;
+}
+.colWriter {
+  width: 128px;
+}
+.colDate {
+  width: 108px;
+}
+.table thead tr th {
+  background: #f7f9fc;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-align: left;
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+.table thead tr th:first-child {
+  border-radius: 8px 0 0 8px;
+}
+.table thead tr th:last-child {
+  border-radius: 0 8px 8px 0;
+}
+.table tbody tr td {
+  padding: 0 12px;
+  height: 56px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  /* 컬럼 폭 고정 상태에서 긴 제목이 넘치면 말줄임 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.table tbody tr td .titleText {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.tableRow {
+  cursor: default;
+}
+.tableRow:hover td {
+  background: #f7f9fc;
+}
+
+/* ── Status Badge ── */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  /* 카테고리 배지(공용 Badge md)와 크기·모양 통일: height 24 / padding 0 8 / radius-sm */
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Text ── */
+.titleText {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-body);
+}
+.secondary {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+.pageArrow {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pageNum {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.pageNumActive {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 18px;
+  }
+  .table thead tr th:nth-child(2),
+  .table tbody tr td:nth-child(2) {
+    display: none;
+  }
+}

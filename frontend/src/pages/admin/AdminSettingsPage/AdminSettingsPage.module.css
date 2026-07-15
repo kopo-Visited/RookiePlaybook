@@ -1,0 +1,175 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #172033;
+  letter-spacing: -0.6px;
+  line-height: 29px;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #6f7b91;
+  line-height: 16px;
+}
+
+.tabRow {
+  display: flex;
+  gap: 8px;
+}
+.tabBtn {
+  height: 40px;
+  padding: 0 18px;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-text-label);
+  cursor: pointer;
+  font-family: inherit;
+}
+.tabBtnActive {
+  background: #2288ff;
+  border-color: #2288ff;
+  color: #ffffff;
+}
+
+.tableCard {
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-x: auto;
+}
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.4px;
+  line-height: 22px;
+}
+.sectionSubtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6f7b91;
+  line-height: 16px;
+  margin-top: 4px;
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 18px;
+  background: #2288ff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table thead tr th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f7fa;
+}
+.table tbody tr td {
+  font-size: 13px;
+  color: #46556e;
+  padding: 14px 8px 14px 0;
+  border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.titleText {
+  font-weight: 700;
+  color: var(--color-text-body);
+}
+.secondary {
+  color: var(--color-text-secondary);
+}
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #526078;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  background: #fff0f3;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .tableCard {
+    padding: 16px;
+  }
+  .tabRow {
+    flex-wrap: wrap;
+  }
+  .sectionHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .tabBtn {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .btnPrimary {
+    width: 100%;
+  }
+}

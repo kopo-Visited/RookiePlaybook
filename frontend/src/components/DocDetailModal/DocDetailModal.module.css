@@ -1,0 +1,172 @@
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.28);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Modal ── */
+.modal {
+  width: 760px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius-xl);
+  box-shadow: 0px 20px 80px rgba(33, 45, 70, 0.16);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Top ── */
+.modalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.modalTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  line-height: 28px;
+}
+.subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 18px;
+}
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: #eef3f9;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-label);
+  cursor: pointer;
+  border: none;
+}
+.closeBtn:hover {
+  background: #e2eaf4;
+}
+
+/* ── Meta badges ── */
+.detailMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Info box (summary / checklist) ── */
+.infoBox {
+  background: #f7f9fc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 21px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.infoTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-body);
+  line-height: 17px;
+}
+.infoText {
+  font-size: 13px;
+  font-weight: 400;
+  color: #4a5568;
+  line-height: 24px;
+}
+
+/* ── Checklist ── */
+.checkList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.checkItem {
+  font-size: 13px;
+  font-weight: 400;
+  color: #4a5568;
+  line-height: 24px;
+  padding-left: 20px;
+  position: relative;
+}
+.checkItem::before {
+  content: '•';
+  position: absolute;
+  left: 6px;
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
+/* ── Actions ── */
+.modalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 16px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btnOutline:hover {
+  background: var(--color-primary-bg);
+}
+.btnOutlineActive {
+  composes: btnOutline;
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 20px;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btnPrimary:hover {
+  background: #1a7aee;
+}
+
+/* ── Responsive ── */
+@media (max-width: 800px) {
+  .modal {
+    width: calc(100vw - 32px);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}

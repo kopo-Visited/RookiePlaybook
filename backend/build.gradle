@@ -3,6 +3,7 @@ plugins {
 	id 'war'
 	id 'org.springframework.boot' version '4.1.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.github.spotbugs' version '6.5.8'
 }
 
 group = 'com.visited'
@@ -29,17 +30,31 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+	implementation 'org.springframework.ai:spring-ai-starter-vector-store-pgvector'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
+	// CI에서는 RDS에 접근할 수 없어 h2 프로파일로 백엔드를 띄워 프론트엔드 E2E 테스트를 돌린다.
+	// H2 콘솔(spring-boot-h2console)은 보안상 제거하고 드라이버만 유지한다.
+	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat-runtime'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testCompileOnly 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Swagger (API 문서/테스트). Spring Boot 4.x는 springdoc 3.x 사용
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.0'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+	spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
 }
 
 dependencyManagement {
@@ -50,4 +65,28 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+spotbugs {
+	toolVersion = '4.10.2'
+	ignoreFailures = true
+	reportLevel = 'medium'
+	excludeFilter = file('config/spotbugs/exclude.xml')
+}
+
+tasks.named('spotbugsMain') {
+	reports {
+		html {
+			required = true
+			outputLocation = layout.buildDirectory.file('reports/spotbugs/main.html')
+		}
+		xml {
+			required = true
+			outputLocation = layout.buildDirectory.file('reports/spotbugs/main.xml')
+		}
+	}
+}
+
+tasks.named('spotbugsTest') {
+	enabled = false
 }

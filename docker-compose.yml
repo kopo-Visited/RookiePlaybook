@@ -1,0 +1,23 @@
+services:
+  backend:
+    image: jeongyoni/rookie-playbook-backend:latest
+    container_name: rookie-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://54.180.104.172:5432/rookie_playbook
+      SPRING_DATASOURCE_USERNAME: rookie
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    restart: always
+
+  frontend:
+    image: jeongyoni/rookie-playbook-frontend:latest
+    container_name: rookie-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always

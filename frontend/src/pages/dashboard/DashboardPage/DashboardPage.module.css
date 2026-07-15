@@ -1,0 +1,628 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── 환영 배너 ── */
+.welcomeBanner {
+  background: linear-gradient(135deg, #2288ff 0%, #4fa3ff 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.welcomeLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.welcomeTitle {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 32px;
+  margin: 0;
+}
+.welcomeName {
+  color: #cce8ff;
+}
+.welcomeSub {
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 22px;
+  margin: 0;
+}
+.welcomeDate {
+  font-size: 15px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── 헤더 (레거시) ── */
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2f3a;
+  line-height: 29px;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+  line-height: 19px;
+  margin-top: 2px;
+}
+
+/* ── 공통 카드 ── */
+.card {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  letter-spacing: -0.2px;
+}
+.linkBtn {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── 아이콘 공통 색상 클래스 ── */
+.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+.orange {
+  background: #fff5e6;
+  color: #ffad33;
+}
+.purple {
+  background: #f3eeff;
+  color: #845ef7;
+}
+.gray {
+  background: #eef3f9;
+  color: var(--color-text-label);
+}
+
+/* ── 통계 카드 ── */
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.statCard {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  border-radius: 20px;
+  padding: 0 24px;
+  height: 138px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+.statIcon {
+  width: 70px;
+  height: 70px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.statLabel {
+  font-size: 14.1px;
+  font-weight: 900;
+  color: #283146;
+  line-height: 22px;
+}
+.statValue {
+  font-size: 29.1px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  letter-spacing: -0.5px;
+  line-height: 33px;
+}
+.statSub {
+  font-size: 12.2px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 19px;
+}
+.statSubIcon {
+  font-size: 13px;
+}
+
+/* ── 중단 3열 (하단 3열과 컬럼 폭을 맞춰 세로 정렬) ── */
+.midRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* 진행 중 교육 */
+.eduList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.eduItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.eduItem:last-child {
+  border-bottom: none;
+}
+.eduIcon {
+  width: 58px;
+  height: 58px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.eduBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eduTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.eduTitle {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-text-title);
+}
+.badge {
+  font-size: 10.3px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 6px;
+  line-height: 16px;
+}
+.eduProgressRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progressBar {
+  flex: 1;
+  height: 7px;
+  background: #e9edf4;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 99px;
+}
+.progressPct {
+  font-size: 12.9px;
+  color: #49566d;
+  min-width: 32px;
+  text-align: right;
+}
+.eduMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.4px;
+  color: var(--color-text-secondary);
+  line-height: 20px;
+}
+
+/* 최근 문서 */
+.docList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.docItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.docItem:last-child {
+  border-bottom: none;
+}
+.docTypeBadge {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 6px;
+  border-radius: 6px;
+  line-height: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.docTitle {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #253049;
+  line-height: 20px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.docMeta {
+  font-size: 12.1px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.docDate {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.docStat {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 내 질문 현황 */
+.qnaList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.qnaItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.qnaItem:last-child {
+  border-bottom: none;
+}
+.qnaIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.qnaBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.qnaTitle {
+  font-size: 14.2px;
+  font-weight: 900;
+  color: #273147;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qnaMeta {
+  font-size: 11.9px;
+  color: var(--color-text-secondary);
+}
+.qnaStatus {
+  font-weight: 700;
+}
+.qnaDate {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btnOutline {
+  height: 44px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 10px;
+  font-size: 14.1px;
+  font-weight: 900;
+  color: var(--color-primary);
+  background: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+}
+
+/* ── 하단 3열 ── */
+.bottomRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* 공지사항 */
+.noticeList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.noticeItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.noticeItem:last-child {
+  border-bottom: none;
+}
+.noticeTitle {
+  font-size: 13.9px;
+  font-weight: 700;
+  color: #283146;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.newBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: var(--color-primary);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 900;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.noticeDate {
+  font-size: 13px;
+  color: #7b879a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 오늘의 일정 */
+.scheduleDate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dateArrow {
+  font-size: 18px;
+  color: #5e6b82;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.dateTxt {
+  font-size: 16px;
+  font-weight: 900;
+  color: #263148;
+  flex: 1;
+}
+.scheduleList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 1px solid #dfe6f1;
+  margin-left: 8px;
+  padding-left: 16px;
+}
+.scheduleEmpty {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 20px 0;
+  text-align: center;
+  list-style: none;
+}
+.scheduleItem {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  position: relative;
+}
+.scheduleLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.scheduleTime {
+  font-size: 13px;
+  font-weight: 900;
+  color: #2f3a52;
+  line-height: 19px;
+}
+.scheduleLine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+.scheduleDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  box-shadow: 0 0 0 3px #ffffff;
+}
+.scheduleRight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.scheduleTitle {
+  font-size: 13.2px;
+  font-weight: 900;
+  color: #253049;
+}
+.schedulePlace {
+  font-size: 11.3px;
+  font-weight: 700;
+  color: #7b879a;
+}
+
+/* 빈 상태 */
+.emptyText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 20px 0;
+  text-align: center;
+}
+
+/* 빠른 바로가기 */
+.shortcutGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.shortcutGridWide {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+.shortcutItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.shortcutIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.shortcutLabel {
+  font-size: 13.2px;
+  font-weight: 900;
+  color: #2d374d;
+  line-height: 20px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .shortcutGridWide {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .midRow {
+    grid-template-columns: 1fr;
+  }
+  .bottomRow {
+    grid-template-columns: 1fr;
+  }
+  .welcomeBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .welcomeDate {
+    white-space: normal;
+  }
+  .shortcutGridWide {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .statsRow {
+    grid-template-columns: 1fr;
+  }
+  .shortcutGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .shortcutGridWide {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .welcomeBanner {
+    padding: 20px;
+  }
+  .welcomeTitle {
+    font-size: 18px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .statCard {
+    height: auto;
+    padding: 16px;
+  }
+}

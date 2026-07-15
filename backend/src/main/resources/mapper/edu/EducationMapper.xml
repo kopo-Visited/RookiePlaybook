@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.visited.www.edu.mapper.EducationMapper">
+
+    <!-- EDU-FR-001: 과정별 진도 정보 한 번에 조회 -->
+    <!-- 실제 수강(education_progress) 레코드가 있는 과정만 반환한다. 과거 educations를 기준으로
+         LEFT JOIN + COALESCE 하면 미수강 과정도 NOT_STARTED 행이 생겨 목록에서 '수강중'으로 오인된다.
+         education_progress를 기준으로 조회해 미수강 과정은 결과에서 아예 빠지도록 한다. -->
+    <select id="findProgressByUserIdAndEducationIds"
+            resultType="com.visited.www.edu.dto.mapper.EducationProgressDto">
+        SELECT
+        ep.education_id AS educationId,
+        ep.progress_rate AS progressRate,
+        ep.status AS status,
+        ep.completed_at AS completedAt,
+        COUNT(DISTINCT sc.stage_id) AS completedStages
+        FROM education_progress ep
+        LEFT JOIN education_stages es
+        ON es.education_id = ep.education_id
+        LEFT JOIN stage_completions sc
+        ON sc.stage_id = es.id AND sc.user_id = ep.user_id
+        WHERE ep.user_id = #{userId}
+        AND ep.education_id IN
+        <foreach collection="educationIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        GROUP BY ep.education_id, ep.progress_rate, ep.status, ep.completed_at
+    </select>
+
+    <!-- EDU-FR-002: 단계 목록 + 완료 여부 + 영상 시청 위치 한 번에 조회 -->
+    <!-- 완료여부/시청위치는 서브쿼리로 조회한다. 과거 stage_completions·video_progress를
+         LEFT JOIN 하면 해당 테이블에 중복 행이 있을 때 단계가 복제(팬아웃)되므로 EXISTS/스칼라 서브쿼리로 단계당 1행을 보장한다. -->
+    <select id="findStagesWithProgressByEducationIdAndUserId"
+            resultType="com.visited.www.edu.dto.mapper.StageWithProgressDto">
+        SELECT
+            es.id AS stageId,
+            es.title AS title,
+            es.description AS description,
+            es.order_number AS orderNumber,
+            CASE WHEN EXISTS (
+                SELECT 1 FROM stage_completions sc
+                WHERE sc.stage_id = es.id AND sc.user_id = #{userId}
+            ) THEN true ELSE false END AS isCompleted,
+            em.id AS materialId,
+            em.title AS materialTitle,
+            em.video_url AS videoUrl,
+            COALESCE((
+                SELECT vp.watched_position FROM video_progress vp
+                WHERE vp.material_id = em.id AND vp.user_id = #{userId}
+                LIMIT 1
+            ), 0) AS lastWatchedPosition
+        FROM education_stages es
+                 LEFT JOIN education_materials em
+                           ON em.stage_id = es.id
+        WHERE es.education_id = #{educationId}
+        ORDER BY es.order_number ASC
+    </select>
+
+    <!-- EDU-FR-009: 관리자 진도 현황 조회 - 공통 필터 -->
+    <sql id="adminProgressFilter">
+        <if test="departmentId != null">
+            AND u.department_id = #{departmentId}
+        </if>
+        <if test="educationId != null">
+            AND ep.education_id = #{educationId}
+        </if>
+        <if test="isCompleted != null">
+            <choose>
+                <when test="isCompleted">AND ep.status = 'COMPLETED'</when>
+                <otherwise>AND ep.status != 'COMPLETED'</otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <!-- EDU-FR-009: 관리자 진도 현황 목록 (부서/과정/완료여부 필터 + 페이징) -->
+    <select id="findAdminProgress"
+            resultType="com.visited.www.edu.dto.mapper.AdminProgressDto">
+        SELECT
+            u.id AS userId,
+            u.name AS userName,
+            d.name AS departmentName,
+            e.title AS educationTitle,
+            ep.progress_rate AS progressRate,
+            CASE WHEN ep.status = 'COMPLETED' THEN true ELSE false END AS isCompleted,
+            MAX(sc.completed_at) AS lastStudiedAt
+        FROM education_progress ep
+                 JOIN users u ON u.id = ep.user_id
+                 LEFT JOIN departments d ON d.id = u.department_id
+                 JOIN educations e ON e.id = ep.education_id
+                 LEFT JOIN education_stages es ON es.education_id = ep.education_id
+                 LEFT JOIN stage_completions sc ON sc.stage_id = es.id AND sc.user_id = ep.user_id
+        <where>
+            <include refid="adminProgressFilter"/>
+        </where>
+        GROUP BY u.id, u.name, d.name, e.title, ep.progress_rate, ep.status, ep.id
+        ORDER BY ep.id ASC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- EDU-FR-009: 관리자 진도 현황 전체 건수 (필터 적용) -->
+    <select id="countAdminProgress" resultType="long">
+        SELECT COUNT(*)
+        FROM education_progress ep
+                 JOIN users u ON u.id = ep.user_id
+        <where>
+            <include refid="adminProgressFilter"/>
+        </where>
+    </select>
+
+    <!-- EDU-FR-010: 미완료자 조회 목록 (status != COMPLETED, 과정 필터 + 페이징) -->
+    <select id="findIncompleteProgress"
+            resultType="com.visited.www.edu.dto.mapper.IncompleteProgressDto">
+        SELECT
+            u.id AS userId,
+            u.name AS userName,
+            d.name AS departmentName,
+            e.title AS educationTitle,
+            ep.progress_rate AS progressRate,
+            e.completion_criteria AS completionCriteria
+        FROM education_progress ep
+                 JOIN users u ON u.id = ep.user_id
+                 LEFT JOIN departments d ON d.id = u.department_id
+                 JOIN educations e ON e.id = ep.education_id
+        WHERE ep.status != 'COMPLETED'
+        <if test="educationId != null">
+            AND ep.education_id = #{educationId}
+        </if>
+        ORDER BY ep.id ASC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- EDU-FR-010: 미완료자 전체 건수 (필터 적용) -->
+    <select id="countIncompleteProgress" resultType="long">
+        SELECT COUNT(*)
+        FROM education_progress ep
+        WHERE ep.status != 'COMPLETED'
+        <if test="educationId != null">
+            AND ep.education_id = #{educationId}
+        </if>
+    </select>
+
+</mapper>

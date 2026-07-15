@@ -1,3 +1,64 @@
 spring:
   application:
-    name: backend
+    name: backendgit
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:54.180.104.172}:${DB_PORT:5432}/${DB_NAME:rookie_playbook}
+    username: ${DB_USERNAME:rookie}
+    # 운영 환경은 반드시 DB_PASSWORD 환경변수로 덮어써야 한다 (EC2 .env 참조).
+    # 아래 값은 로컬 전용 placeholder이며 절대 운영에 쓰면 안 된다.
+    password: ${DB_PASSWORD:CHANGE_ME_INSECURE_LOCAL_ONLY_DB_PASSWORD_PLACEHOLDER}
+    driver-class-name: org.postgresql.Driver
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+      encoding: UTF-8
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
+      - org.springframework.ai.vectorstore.pgvector.autoconfigure.PgVectorStoreAutoConfiguration
+
+  ai:
+    openai:
+      api-key: ${GROQ_API_KEY}
+      base-url: https://api.groq.com/openai/v1
+      chat:
+        options:
+          model: llama-3.3-70b-versatile
+    google:
+      genai:
+        embedding:
+          api-key: ${GOOGLE_API_KEY}
+          options:
+            model: text-embedding-004
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.visited.www
+
+server:
+  port: ${SERVER_PORT:8080}
+
+jwt:
+  # 운영 환경은 반드시 JWT_SECRET 환경변수로 덮어써야 한다 (EC2 .env 참조).
+  # 아래 값은 로컬/테스트 전용 placeholder이며 절대 운영에 쓰면 안 된다.
+  secret: ${JWT_SECRET:CHANGE_ME_INSECURE_LOCAL_TEST_ONLY_PLACEHOLDER_DO_NOT_USE_IN_PRODUCTION_1234567890}
+  expiration: ${JWT_EXPIRATION:86400000}

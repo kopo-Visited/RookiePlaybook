@@ -1,0 +1,409 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* ── Page header ── */
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2f3a;
+}
+
+.pageSubtitle {
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+/* ── Stat cards ── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  composes: card from '../../../styles/common.module.css';
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  width: 100%;
+  min-width: 0;
+  text-align: left;
+  padding: 0 24px;
+  height: 138px;
+  transition: box-shadow 0.15s;
+}
+
+.statCard:hover {
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.12);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.statIcon {
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statIcon.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+
+.statIcon.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+
+.statIcon.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+
+.statIcon.orange {
+  background: #fff5e6;
+  color: #ffad33;
+}
+
+.statLabel {
+  font-size: 14.1px;
+  font-weight: 900;
+  color: #283146;
+}
+
+.statValue {
+  font-size: 29.1px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #172033;
+}
+
+.statFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statDelta {
+  font-size: 12px;
+  color: #419e90;
+}
+
+.statDeltaDown {
+  color: #f03e5c;
+}
+
+.statDeltaCaption {
+  font-size: 10px;
+  color: #8a94a6;
+}
+
+/* ── Mid grid: users table + 2 donuts ──
+   Shares the statGrid's 4-column track so the two rows line up. */
+.midGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.usersPanel {
+  grid-column: span 2;
+}
+
+.panel {
+  composes: card from '../../../styles/common.module.css';
+  padding: 24px;
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.panelTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #283146;
+}
+
+.moreLink {
+  font-size: 12px;
+  font-weight: 900;
+  color: #0b71ff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.moreLink:hover {
+  text-decoration: underline;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.usersTable {
+  width: 100%;
+  min-width: 480px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.usersTable th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f5f7fa;
+}
+
+.usersTable td {
+  font-size: 12px;
+  color: #46556e;
+  padding: 12px 8px 12px 0;
+  border-bottom: 1px solid #f5f7fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usersTable tr:last-child td {
+  border-bottom: none;
+}
+
+.statusBadge {
+  display: inline-block;
+  background: var(--color-green-bg);
+  color: var(--color-green);
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 50px;
+}
+
+.donutWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.donutSvg {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
+
+.legendList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legendDot {
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  color: #64748b;
+  flex: 1;
+}
+
+.legendValue {
+  color: #334155;
+}
+
+/* ── Bottom grid: 3 list panels + trend chart ── */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f5f7fa;
+}
+
+.listItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.listIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qMark {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.listBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.listTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #46556e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listMeta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.trendHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.trendValue {
+  font-size: 29.1px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #172033;
+}
+
+.trendAxisLabel {
+  font-size: 10px;
+  fill: #697077;
+}
+
+.trendSvg {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  height: auto;
+}
+
+@media (max-width: 1400px) {
+  .statGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .midGrid,
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .page {
+    gap: 14px;
+  }
+  .statGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .statCard {
+    height: auto;
+    padding: 16px 18px;
+    gap: 16px;
+  }
+  .statIcon {
+    width: 52px;
+    height: 52px;
+  }
+  .statValue {
+    font-size: 22px;
+  }
+  .midGrid,
+  .bottomGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .usersPanel {
+    grid-column: span 1;
+  }
+  .panel {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .statGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .statCard {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+  .statIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .statLabel {
+    font-size: 13px;
+  }
+  .statValue {
+    font-size: 20px;
+  }
+  .panel {
+    padding: 14px;
+  }
+  .panelTitle {
+    font-size: 14px;
+  }
+  .legendList {
+    grid-template-columns: 1fr;
+  }
+}

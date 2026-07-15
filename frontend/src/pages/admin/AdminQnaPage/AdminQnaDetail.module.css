@@ -1,0 +1,350 @@
+.page {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--spacing-lg);
+  align-items: start;
+  padding-bottom: 40px;
+}
+.mainCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  align-self: flex-start;
+  height: 36px;
+  padding: 0 var(--spacing-xs);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-body);
+}
+
+/* ── question card ── */
+.qHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--spacing-md);
+}
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.qDept {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text-title);
+}
+.qTitle {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  line-height: 32px;
+}
+.qContent {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-text-body);
+  line-height: 26px;
+  margin-top: var(--spacing-md);
+}
+.qMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-md);
+}
+
+/* ── answer editor ── */
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  margin-bottom: var(--spacing-md);
+}
+.answerArea {
+  width: 100%;
+  min-height: 260px;
+  padding: 16px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--color-text-title);
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.answerArea::placeholder {
+  color: var(--color-text-secondary);
+}
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: var(--spacing-lg);
+}
+.formError,
+.formNotice {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+.formError {
+  color: var(--color-red);
+}
+.formNotice {
+  color: var(--color-primary);
+}
+.timelineEmpty {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-bg-white);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary:disabled {
+  background: #a9d0ff;
+  cursor: not-allowed;
+}
+.btnHold {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--color-red);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-bg-white);
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnHold:disabled {
+  background: #f3b3bd;
+  cursor: not-allowed;
+}
+
+/* ── side ── */
+.sideTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  margin-bottom: var(--spacing-lg);
+}
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  flex-shrink: 0;
+}
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+.userName {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-text-title);
+}
+.userMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.reasonArea {
+  width: 100%;
+  min-height: 148px;
+  margin-top: var(--spacing-md);
+  padding: 16px;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--color-text-title);
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+}
+.reasonArea::placeholder {
+  color: var(--color-text-secondary);
+}
+.btnStatus {
+  width: 100%;
+  height: 44px;
+  margin-top: var(--spacing-md);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--color-bg-white);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── timeline ── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}
+.timelineItem {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-md);
+  padding-bottom: var(--spacing-lg);
+}
+.timelineItem:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border-input);
+}
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+  z-index: 1;
+}
+.timelineBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+.timelineLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-title);
+}
+.timelineMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+/* ── status color classes (인라인 style 대체) ── */
+.stReceived {
+  color: var(--color-pink);
+  background: var(--color-pink-bg);
+}
+.stInProgress {
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+.stAnswered {
+  color: var(--color-green);
+  background: var(--color-green-bg);
+}
+.stOnHold {
+  color: var(--color-orange);
+  background: var(--color-orange-bg);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+  .sideCol {
+    order: -1;
+  }
+  .card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 16px;
+  }
+  .qTitle {
+    font-size: 16px;
+  }
+  .actionRow {
+    flex-direction: column;
+  }
+  .btnOutline,
+  .btnPrimary,
+  .btnHold {
+    width: 100%;
+  }
+}

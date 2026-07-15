@@ -1,0 +1,651 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+/* ── topbar ── */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #172033;
+  letter-spacing: -0.6px;
+  line-height: 29px;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #6f7b91;
+  line-height: 16px;
+}
+/* ── stats ── */
+.statsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.statCard {
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 148px;
+  flex: 1 1 190px;
+}
+.statBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.statLabel {
+  font-size: 14.1px;
+  font-weight: 900;
+  color: #172033;
+  line-height: 18px;
+}
+.statValue {
+  font-size: 29.1px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.8px;
+  line-height: 38px;
+  margin-top: 8px;
+}
+.statSub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14px;
+  margin-top: 4px;
+}
+.statIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.statIcon.blue {
+  background: #eaf4ff;
+  color: #2288ff;
+}
+.statIcon.green {
+  background: #e6f8f2;
+  color: #12b886;
+}
+.statIcon.pink {
+  background: #fff0f6;
+  color: #ff4d94;
+}
+.statIcon.orange {
+  background: #fff5e6;
+  color: #ffad33;
+}
+.statIcon.purple {
+  background: #f3eeff;
+  color: #845ef7;
+}
+
+/* ── table card ── */
+.tableCard {
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+/* 문서표(페이지네이션 有)만 페이지 이동 시 흔들림 방지용 최소 높이 */
+.tableCardTall {
+  min-height: 640px;
+}
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.4px;
+  line-height: 22px;
+}
+.sectionSubtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #6f7b91;
+  line-height: 16px;
+  margin-top: 4px;
+}
+.headerBtns {
+  display: flex;
+  gap: 12px;
+}
+.btnOutline {
+  height: 44px;
+  padding: 0 18px;
+  background: #ffffff;
+  border: 1px solid #cfe4ff;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnPrimary {
+  height: 44px;
+  padding: 0 18px;
+  background: #2288ff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── filters ── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.searchWrap {
+  flex: 1;
+  max-width: 300px;
+}
+.filterSearch {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+.filterSearch::placeholder {
+  color: var(--color-text-label);
+}
+.filterSelect {
+  width: 140px;
+  flex-shrink: 0;
+}
+.resetBtn {
+  height: 40px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-text-label);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── table ── */
+.tableScroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  /* 문서 계열 3개 페이지 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(답변관리·콘텐츠관리·오래된문서 동일) — 제목/문서명/질문은 남은 폭 자동 */
+.colAuthor {
+  width: 100px;
+}
+.colDept {
+  width: 100px;
+}
+.colCategory {
+  width: 132px;
+}
+.colStatus {
+  width: 108px;
+}
+.colDate {
+  width: 120px;
+}
+.colNum {
+  width: 80px;
+}
+.colActions {
+  width: 160px;
+}
+.colActionsWide {
+  width: 210px;
+}
+.table thead tr {
+  background: #f6f8fb;
+}
+.table th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #8a96aa;
+  text-align: left;
+  white-space: nowrap;
+}
+.table td {
+  padding: 0;
+  border-bottom: 1px solid #e8edf5;
+  height: 54px;
+  vertical-align: middle;
+}
+.table td > * {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 80px;
+  text-align: center;
+}
+.table td:nth-child(5) > * {
+  justify-content: center;
+}
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.titleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+}
+.mustBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: #eaf4ff;
+  color: #2288ff;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.docTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.textCell {
+  font-size: 14px;
+  font-weight: 400;
+  color: #526078;
+}
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #526078;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  background: #fff0f3;
+}
+
+/* ── bottom ── */
+.bottomGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.bottomCard {
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.totalBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #8a96aa;
+}
+.totalDot {
+  width: 8px;
+  height: 8px;
+  background: #2288ff;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* bar chart */
+.barList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.barLabel {
+  width: 72px;
+  font-size: 14px;
+  color: #526078;
+  flex-shrink: 0;
+}
+.barTrack {
+  flex: 1;
+  height: 14px;
+  background: #eef3f9;
+  border-radius: 7px;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #78abff 0%, #2288ff 100%);
+  border-radius: 7px;
+}
+.barCount {
+  width: 36px;
+  font-size: 13px;
+  color: #8a96aa;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* stale docs */
+.staleList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.staleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafcff;
+  border: 1px solid #e8edf5;
+  border-radius: 14px;
+  padding: 17px;
+}
+.staleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.staleTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+}
+.staleMeta {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6f7b91;
+}
+.staleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: #fff5e6;
+  color: #f08c00;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.reviewBtn {
+  height: 30px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #cfe4ff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.reviewBtn:hover {
+  background: #eaf4ff;
+}
+
+/* ── responsive ── */
+@media (max-width: 900px) {
+  .statCard {
+    height: auto;
+    padding: 18px 20px;
+  }
+}
+@media (max-width: 640px) {
+  .statCard {
+    height: auto;
+    flex: 1 1 100%;
+  }
+}
+
+.emptyText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 16px 0;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 0 4px;
+}
+.pageArrow {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-text-title);
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.pageArrow:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+}
+.pageNum {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-title);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.pageNumActive {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
+/* ── FAQ 등록 모달 ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 51, 0.36);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalBox {
+  width: 480px;
+  background: #ffffff;
+  box-shadow: 0px 30px 80px rgba(23, 32, 51, 0.24);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modalTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #172033;
+  letter-spacing: -0.4px;
+}
+.modalClose {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background: #f4f6f9;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-text-label);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.formLabel {
+  font-size: 13px;
+  font-weight: 900;
+  color: #526078;
+  margin-top: 8px;
+}
+.formInput {
+  height: 44px;
+  padding: 0 14px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+.formInput::placeholder {
+  color: var(--color-text-label);
+}
+.formTextarea {
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #172033;
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+.formTextarea::placeholder {
+  color: var(--color-text-label);
+}
+.formCheckLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #526078;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}

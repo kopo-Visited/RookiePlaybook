@@ -1,0 +1,224 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+/* ── topbar ── */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.backBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 6px;
+}
+.backBtn:hover {
+  text-decoration: underline;
+}
+.pageTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #172033;
+  letter-spacing: -0.6px;
+  line-height: 29px;
+}
+.pageSubtitle {
+  font-size: 12px;
+  color: #6f7b91;
+  line-height: 16px;
+}
+.countBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 14px;
+  background: #fff0f6;
+  color: #ff4d94;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top: 32px;
+}
+
+/* ── table card ── */
+.tableCard {
+  background: #ffffff;
+  border: 1px solid #e8edf5;
+  box-shadow: 0px 10px 30px rgba(33, 45, 70, 0.05);
+  border-radius: 20px;
+  padding: 25px;
+  overflow: hidden;
+}
+.tableScroll {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  /* 문서 계열 3개 페이지 공통: 컬럼 폭 고정으로 위치 통일 */
+  table-layout: fixed;
+}
+/* 공통 컬럼 폭(답변관리·콘텐츠관리·오래된문서 동일) — 제목은 남은 폭 자동 */
+.colCategory {
+  width: 132px;
+}
+.colStatus {
+  width: 108px;
+}
+.colDate {
+  width: 120px;
+}
+.colNum {
+  width: 80px;
+}
+.colActions {
+  width: 160px;
+}
+.table thead tr {
+  background: #f6f8fb;
+}
+.table th {
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #8a96aa;
+  text-align: left;
+  white-space: nowrap;
+}
+.table td {
+  padding: 0;
+  border-bottom: 1px solid #e8edf5;
+  height: 54px;
+  vertical-align: middle;
+}
+.table td > * {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+}
+.table tr:last-child td {
+  border-bottom: none;
+}
+.titleCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+  overflow: hidden;
+}
+.docTitle {
+  font-size: 14px;
+  font-weight: 900;
+  color: #172033;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.textCell {
+  font-size: 14px;
+  font-weight: 400;
+  color: #526078;
+  white-space: nowrap;
+}
+.daysBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 13px;
+  background: #fff0f6;
+  color: #ff4d94;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.actionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+}
+.actionBtn {
+  height: 32px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid #d7e1ef;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #526078;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnDanger {
+  border-color: #ffc9d0;
+  color: #f03e5c;
+}
+.actionBtnDanger:hover {
+  background: #fff0f3;
+}
+.actionBtnReview {
+  height: 32px;
+  padding: 0 12px;
+  background: #eaf4ff;
+  border: 1px solid #cfe4ff;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #2288ff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.actionBtnReview:hover {
+  background: #d4eaff;
+}
+.emptyText {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .countBadge {
+    margin-top: 0;
+  }
+  .tableCard {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 14px;
+  }
+  .actionRow {
+    flex-wrap: wrap;
+  }
+}
