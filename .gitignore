@@ -52,6 +52,9 @@ dist-ssr
 # 디자인 시안 등 로컬 산출물 (git 제외)
 frontend/design/
 
+# 테스트 커버리지 리포트 (vitest --coverage 산출물)
+coverage/
+
 # ==========================================
 # 4. Backend (Java / Spring Boot / Gradle / Maven)
 # ==========================================
